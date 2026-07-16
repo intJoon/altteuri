@@ -3,174 +3,229 @@
   <head>
     <meta charset="UTF-8">
     <style>
+      * { box-sizing: border-box; }
+      html, body { overflow-x: hidden; }
       body {
-        width: 210px;
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        background: #fff;
-        color: #222;
-        padding: 5px;
-      }
-      .container {
-        background: #fff;
-        border-radius: 7px;
-        padding: 20px 20px 20px 20px;
-        border: 1px solid #e5e5e5;
-      }
-      .header {
-        text-align: center;
-        margin-bottom: 10px;
-      }
-      .title {
-        font-size: 15px;
-        font-weight: 600;
-        color: #222;
-        margin-bottom: 2px;
-      }
-      .subtitle {
-        font-size: 11px;
-        color: #888;
-        margin-bottom: 0;
-      }
-      .addon-toggle-row {
-        display: flex;
-        justify-content: center;
-        margin: 12px 0 10px 0;
-      }
-      .addon-toggle-btn {
-        min-width: 90px;
-        font-size: 13px;
-        font-weight: 500;
-        color: #fff;
-        background: #346aff;
-        border: none;
-        border-radius: 6px;
-        padding: 7px 0;
-        cursor: pointer;
-        transition: background 0.18s;
-      }
-      .addon-toggle-btn.on {
-        background: linear-gradient(90deg, #346aff 60%, #5ecbff 100%);
-        color: #fff;
-        box-shadow: 0 2px 8px rgba(52,106,255,0.18);
-        transition: background 0.18s, box-shadow 0.18s, color 0.18s;
-        border: none;
-      }
-      .addon-toggle-btn.off {
-        background: linear-gradient(90deg, #e0e0e0 60%, #f7f7f7 100%);
-        color: #aaa;
-        box-shadow: 0 2px 8px rgba(200,200,200,0.12);
-        border: none;
-        transition: background 0.18s, box-shadow 0.18s, color 0.18s;
-      }
-      .addon-toggle-btn.off:hover {
-        background: linear-gradient(90deg, #f7f7f7 60%, #e0e0e0 100%);
-        color: #346aff;
-        box-shadow: 0 4px 16px rgba(52,106,255,0.10);
-      }
-      .addon-toggle-btn.on:hover {
-        background: linear-gradient(90deg, #5ecbff 60%, #346aff 100%);
-        color: #fff;
-        box-shadow: 0 4px 16px rgba(52,106,255,0.22);
-      }
-      .feature-section {
+        width: 340px;
         margin: 0;
-        padding: 0;
-        border: none;
-      }
-      .feature-item {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin-bottom: 7px;
-        padding: 0;
-      }
-      .feature-label {
-        font-size: 13px;
-        color: #222;
-        font-weight: 400;
-      }
-      .toggle-switch {
-        position: relative;
-        width: 32px;
-        height: 18px;
-        background: #e0e0e0;
-        border-radius: 9px;
-        cursor: pointer;
-        border: none;
-        outline: none;
-        appearance: none;
-        -webkit-appearance: none;
-        transition: background 0.18s;
-      }
-      .toggle-switch:checked {
-        background: #346aff;
-      }
-      .toggle-switch::before {
-        content: '';
-        position: absolute;
-        top: 2px;
-        left: 2px;
-        width: 14px;
-        height: 14px;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Malgun Gothic', sans-serif;
         background: #fff;
-        border-radius: 50%;
-        transition: transform 0.18s;
-        box-shadow: 0 1px 2px rgba(0,0,0,0.07);
+        color: #333;
+        padding: 14px 16px 16px;
       }
-      .toggle-switch:checked::before {
-        transform: translateX(14px);
+
+      /* 페이지 전환 */
+      .page[hidden] { display: none; }
+
+      .title { font-size: 15px; font-weight: 700; color: #212b36; margin-bottom: 12px; }
+
+      .section-title { font-size: 12px; color: #8c8c8c; margin: 16px 0 4px; }
+
+      .row {
+        display: flex; align-items: center; justify-content: space-between; gap: 12px;
+        min-height: 42px; padding: 6px 2px;
+        border-bottom: 1px solid #f0f0f0;
       }
-      .disabled-label {
-        color: #bbb !important;
-        font-weight: 400 !important;
+      .section .row:last-child { border-bottom: none; }
+      .nav-row { cursor: pointer; }
+      .nav-row:active { background: #f7f8fa; }
+
+      .row-label { font-size: 14px; color: #333; white-space: nowrap; }
+      .row-trailing { display: inline-flex; align-items: center; gap: 6px; }
+      .row-detail { font-size: 13px; color: #8c8c8c; white-space: nowrap; }
+      .chevron {
+        width: 7px; height: 7px;
+        border-top: 1.5px solid #b0b5bc; border-right: 1.5px solid #b0b5bc;
+        transform: rotate(45deg);
+      }
+
+      /* 쿠팡 블루 스위치 */
+      .switch {
+        position: relative; flex: none; width: 40px; height: 22px;
+        background: #d2d5da; border-radius: 11px; cursor: pointer;
+        border: none; outline: none; appearance: none; -webkit-appearance: none;
+        transition: background 0.15s;
+      }
+      .switch:checked { background: #346aff; }
+      .switch::before {
+        content: ''; position: absolute; top: 2px; left: 2px; width: 18px; height: 18px;
+        background: #fff; border-radius: 50%; box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        transition: transform 0.15s;
+      }
+      .switch:checked::before { transform: translateX(18px); }
+
+      /* 애드온 마스터 버튼 (쿠팡 블루) */
+      .master-btn {
+        width: 100%; font-size: 13px; font-weight: 600; color: #fff;
+        background: #346aff; border: none; border-radius: 6px; padding: 10px 0;
+        cursor: pointer; transition: background 0.15s;
+      }
+      .master-btn:hover { background: #2a58d6; }
+      .master-btn.off { background: #e9ebee; color: #9aa0a8; }
+
+      /* 검색 개수: 토글 ⇄ 세그먼트 모핑 컨트롤 */
+      .size-control { display: flex; align-items: center; gap: 8px; }
+      .size-seg {
+        display: flex; gap: 2px; padding: 0; background: #eef0f3; border-radius: 8px;
+        max-width: 0; opacity: 0; overflow: hidden;
+        transition: max-width 0.3s cubic-bezier(0.22,0.61,0.36,1), opacity 0.18s ease, padding 0.3s ease;
+      }
+      .size-control.on .size-seg { max-width: 220px; opacity: 1; padding: 2px; }
+      .size-chip {
+        border: none; background: none; font-family: inherit; font-size: 12px; color: #5b6370;
+        padding: 4px 9px; border-radius: 6px; cursor: pointer; white-space: nowrap; line-height: 1.2;
+        transition: background 0.12s, color 0.12s;
+      }
+      .size-chip.active {
+        background: #fff; color: #346aff; font-weight: 700; box-shadow: 0 1px 2px rgba(0,0,0,0.12);
+      }
+
+      /* 상세 페이지: 상단 바 (뒤로 + 더보기 메뉴) */
+      .detail-bar {
+        display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;
+      }
+      .nav-back {
+        display: inline-flex; align-items: center; justify-content: center;
+        width: 30px; height: 30px; padding: 0;
+        border: none; border-radius: 50%; background: #eef0f3;
+        color: #346aff; cursor: pointer;
+        transition: background 0.12s;
+      }
+      .nav-back:hover { background: #e5e8ed; }
+      .nav-back:active { background: #dce0e6; }
+      .chev-left {
+        width: 8px; height: 8px; margin-left: 2px;
+        border-left: 1.5px solid #111; border-bottom: 1.5px solid #111;
+        transform: rotate(45deg);
+      }
+
+      /* 항목 검색 */
+      .preset-search {
+        width: 100%; font-size: 13px; color: #333; padding: 7px 10px; margin: 4px 0 2px;
+        border: 1px solid #e4e6ea; border-radius: 8px; background: #f5f6f8; outline: none;
+      }
+      .preset-search::-webkit-search-cancel-button { cursor: pointer; }
+      .preset-search:focus { border-color: #346aff; background: #fff; }
+
+      #preset-list { max-height: 320px; overflow-y: auto; overflow-x: hidden; }
+      .preset-item-label { font-size: 13px; color: #454b53; white-space: nowrap; }
+      .preset-empty { font-size: 13px; color: #b0b5bc; text-align: center; padding: 12px 0; }
+
+      /* 체크박스 선택 목록 (체크 = 숨김) */
+      .preset-row {
+        display: flex; align-items: center; justify-content: space-between; gap: 12px;
+        min-height: 40px; padding: 6px 2px; border-bottom: 1px solid #f0f0f0; cursor: pointer;
+      }
+      .section .preset-row:last-child { border-bottom: none; }
+      .preset-row:active { background: #f7f8fa; }
+
+      /* 그룹 부제 (애플 설정 섹션 헤더 스타일) */
+      .preset-head {
+        margin: 20px 4px 7px; font-size: 13px; font-weight: 600;
+        color: #8a8f98; letter-spacing: 0.01em;
+      }
+      #preset-list .preset-head:first-child { margin-top: 8px; }
+
+      /* 쿠팡 블루 체크박스 (개별 항목: 20px 라운드 사각) */
+      .cbox {
+        flex: none; width: 20px; height: 20px; margin: 0; position: relative; cursor: pointer;
+        border: 1.5px solid #c4cdd5; border-radius: 5px; background: #fff;
+        appearance: none; -webkit-appearance: none; outline: none;
+        transition: background 0.12s, border-color 0.12s;
+      }
+      .cbox:checked, .cbox:indeterminate { background: #346aff; border-color: #346aff; }
+      .cbox:checked::after {
+        content: ''; position: absolute; left: 6px; top: 2px; width: 5px; height: 10px;
+        border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(45deg);
+      }
+      .cbox:indeterminate::after {
+        content: ''; position: absolute; left: 4px; top: 8px; width: 10px; height: 2px;
+        background: #fff; border-radius: 1px;
       }
     </style>
   </head>
   <body>
-    <div class="container">
-      <div class="header">
-        <div class="title">쿠팡 검색결과 애드온</div>
-        <div class="subtitle">새로운 정렬 옵션 및 광고 제거</div>
+    <!-- ===== 메인 페이지 ===== -->
+    <section class="page" id="page-main">
+      <div class="title">쿠팡 검색결과 애드온</div>
+
+      <button id="addon-toggle" class="master-btn off">애드온 켜기</button>
+
+      <div id="feature-body">
+        <div class="section" id="sec-sort">
+          <div class="section-title">정렬</div>
+          <div class="row">
+            <span class="row-label">단위가격순</span>
+            <input type="checkbox" id="toggle-unit-price-sort" class="switch">
+          </div>
+          <div class="row">
+            <span class="row-label">할인율순</span>
+            <input type="checkbox" id="toggle-discount-rate-sort" class="switch">
+          </div>
+          <div class="row">
+            <span class="row-label">가격순</span>
+            <input type="checkbox" id="toggle-price-sort" class="switch">
+          </div>
+        </div>
+
+        <div class="section" id="sec-filter">
+          <div class="section-title">필터</div>
+          <div class="row">
+            <span class="row-label">키워드 필터링</span>
+            <input type="checkbox" id="toggle-keyword-filter" class="switch" checked>
+          </div>
+          <div class="row nav-row" id="nav-remove" role="button" tabindex="0">
+            <span class="row-label">광고요소 제거</span>
+            <span class="row-trailing">
+              <span class="row-detail" id="remove-detail"></span>
+              <span class="chevron"></span>
+            </span>
+          </div>
+        </div>
+
+        <div class="section" id="sec-list">
+          <div class="section-title">검색 표시</div>
+          <div class="row">
+            <span class="row-label">장바구니 바로 담기</span>
+            <input type="checkbox" id="toggle-quick-cart" class="switch" checked>
+          </div>
+          <div class="row">
+            <span class="row-label">검색개수 고정</span>
+            <div class="size-control" id="size-control">
+              <div class="size-seg" id="size-seg" role="group" aria-label="검색 개수 선택">
+                <button type="button" class="size-chip" data-size="36">36</button>
+                <button type="button" class="size-chip" data-size="48">48</button>
+                <button type="button" class="size-chip" data-size="60">60</button>
+                <button type="button" class="size-chip" data-size="72">72</button>
+              </div>
+              <input type="checkbox" id="force-list-size" class="switch" aria-label="검색개수 고정">
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="addon-toggle-row">
-        <button id="addon-toggle-btn" class="addon-toggle-btn off">애드온 켜기</button>
+    </section>
+
+    <!-- ===== 상세(자식) 페이지: 광고요소 제거 ===== -->
+    <section class="page" id="page-detail" hidden>
+      <div class="detail-bar">
+        <button class="nav-back" id="nav-back" aria-label="뒤로"><span class="chev-left"></span></button>
       </div>
-      <div class="feature-section">
-        <div class="feature-item">
-          <span class="feature-label">단위가격순 버튼</span>
-          <input type="checkbox" id="toggle-unit-price-sort" class="toggle-switch sort-feature">
-        </div>
-        <div class="feature-item">
-          <span class="feature-label">할인율순 버튼</span>
-          <input type="checkbox" id="toggle-discount-rate-sort" class="toggle-switch discount-sort-feature">
-        </div>
-        <div class="feature-item">
-          <span class="feature-label">가격순 버튼</span>
-          <input type="checkbox" id="toggle-price-sort" class="toggle-switch price-sort-feature">
-        </div>
-        <div class="feature-item">
-          <span class="feature-label">리스트 내 광고 제거</span>
-          <input type="checkbox" id="toggle-remove-content" class="toggle-switch remove-content">
-        </div>
-        <div class="feature-item">
-          <span class="feature-label">검색 개수 고정</span>
-          <input type="checkbox" id="toggle-force-list-size" class="toggle-switch" checked>
-        </div>
-        <div class="feature-item" style="margin-top:-4px;">
-          <span class="feature-label" style="opacity:0;">개수선택</span>
-          <select id="list-size-select" style="font-size:13px;padding:2px 6px;border-radius:4px;">
-            <option value="36">36개</option>
-            <option value="48">48개</option>
-            <option value="60">60개</option>
-            <option value="72" selected>72개</option>
-          </select>
-        </div>
-        <div class="feature-item">
-          <span class="feature-label">키워드 필터링</span>
-          <input type="checkbox" id="toggle-keyword-filter" class="toggle-switch keyword-filter-feature" checked>
+
+      <div class="section">
+        <div class="row">
+          <span class="row-label">광고요소 제거</span>
+          <input type="checkbox" id="toggle-remove-content" class="switch">
         </div>
       </div>
-      <script src="popup.js"></script>
-    </div>
+
+      <div id="remove-body">
+        <input type="search" id="preset-search" class="preset-search" placeholder="항목 검색" autocomplete="off">
+        <div id="preset-list"></div>
+      </div>
+    </section>
+
+    <script src="preset-data.js"></script>
+    <script src="hangul-search.js"></script>
+    <script src="popup.js"></script>
   </body>
 </html>

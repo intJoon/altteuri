@@ -1,25 +1,77 @@
+> 예외: 이 저장소는 사용자 요청에 따라 README를 한국어로 작성합니다.
+
 # Coupang Result Add-on
 
-Chrome extension that enhances Coupang search results with custom sort options, ad removal, keyword filtering, and list size control.
+[쿠팡](https://www.coupang.com) 검색 결과 페이지를 개선하는 Chrome 확장 프로그램(Manifest V3)입니다. 커스텀 정렬, 광고 요소 숨기기, 키워드 필터링, 검색 개수 고정을 제공합니다.
 
-## Features
+**저장소:** https://github.com/intJoon/coupang-result-addon
 
-- Unit price, discount rate, and price sorting
-- Remove banners, promotions, and sponsored product listings
-- Keyword exclusion filter
-- Force list size (36 / 48 / 72)
+## 기능
 
-## Install (developer mode)
+- 단위가격순 / 할인율순 / 가격순 정렬 버튼
+- **광고 요소 숨기기**: 제작자가 정리한 기본 프리셋(검색결과·상품상세의 배너·프로모션·추천 캐러셀 등)을 처음부터 모두 숨김. 확장 팝업의 `광고요소 제거` 항목을 **탭하면** 하위 페이지에서 각 항목을 **체크박스(체크 = 숨김)** 로 켜고 끌 수 있음(페이지별 그룹화, 초성·자모 항목 검색 지원, 변경 즉시 반영)
+- 키워드 제외 필터: 검색어(`q`)가 바뀌거나 검색을 다시 실행하면 초기화되고, 쿠팡 자체 필터·정렬·페이지 이동 시에는 유지됨
+- 검색 개수 고정: 토글을 켜면 `[36·48·60·72]` 세그먼트가 펼쳐져 개수를 고르고, 끄면 고정 해제(모핑 컨트롤)
 
-1. Open `chrome://extensions`
-2. Enable **Developer mode**
-3. Click **Load unpacked**
-4. Select this project folder
+각 기능은 확장 프로그램 팝업에서 켜고 끌 수 있으며, 설정은 `chrome.storage.sync`로 동기화됩니다.
 
-## Development
+## 설치 (개발자 모드)
 
-This is a Manifest V3 extension. Main entry points:
+1. `chrome://extensions` 열기
+2. **개발자 모드** 켜기
+3. **압축해제된 확장 프로그램을 로드합니다** 클릭
+4. 이 프로젝트 폴더 선택
 
-- `content.js` — search page enhancements
-- `popup.html` / `popup.js` — settings UI
-- `background.js` — default settings on install
+코드를 수정한 뒤에는 확장 프로그램을 **새로고침**하세요.
+
+## 광고 요소 숨기기 사용법
+
+1. 확장 프로그램 아이콘을 눌러 팝업을 엽니다. 설정이 `정렬` / `필터` / `검색 표시` 그룹으로 묶여 있습니다.
+2. `필터` 그룹의 `광고요소 제거` 행을 **탭하면** 뒤로가기(`‹ 설정`)가 있는 하위 페이지로 들어갑니다. 상단의 `광고요소 제거 사용` 스위치로 기능을 켜고, 아래에서 기본 프리셋 항목을 관리합니다.
+3. 항목은 `검색 결과 페이지` / `상품 상세 페이지`로 그룹화되어 있고(부제는 애플 설정 스타일), 항목마다 **체크박스**가 있습니다. 행을 탭하면 토글되며, 체크 = 숨김, 체크 해제 = 다시 보이기입니다. 상단의 **검색창**으로 항목을 찾을 수 있고, **초성·자모 검색**을 지원합니다(예: `ㄱㄱ`→"광고", `ㅅㅍ`→"상품", `상푸`→"상품"). 초성/자모 처리는 [es-hangul](https://github.com/toss/es-hangul)(MIT, Toss)의 방법론을 이식했습니다.
+4. 다시 보고 싶은 항목만 체크를 해제해 두면 됩니다. 설정은 자동 저장되고, 열려 있는 쿠팡 탭에 **새로고침 없이 즉시** 반영됩니다.
+
+## 프로젝트 구조
+
+| 경로 | 역할 |
+|------|------|
+| `content.js` | 검색 페이지 로직 및 요소 숨기기 적용 |
+| `preset-data.js` | 기본 프리셋 데이터(`content.js`·`popup.js`보다 먼저 로드) |
+| `popup.html` / `popup.js` | 설정 팝업 (기능 토글 + 광고 요소 숨기기 목록) |
+| `background.js` | 설치 시 기본값·설정 마이그레이션, 최초 설치 시 `legal.html` 안내 |
+| `manifest.json` | 매니페스트 (버전은 `docs/버전.md`와 일치) |
+| `legal.html` | 개인정보처리방침·이용약관 안내 페이지(최초 설치 시 표시) |
+| `docs/` | 개발 문서 + 법적 고지 (한국어, 버전 SSOT) |
+
+## 저장소 키 (chrome.storage.sync)
+
+| 키 | 용도 |
+|-----|------|
+| `addonEnabled` | 애드온 전체 on/off |
+| `elementRemoverEnabled` | 광고 요소 숨기기 기능 on/off |
+| `craPresetOff` | 사용자가 '보이기'로 끈 기본 프리셋 셀렉터 목록(기본값 빈 배열 = 전부 숨김) |
+| `keywordFilterEnabled` | 키워드 필터 on/off |
+| `excludedKeywords` | 제외 키워드 목록 |
+| `excludedKeywordsForQuery` | 제외 키워드가 속한 검색어(`q`) |
+| `unitPriceSortEnabled` / `discountRateSortEnabled` / `priceSortEnabled` | 커스텀 정렬 토글 |
+| `forceCoupangListSize` / `coupangListSize` | 검색 개수 고정 |
+| `settingsVersion` | 설정 스키마 버전 (마이그레이션용) |
+
+> 숨길 요소 목록은 `preset-data.js`의 기본 프리셋에 고정되어 있으며, 사용자는 `craPresetOff`로 개별 항목만 켜고 끕니다. 프리셋은 검색 결과·상품 상세·장바구니(`cart.coupang.com`) 페이지의 광고/추천 요소를 페이지별 그룹으로 다룹니다.
+
+## 법적 고지
+
+본 확장은 **쿠팡 및 그 운영사와 아무런 제휴·후원 관계가 없는 비공식 오픈소스 도구**이며, 이용자의 개인정보를 수집·전송하지 않고 설정값만 이용자 브라우저(`chrome.storage`)에 저장합니다.
+
+- 개인정보처리방침: [`docs/개인정보처리방침.md`](docs/개인정보처리방침.md)
+- 이용약관·면책: [`docs/이용약관.md`](docs/이용약관.md)
+- 최초 설치 시 위 내용을 담은 `legal.html`이 자동으로 열립니다. 크롬 웹스토어 등록 시에는 개인정보처리방침을 공개 URL로 호스팅해 등록란에 기입하세요.
+
+> 근거 법령(확인일 2026-07-13, 법제처 국가법령정보): 개인정보 보호법 제30조·제4조·제21조, 약관의 규제에 관한 법률 제7조, 정보통신망법(참조).
+
+## 문서
+
+- 버전 이력 (SSOT): [`docs/버전.md`](docs/버전.md)
+- 결정·맥락: [`docs/방법론.md`](docs/방법론.md)
+- 출처: [`docs/출처.md`](docs/출처.md)
+- 법적 고지: [`docs/개인정보처리방침.md`](docs/개인정보처리방침.md) · [`docs/이용약관.md`](docs/이용약관.md)

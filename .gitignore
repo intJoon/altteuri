@@ -2,3 +2,10 @@
 Thumbs.db
 desktop.ini
 *.log
+
+# Dependencies
+node_modules/
+
+# Local Chromium/Chrome --user-data-dir (cookies, cache; large)
+profiles/
+tools/**/profile/

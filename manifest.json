@@ -1,12 +1,13 @@
 {
   "name": "쿠팡 검색결과 애드온",
-  "version": "1.1.0",
+  "version": "1.15.0",
   "manifest_version": 3,
-  "permissions": ["activeTab", "scripting", "storage", "tabs"],
+  "permissions": ["scripting", "storage", "tabs"],
+  "host_permissions": ["https://www.coupang.com/*", "https://cart.coupang.com/*", "https://mc.coupang.com/*"],
   "content_scripts": [
     {
-      "matches": ["https://www.coupang.com/*"],
-      "js": ["content.js"],
+      "matches": ["https://www.coupang.com/*", "https://cart.coupang.com/*", "https://mc.coupang.com/*"],
+      "js": ["preset-data.js", "content.js"],
       "run_at": "document_idle"
     }
   ],
