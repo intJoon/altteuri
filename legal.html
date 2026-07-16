@@ -21,7 +21,7 @@
     header.hero p { margin: 0; color: var(--muted); font-size: 14px; }
     .badge {
       display: inline-block; margin-bottom: 12px; padding: 3px 10px; font-size: 12px; font-weight: 700;
-      color: var(--blue); background: #eef3ff; border-radius: 999px;
+      color: var(--blue); background: #e6f0ff; border-radius: 6px;
     }
     nav.toc { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
     nav.toc a {
@@ -78,8 +78,8 @@
       <table>
         <thead><tr><th>구분</th><th>항목(예)</th><th>목적</th></tr></thead>
         <tbody>
-          <tr><td>기능 on/off</td><td>애드온·정렬·필터·광고요소 제거·검색개수 고정 사용 여부</td><td>기능 활성화 상태 저장</td></tr>
-          <tr><td>정렬 설정</td><td>정렬 종류·오름/내림차순, 현재 적용된 정렬 상태</td><td>정렬 상태 유지</td></tr>
+          <tr><td>기능 on/off</td><td>애드온·정렬·필터·광고요소 제거·검색개수 고정·장바구니 바로 담기 사용 여부</td><td>기능 활성화 상태 저장</td></tr>
+          <tr><td>정렬 설정</td><td>정렬 on/off, 단위가·가격순 오름/내림, 현재 적용된 정렬 상태(local)</td><td>정렬 상태 유지</td></tr>
           <tr><td>필터 설정</td><td>이용자가 직접 입력한 제외 키워드</td><td>검색결과 필터링</td></tr>
           <tr><td>표시 설정</td><td>검색 개수 고정값, 광고요소 프리셋 해제 목록</td><td>화면 표시 유지</td></tr>
         </tbody>
@@ -90,14 +90,14 @@
       <ul>
         <li>설정값은 <code>chrome.storage.sync</code> / <code>chrome.storage.local</code>에 저장됩니다.</li>
         <li><code>sync</code> 저장값은 브라우저(Chrome) 자체 기능으로 이용자 본인 계정의 다른 기기와 동기화될 수 있으며, 이는 브라우저 제공사의 기능으로 개발자는 접근할 수 없습니다.</li>
-        <li>이용자가 <strong>확장을 삭제하거나 설정을 초기화</strong>하면 저장값은 지체 없이 삭제됩니다.</li>
+        <li>이용자가 <strong>확장을 삭제</strong>하거나 브라우저의 <strong>확장/사이트 데이터 삭제</strong>를 사용하면 저장값은 지체 없이 삭제됩니다. (팝업에 전역 설정 초기화 버튼은 없음)</li>
       </ul>
 
       <h3>4. 제3자 제공·위탁 / 자동수집장치</h3>
       <p>저장값을 제3자에게 제공하거나 위탁하지 않으며, 광고·분석·추적 목적의 수집·전송을 일절 수행하지 않습니다. 쿠키·웹비콘 등 자동수집장치를 설치·운영하지 않습니다.</p>
 
       <h3>5. 정보주체의 권리</h3>
-      <p>이용자는 확장 설정 팝업에서 설정을 확인·변경할 수 있고, 설정 초기화·확장 삭제·브라우저 데이터 삭제로 관련 데이터를 완전히 제거할 수 있습니다. 서버 저장이 없으므로 브라우저 내 조치만으로 삭제가 완료됩니다.</p>
+      <p>이용자는 확장 설정 팝업에서 설정을 확인·변경할 수 있고, 확장 삭제·브라우저 데이터 삭제로 관련 데이터를 완전히 제거할 수 있습니다. 서버 저장이 없으므로 브라우저 내 조치만으로 삭제가 완료됩니다.</p>
 
       <h3>6. 문의</h3>
       <p>본 확장은 개인 개발자가 비영리로 배포합니다. 문의는 프로젝트 저장소 GitHub Issues(<a href="https://github.com/intJoon/coupang-result-addon/issues">github.com/intJoon/coupang-result-addon/issues</a>)로 접수합니다.</p>
@@ -115,9 +115,9 @@
 
       <h3>제2조 (서비스의 성격)</h3>
       <ul>
-        <li>본 확장은 쿠팡 검색결과 페이지의 정렬·필터·광고요소 숨김·검색개수 조정 표시를 <strong>보조</strong>하는 비공식 도구입니다.</li>
+        <li>본 확장은 쿠팡 검색결과·관련 페이지의 정렬·필터·광고요소 숨김·검색개수 조정·장바구니 바로 담기 등 표시·조작을 <strong>보조</strong>하는 비공식 도구입니다.</li>
         <li>본 확장은 <strong>쿠팡 및 그 운영사와 제휴·후원·위탁 관계가 없는 공식이 아닌 제품</strong>입니다.</li>
-        <li>화면 표시를 조정할 뿐, 쿠팡의 상품·가격·거래 정보를 생성·변경하지 않습니다.</li>
+        <li>화면 표시를 조정하고, 장바구니 바로 담기는 쿠팡 담기 버튼을 대신 클릭하는 방식으로 동작합니다. 쿠팡의 상품·가격·거래 정보를 독자적으로 생성·변경하지 않습니다.</li>
       </ul>
 
       <h3>제3조 (이용자의 의무)</h3>

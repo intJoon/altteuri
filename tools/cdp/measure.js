@@ -23,7 +23,6 @@ const SELECTORS = [
 
     const expr = `(async () => {
       const sleep = ms => new Promise(r => setTimeout(r, ms));
-      // 지연 로딩 트리거: 아래로 천천히 스크롤
       const H = document.body.scrollHeight;
       for (let y = 0; y <= document.body.scrollHeight; y += 600) { window.scrollTo(0, y); await sleep(120); }
       window.scrollTo(0, document.body.scrollHeight); await sleep(400);

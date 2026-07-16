@@ -48,3 +48,22 @@ chrome.runtime.onInstalled.addListener(details => {
     }
   });
 });
+
+chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
+  if (!msg || msg.type !== 'cra-main') return;
+  const tabId = sender.tab && sender.tab.id;
+  const frameId = msg.frameId;
+  if (tabId == null || frameId == null || msg.action !== 'install') {
+    sendResponse({ ok: false, error: 'bad_args' });
+    return;
+  }
+  chrome.scripting
+    .executeScript({
+      target: { tabId, frameIds: [frameId] },
+      world: 'MAIN',
+      files: ['page-cart-hook.js']
+    })
+    .then(() => sendResponse({ ok: true }))
+    .catch((e) => sendResponse({ ok: false, error: String(e && e.message ? e.message : e) }));
+  return true;
+});

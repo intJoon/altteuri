@@ -10,7 +10,6 @@ const sizeChips = sizeSeg ? Array.from(sizeSeg.querySelectorAll('.size-chip')) :
 const toggleKeywordFilter = document.getElementById('toggle-keyword-filter');
 const toggleQuickCart = document.getElementById('toggle-quick-cart');
 
-// 검색 개수 모핑 컨트롤 동기화: 꺼지면 토글만, 켜지면 세그먼트 펼치고 개수 강조.
 function syncSizeControl(force, size) {
   if (forceListSizeToggle) forceListSizeToggle.checked = !!force;
   if (sizeControl) sizeControl.classList.toggle('on', !!force);
@@ -39,7 +38,7 @@ function updateToggleState() {
       const removeContent = result.elementRemoverEnabled !== false;
       const forceListSize = !!result.forceCoupangListSize;
       const listSize = result.coupangListSize || '72';
-      const keywordFilter = result.keywordFilterEnabled !== false; // 기본값 true
+      const keywordFilter = result.keywordFilterEnabled !== false; 
       const quickCart = result.quickCartEnabled !== false;
       updateAddonToggleBtn(isEnabled);
       toggleUnitPriceSort.checked = unitPriceSort;
@@ -60,12 +59,11 @@ function updateAddonToggleBtn(isEnabled) {
     addonToggle.textContent = isEnabled ? '애드온 끄기' : '애드온 켜기';
     addonToggle.classList.toggle('off', !isEnabled);
   }
-  // 상위(애드온)가 꺼지면 하위 설정은 비활성화가 아니라 숨긴다.
+  
   const body = document.getElementById('feature-body');
   if (body) body.style.display = isEnabled ? '' : 'none';
 }
 
-// 상위(광고요소 제거 사용)가 꺼지면 프리셋 목록/검색을 숨긴다.
 function syncRemoveBody() {
   const on = !!(toggleRemoveContent && toggleRemoveContent.checked);
   const body = document.getElementById('remove-body');
@@ -248,7 +246,6 @@ function handleRemoveContentChange() {
   }
 }
 
-// 고정 on/off, 개수를 저장(콘텐츠 스크립트가 storage 변경을 감지해 해당 탭에서만 적용).
 function applyListSize(force, size) {
   const data = force
     ? { forceCoupangListSize: true, coupangListSize: String(size || '72') }
@@ -261,7 +258,6 @@ function applyListSize(force, size) {
   }
 }
 
-// 토글: 켜면 세그먼트 펼치고 현재 개수(없으면 72) 고정, 끄면 고정 해제.
 function handleForceListSizeToggle() {
   const on = forceListSizeToggle.checked;
   if (on) {
@@ -275,7 +271,6 @@ function handleForceListSizeToggle() {
   }
 }
 
-// 세그먼트 칩: 개수 선택(고정 유지).
 function handleSizeChipClick(e) {
   const size = e.currentTarget.dataset.size;
   syncSizeControl(true, size);
@@ -318,7 +313,6 @@ if (forceListSizeToggle) {
 }
 sizeChips.forEach(c => c.addEventListener('click', handleSizeChipClick));
 
-/* ===== 페이지 전환 (부모 → 자식 push 네비게이션) ===== */
 const pageMain = document.getElementById('page-main');
 const pageDetail = document.getElementById('page-detail');
 const navRemove = document.getElementById('nav-remove');
@@ -343,12 +337,10 @@ if (navRemove) {
 }
 if (navBack) navBack.addEventListener('click', showMain);
 
-/* ===== 광고 요소 숨기기 (기본 프리셋) ===== */
 const presetListEl = document.getElementById('preset-list');
 const presetSearchEl = document.getElementById('preset-search');
 let presetQuery = '';
 
-/* 초성/자모 검색: es-hangul 방법론 이식(hangul-search.js). 미로드 시 단순 부분일치로 폴백. */
 function presetMatch(name, q) {
   const HS = (typeof window !== 'undefined' && window.HangulSearch) || null;
   if (HS) return HS.match(name, q);
@@ -363,7 +355,6 @@ const CRA_GROUPS = [
   { id: 'etc', name: '기타' }
 ];
 
-/* 메인 화면의 '광고요소 제거' 행에 켜짐/꺼짐 표시 */
 function syncRemoveNav() {
   const detail = document.getElementById('remove-detail');
   if (!detail) return;
@@ -380,7 +371,6 @@ function getPresetItems() {
   return p && Array.isArray(p.items) ? p.items.filter(it => it && it.selector) : [];
 }
 
-/* 항목 토글: 켜짐(checked)=숨김. 끄면 craPresetOff 집합에 추가한다. */
 function setPresetItemHidden(selector, hidden) {
   try {
     chrome.storage.sync.get(['craPresetOff'], result => {
@@ -392,7 +382,6 @@ function setPresetItemHidden(selector, hidden) {
   }
 }
 
-/* ===== 항목 검색 ===== */
 if (presetSearchEl) {
   presetSearchEl.addEventListener('input', () => {
     presetQuery = presetSearchEl.value.trim().toLowerCase();
@@ -400,7 +389,6 @@ if (presetSearchEl) {
   });
 }
 
-/* 체크마크 선택 목록(✓ = 숨김). 행 전체를 탭하면 토글된다. */
 function renderPresetList() {
   if (!presetListEl) return;
   const items = getPresetItems();
@@ -428,7 +416,7 @@ function renderPresetList() {
         const list = byGroup[g.id];
         if (!list || !list.length) return;
 
-        // 그룹 부제 (애플 설정 섹션 헤더 스타일)
+        
         const head = document.createElement('div');
         head.className = 'preset-head';
         head.textContent = g.name;
@@ -437,7 +425,7 @@ function renderPresetList() {
         const card = document.createElement('div');
         card.className = 'section';
         list.forEach(it => {
-          const hidden = !off.has(it.selector); // 체크(숨김) 여부
+          const hidden = !off.has(it.selector); 
           const row = document.createElement('div');
           row.className = 'preset-row';
           const label = document.createElement('span');
@@ -451,7 +439,7 @@ function renderPresetList() {
           cb.setAttribute('aria-label', it.name || it.selector);
           cb.addEventListener('change', () => setPresetItemHidden(it.selector, cb.checked));
           row.addEventListener('click', e => {
-            if (e.target === cb) return; // 체크박스 직접 클릭은 기본 동작
+            if (e.target === cb) return; 
             cb.checked = !cb.checked;
             cb.dispatchEvent(new Event('change'));
           });

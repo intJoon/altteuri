@@ -201,7 +201,7 @@ function updateRankMark(item, rank, forceShow = false) {
   mark.style.top = '8px';
   mark.style.left = '8px';
   mark.style.zIndex = '10';
-  mark.style.background = 'linear-gradient(90deg, #346aff 60%, #5e9cff 100%)';
+  mark.style.background = '#346aff';
   mark.style.color = '#fff';
   mark.style.fontWeight = 'bold';
   mark.style.borderRadius = '50%';
@@ -211,7 +211,7 @@ function updateRankMark(item, rank, forceShow = false) {
   mark.style.lineHeight = '32px';
   mark.style.textAlign = 'center';
   mark.style.padding = '0';
-  mark.style.boxShadow = '0 2px 8px rgba(52,106,255,0.12)';
+  mark.style.boxShadow = '0 1px 2px rgba(0,0,0,0.18)';
   mark.style.display = 'inline-block';
   if (imgBox && imgBox.style) {
     imgBox.style.position = 'relative';
@@ -981,7 +981,7 @@ function observePageAndListSize() {
           applySubFeatures();
         }, 100);
       }
-      // 정렬/필터 변경(URL 변경)으로 상품 목록이 재렌더되면 키워드 필터를 다시 건다.
+      
       reapplyKeywordFilterSoon();
     }
   }, 300);
@@ -1078,7 +1078,7 @@ window.handleOptionChange = handleOptionChange;
 
 function setListSizeFromAddon() {
   if (!window.chrome || !chrome.storage || !chrome.runtime || !chrome.runtime.id) return;
-  // 검색 결과 페이지에서만 listSize를 강제한다(장바구니 등 다른 페이지에서 리로드 루프 방지).
+  
   if (!/\/np\/search/.test(location.pathname)) return;
   try {
     chrome.storage.sync.get(['coupangListSize'], result => {
@@ -1119,7 +1119,6 @@ if (enabled) {
 }
 });
 
-// 키워드 필터링 관련 변수
 let excludedKeywords = [];
 let keywordFilterContainer = null;
 let keywordFilterEnabled = true;
@@ -1149,7 +1148,7 @@ function normalizeStoredSearchQuery(stored) {
 }
 
 function renderKeywordFilterTags() {
-  // 태그 블록은 입력창과 분리되어 원래 위치(정렬바 아래)에 있으므로 document 기준으로 찾는다.
+  
   const tagsContainer = document.querySelector('[data-cra-keyword-tags]');
   if (!tagsContainer) { updateKeywordResetButton(); return; }
   tagsContainer.querySelectorAll('.fw-inline').forEach(el => el.remove());
@@ -1241,7 +1240,6 @@ function ensureKeywordFilterStyles() {
   const style = document.createElement('style');
   style.id = KEYWORD_FILTER_STYLE_ID;
   style.textContent = `
-    /* 쿠팡 필터 박스(.filter-function-bar) 최상단에 편입 — 원본 필터 스타일 재사용 */
     .cra-keyword-filter {
       font-family: inherit;
     }
@@ -1276,16 +1274,13 @@ function ensureKeywordFilterStyles() {
       box-sizing: border-box;
     }
     .cra-keyword-filter__btn:hover { background: #eee; }
-    /* 재사용한 쿠팡 기본 태그 행(.selected-filters)의 native 여백을 우리 영역에서 리셋 */
     [data-cra-keyword-tags] {
       margin: 0;
       padding: 0;
     }
-    /* 제외 키워드가 없으면 태그 행 자체를 숨겨 빈 여백 제거 */
     [data-cra-keyword-tags].cra-tags-empty {
       display: none;
     }
-    /* 태그 블록은 원래 위치(정렬바 아래)에 유지 — 상단 여백 제거(앞 요소와 겹침 방지) */
     .cra-keyword-tags {
       margin: 0 0 12px;
     }
@@ -1331,8 +1326,6 @@ function applyProductVisibility() {
   } catch (e) {}
 }
 
-// 쿠팡 자체 정렬/필터로 URL만 바뀌고 상품 목록이 같은 개수로 재렌더될 때,
-// 새로 그려진 상품들에 키워드 필터가 안 걸리는 문제를 보완한다(짧게 반복 재적용).
 function reapplyKeywordFilterSoon() {
   let tries = 0;
   const run = () => {
@@ -1342,7 +1335,6 @@ function reapplyKeywordFilterSoon() {
   run();
 }
 
-// 키워드 필터링 기능
 function loadExcludedKeywords() {
   if (!window.chrome || !chrome.storage || !chrome.runtime || !chrome.runtime.id) return;
   try {
@@ -1386,14 +1378,14 @@ function applyKeywordFilter() {
 function createKeywordFilterUI() {
   document.querySelectorAll('[data-cra-keyword-filter], [data-cra-keyword-tags-wrap], .keyword-filter-container').forEach(el => el.remove());
 
-  // 입력 블록: 1순위로 쿠팡 필터 박스 최상단에 편입. 태그 블록: 원래 위치(정렬바 아래)에 유지.
+  
   const filterBar = document.querySelector('.filter-function-bar');
   const tagTarget = findKeywordFilterInsertTarget();
   if (!filterBar && (!tagTarget || !tagTarget.parentNode)) return false;
 
   ensureKeywordFilterStyles();
 
-  // ── 입력 블록(헤더 + 입력) ──
+  
   const inputBlock = document.createElement('div');
   inputBlock.className = 'cra-keyword-filter';
   inputBlock.setAttribute('data-cra-keyword-filter', '');
@@ -1430,7 +1422,7 @@ function createKeywordFilterUI() {
   body.appendChild(inputRow);
   inputBlock.appendChild(body);
 
-  // ── 태그 블록(제외된 키워드) — 원래 위치 유지 ──
+  
   const tagsBlock = document.createElement('div');
   tagsBlock.className = 'cra-keyword-tags';
   tagsBlock.setAttribute('data-cra-keyword-tags-wrap', '');
@@ -1467,7 +1459,7 @@ function createKeywordFilterUI() {
   });
   addButton.addEventListener('click', addKeyword);
   resetButton.addEventListener('click', () => {
-    // 원본 "전체해제"가 있으면 눌러 쿠팡 필터도 함께 초기화
+    
     const native = document.querySelector('.filter-reset-btn:not(.cra-reset-btn)');
     excludedKeywords = [];
     saveExcludedKeywords();
@@ -1477,7 +1469,7 @@ function createKeywordFilterUI() {
     if (native) native.click();
   });
 
-  // 태그 블록을 원래 위치에 삽입(정렬바 등 뒤). 위치를 못 찾으면 입력 블록 안에 붙여 유실 방지.
+  
   const placeTags = () => {
     if (tagTarget && tagTarget.parentNode) {
       if (tagTarget.nextSibling) tagTarget.parentNode.insertBefore(tagsBlock, tagTarget.nextSibling);
@@ -1488,14 +1480,14 @@ function createKeywordFilterUI() {
   };
 
   if (filterBar) {
-    // 입력 블록: 사이드바 최상단, 아래 원본 "필터" 섹션과 구분선(hr) 추가
+    
     const hr = document.createElement('hr');
     hr.className = 'fw-shrink-0 fw-border-0 fw-w-full fw-bg-[#DFE3E8] fw-h-[1px]';
     inputBlock.appendChild(hr);
     filterBar.insertBefore(inputBlock, filterBar.firstChild);
     if (!placeTags()) inputBlock.appendChild(tagsBlock);
   } else {
-    // 폴백: 입력+태그를 원래 위치에 함께
+    
     if (tagTarget.nextSibling) tagTarget.parentNode.insertBefore(inputBlock, tagTarget.nextSibling);
     else tagTarget.parentNode.appendChild(inputBlock);
     inputBlock.appendChild(tagsBlock);
@@ -1506,8 +1498,6 @@ function createKeywordFilterUI() {
   return true;
 }
 
-// "전체해제" 버튼 노출/통합 관리: 원본 전체해제는 숨기고, 우리 상단 버튼으로 통합.
-// 노출 조건: 제외 키워드가 있거나(키워드만으로도) 원본 필터가 선택됨(원본 전체해제 존재).
 function updateKeywordResetButton() {
   if (!keywordFilterContainer) return;
   const ourBtn = keywordFilterContainer.querySelector('.cra-reset-btn');
@@ -1518,13 +1508,12 @@ function updateKeywordResetButton() {
   ourBtn.style.display = show ? '' : 'none';
 }
 
-// 쿠팡 SPA 재렌더로 필터 박스가 새로 그려지면 키워드 필터가 사라진다. 주기적으로 재삽입/동기화.
 function ensureKeywordFilterPresent() {
   if (!keywordFilterEnabled) return;
   const filterBar = document.querySelector('.filter-function-bar');
   const hasInput = document.querySelector('[data-cra-keyword-filter]');
   const hasTags = document.querySelector('[data-cra-keyword-tags-wrap]');
-  // 사이드바가 있으면 입력+태그 둘 다, 폴백이면 입력 블록만 있으면 됨
+  
   const ok = hasInput && (!filterBar || hasTags);
   if (!ok) {
     if (createKeywordFilterUI()) loadExcludedKeywords();
@@ -1533,7 +1522,6 @@ function ensureKeywordFilterPresent() {
   updateKeywordResetButton();
 }
 
-// 키워드 UI(입력 블록 + 태그 블록)를 제거하고, 상단 통합으로 숨겼던 원본 전체해제를 복원.
 function removeKeywordFilterUI() {
   document.querySelectorAll('[data-cra-keyword-filter], [data-cra-keyword-tags-wrap], .keyword-filter-container').forEach(el => el.remove());
   const native = document.querySelector('.filter-reset-btn:not(.cra-reset-btn)');
@@ -1546,7 +1534,6 @@ function unhideAllProducts() {
   if (productList) getProductItems(productList).forEach(it => { it.style.display = ''; });
 }
 
-// 팝업에서 기능/애드온 토글 시 새로고침 없이 즉시 반영. 키워드 필터를 껐다 켜면 제외 키워드 초기화.
 function initKeywordFilterSync() {
   if (kwChangeBound) return;
   if (!window.chrome || !chrome.storage || !chrome.storage.onChanged) return;
@@ -1554,7 +1541,7 @@ function initKeywordFilterSync() {
   chrome.storage.onChanged.addListener((changes, area) => {
     if (area !== 'sync') return;
     if (changes.keywordFilterEnabled) {
-      // 껐다 켰다 하면(양방향) 제외 키워드 초기화 — 직관성
+      
       excludedKeywords = [];
       saveExcludedKeywords();
       addKeywordFilterFeature();
@@ -1610,7 +1597,7 @@ function addKeywordFilterFeature(retryCount = 0) {
   initKeywordFilterSync();
   isExtensionEnabled(enabled => {
     if (!enabled) {
-      // 애드온 꺼짐: 키워드 UI 제거 + 상품 표시 복원
+      
       removeKeywordFilterUI();
       unhideAllProducts();
       return;
@@ -1621,7 +1608,7 @@ function addKeywordFilterFeature(retryCount = 0) {
       chrome.storage.sync.get(['keywordFilterEnabled'], result => {
         keywordFilterEnabled = result.keywordFilterEnabled !== false;
         if (!keywordFilterEnabled) {
-          // 기능 꺼짐: 키워드 UI 제거 + 상품 표시 복원
+          
           removeKeywordFilterUI();
           unhideAllProducts();
           return;
@@ -1639,7 +1626,6 @@ function addKeywordFilterFeature(retryCount = 0) {
   });
 }
 
-/* ===== 장바구니 바로 담기 (검색 결과 그리드) ===== */
 let quickCartChangeBound = false;
 const CRA_QUICK_CART_STYLE_ID = 'cra-quick-cart-styles';
 
@@ -1660,16 +1646,16 @@ function ensureQuickCartStyles() {
     '  position: absolute; right: 8px; bottom: 8px; z-index: 12;',
     '  width: 36px; height: 36px; padding: 0; border: none; border-radius: 50%;',
     '  display: inline-flex; align-items: center; justify-content: center;',
-    '  background: rgba(255,255,255,0.96); color: #346aff;',
-    '  box-shadow: 0 2px 8px rgba(0,0,0,0.18); cursor: pointer;',
-    '  opacity: 0; pointer-events: none; transition: opacity 0.15s, transform 0.12s, background 0.12s;',
+    '  background: #fff; color: #346aff;',
+    '  box-shadow: 0 1px 2px rgba(0,0,0,0.18); cursor: pointer;',
+    '  opacity: 0; pointer-events: none; transition: opacity 0.15s, background 0.12s;',
     '}',
     'li[class*="ProductUnit_productUnit"]:hover .cra-quick-cart-btn,',
     '.cra-quick-cart-btn:focus-visible,',
     '.cra-quick-cart-btn[data-state="loading"],',
     '.cra-quick-cart-btn[data-state="done"],',
     '.cra-quick-cart-btn[data-state="error"] { opacity: 1; pointer-events: auto; }',
-    '.cra-quick-cart-btn:hover { transform: scale(1.06); background: #fff; }',
+    '.cra-quick-cart-btn:hover { background: #f7f8fa; }',
     '.cra-quick-cart-btn[data-state="loading"] { cursor: wait; opacity: 0.85; }',
     '.cra-quick-cart-btn[data-state="loading"] svg { animation: cra-quick-cart-spin 0.75s linear infinite; transform-origin: center; }',
     '.cra-quick-cart-btn[data-state="done"] { color: #1a9f5c; }',
@@ -1717,26 +1703,11 @@ function setQuickCartBtnState(btn, state) {
   else btn.innerHTML = craQuickCartIcon('cart');
 }
 
-let quickCartOpChain = Promise.resolve();
-
-function enqueueQuickCartOp(fn) {
-  const run = quickCartOpChain.then(fn, fn);
-  quickCartOpChain = run.catch(() => {});
-  return run;
-}
-
 function buildQuickCartProductUrl(ids) {
   const url = new URL('/vp/products/' + ids.productId, location.origin);
   url.searchParams.set('itemId', ids.itemId);
   url.searchParams.set('vendorItemId', ids.vendorItemId);
   return url.href;
-}
-
-function readHeaderCartCount() {
-  const el = document.querySelector('#headerCartCount, .cart-count, em.cart-count, .mycart-preview-module em.cart-count');
-  if (!el) return null;
-  const n = parseInt((el.textContent || '').replace(/\D/g, ''), 10);
-  return Number.isFinite(n) ? n : null;
 }
 
 function clipQuickCartText(el, maxLen) {
@@ -1745,8 +1716,11 @@ function clipQuickCartText(el, maxLen) {
 
 function findProdCartButton(doc) {
   if (!doc) return null;
-  return doc.querySelector('button.prod-cart-btn')
-    || [...doc.querySelectorAll('button')].find((b) => /장바구니\s*담기/.test((b.textContent || '').trim()));
+  const labeled = [...doc.querySelectorAll('button')].find((b) => /장바구니\s*담기/.test((b.textContent || '').trim()));
+  if (labeled) return labeled;
+  const byClass = doc.querySelector('button.prod-cart-btn');
+  if (byClass && !/보기/.test((byClass.textContent || '').trim())) return byClass;
+  return null;
 }
 
 function detectQuickCartPreflightBlock(doc) {
@@ -1768,56 +1742,66 @@ function detectQuickCartUiFailure(doc) {
 }
 
 function detectQuickCartUiSuccess(doc) {
-  const text = clipQuickCartText(doc?.body, 4000);
-  return /장바구니에\s*(?:상품을?\s*)?담았습니다|장바구니\s*담기\s*완료|장바구니로\s*이동하기/.test(text);
+  if (!doc) return false;
+  const text = clipQuickCartText(doc.body, 4000);
+  if (/담기\s*완료|상품이\s*장바구니에\s*담겼|장바구니에\s*(?:상품을?\s*)?담았(?:습니다|어요)/.test(text)) {
+    return true;
+  }
+  const hasCartCta = [...doc.querySelectorAll('button, a')].some((el) =>
+    /장바구니\s*(?:보기|가기|바로가기)/.test((el.textContent || '').trim())
+  );
+  return hasCartCta && !findProdCartButton(doc);
 }
 
-/** iframe page context에 담기 API 응답 감시 설치 → data-cra-cart=ok|fail */
-function installCartResponseWatcher(doc) {
+function getIframeFrameId(iframe) {
   try {
-    doc.documentElement.removeAttribute('data-cra-cart');
-    const script = doc.createElement('script');
-    script.textContent = `(function(){
-      function isCartUrl(u){return /cart|addCart|add-cart|addtocart|basket|buybox/i.test(String(u||''));}
-      function lookOk(text, status){
-        if(!(status>=200&&status<300)) return false;
-        if(!text) return true;
-        try{
-          var j=JSON.parse(text);
-          if(j.success===false||j.error===true||j.rCode==='FAIL') return false;
-          if(j.success===true||j.rCode==='RET0000'||j.result==='SUCCESS'||j.ret==='OK'||j.code===0) return true;
-        }catch(e){}
-        if(/"ret"\\s*:\\s*"OK"|성공|SUCCESS|"rCode"\\s*:\\s*"RET0000"/i.test(text)) return true;
-        return true;
-      }
-      function mark(ok){
-        try{document.documentElement.setAttribute('data-cra-cart', ok?'ok':'fail');}catch(e){}
-      }
-      if(window.fetch){
-        var of=window.fetch;
-        window.fetch=function(){
-          var a=arguments;
-          var url=typeof a[0]==='string'?a[0]:(a[0]&&a[0].url);
-          return of.apply(this,a).then(function(res){
-            if(isCartUrl(url)||isCartUrl(res&&res.url)){
-              res.clone().text().then(function(t){mark(lookOk(t,res.status));}).catch(function(){mark(!!res.ok);});
-            }
-            return res;
-          });
-        };
-      }
-      var xo=XMLHttpRequest.prototype.open;
-      var xs=XMLHttpRequest.prototype.send;
-      XMLHttpRequest.prototype.open=function(m,u){this.__craU=u;return xo.apply(this,arguments);};
-      XMLHttpRequest.prototype.send=function(b){
-        this.addEventListener('load',function(){ if(isCartUrl(this.__craU)) mark(lookOk(this.responseText,this.status)); });
-        this.addEventListener('error',function(){ if(isCartUrl(this.__craU)) mark(false); });
-        return xs.apply(this,arguments);
-      };
-    })();`;
-    (doc.documentElement || doc.head || doc.body).appendChild(script);
-    script.remove();
-  } catch {}
+    if (chrome.runtime && typeof chrome.runtime.getFrameId === 'function') {
+      return chrome.runtime.getFrameId(iframe);
+    }
+  } catch (e) {}
+  return null;
+}
+
+function runInIframeMainWorld(iframe, action) {
+  return new Promise((resolve, reject) => {
+    const frameId = getIframeFrameId(iframe);
+    if (frameId == null) {
+      reject(new Error('no_frame'));
+      return;
+    }
+    try {
+      chrome.runtime.sendMessage({ type: 'cra-main', action, frameId }, (res) => {
+        if (chrome.runtime.lastError) {
+          reject(new Error(chrome.runtime.lastError.message));
+          return;
+        }
+        if (!res || !res.ok) reject(new Error((res && res.error) || 'inject_failed'));
+        else resolve();
+      });
+    } catch (e) {
+      reject(e);
+    }
+  });
+}
+
+async function installCartResponseWatcher(iframe) {
+  try {
+    const doc = iframe.contentDocument;
+    if (doc) doc.documentElement.removeAttribute('data-cra-cart');
+  } catch (e) {}
+  try {
+    await runInIframeMainWorld(iframe, 'install');
+  } catch (e) {}
+}
+
+async function clickProdCartButton(iframe, btn) {
+  try {
+    dispatchRealClick(btn, iframe.contentWindow || btn?.ownerDocument?.defaultView);
+  } catch (e) {}
+  try {
+    const win = iframe.contentWindow;
+    if (win) win.postMessage({ __craCartCmd: 'click' }, '*');
+  } catch (e) {}
 }
 
 function readCartWatchFlag(doc) {
@@ -1834,38 +1818,29 @@ function dispatchRealClick(el, win) {
   try { el.click(); } catch {}
 }
 
-function clickProdCartButton(doc, btn) {
-  dispatchRealClick(btn, doc.defaultView);
-  try {
-    const script = doc.createElement('script');
-    script.textContent = '(function(){var b=document.querySelector("button.prod-cart-btn")||Array.from(document.querySelectorAll("button")).find(function(x){return /장바구니\\s*담기/.test((x.textContent||"").trim());});if(b)b.click();})();';
-    (doc.documentElement || doc.head || doc.body).appendChild(script);
-    script.remove();
-  } catch {}
-}
-
 async function waitForPdpCartButton(iframe, maxMs) {
   const deadline = Date.now() + maxMs;
   while (Date.now() < deadline) {
     let doc;
-    try { doc = iframe.contentDocument; } catch { await quickCartSleep(80); continue; }
-    if (!doc) { await quickCartSleep(80); continue; }
+    try { doc = iframe.contentDocument; } catch { await quickCartSleep(40); continue; }
+    if (!doc) { await quickCartSleep(40); continue; }
     const btn = findProdCartButton(doc);
     if (btn && !btn.disabled) return doc;
     const blocker = detectQuickCartPreflightBlock(doc);
     if (blocker && Date.now() > deadline - maxMs + 2000) throw new Error(blocker);
-    await quickCartSleep(80);
+    await quickCartSleep(40);
   }
   throw new Error('cart_failed');
 }
 
-async function waitForFastCartResult(doc, beforeCount, maxMs) {
+async function waitForFastCartResult(doc, maxMs, iframe) {
   return new Promise((resolve, reject) => {
     let done = false;
     const finish = (fn) => {
       if (done) return;
       done = true;
       try { obs.disconnect(); } catch {}
+      window.removeEventListener('message', onMsg);
       clearInterval(poll);
       clearTimeout(hard);
       fn();
@@ -1876,13 +1851,19 @@ async function waitForFastCartResult(doc, beforeCount, maxMs) {
       if (flag === 'ok') return finish(resolve);
       if (flag === 'fail') return finish(() => reject(new Error('cart_failed')));
 
-      const after = readHeaderCartCount();
-      if (beforeCount != null && after != null && after > beforeCount) return finish(resolve);
       if (detectQuickCartUiSuccess(doc)) return finish(resolve);
 
       const fail = detectQuickCartUiFailure(doc);
       if (fail) return finish(() => reject(new Error(fail)));
     };
+
+    const onMsg = (e) => {
+      if (iframe && e.source && e.source !== iframe.contentWindow) return;
+      const v = e.data && e.data.__craCart;
+      if (v === 'ok') return finish(resolve);
+      if (v === 'fail') return finish(() => reject(new Error('cart_failed')));
+    };
+    window.addEventListener('message', onMsg);
 
     const obs = new MutationObserver(check);
     try {
@@ -1890,46 +1871,148 @@ async function waitForFastCartResult(doc, beforeCount, maxMs) {
       obs.observe(doc.body || doc.documentElement, { childList: true, subtree: true, characterData: true });
     } catch {}
 
-    const poll = setInterval(check, 32);
+    const poll = setInterval(check, 16);
     const hard = setTimeout(() => {
       check();
-      if (!done) finish(resolve);
+      if (!done) finish(() => reject(new Error('cart_timeout')));
     }, maxMs);
 
     check();
   });
 }
 
-async function iframeAddToCart(ids) {
-  const beforeCount = readHeaderCartCount();
+function quickCartCacheKey(ids) {
+  return ids.productId + ':' + ids.itemId + ':' + ids.vendorItemId;
+}
+
+function createQuickCartIframe() {
   const iframe = document.createElement('iframe');
   iframe.setAttribute('data-cra-ui', '');
   iframe.setAttribute('aria-hidden', 'true');
   iframe.tabIndex = -1;
   iframe.style.cssText = 'position:fixed;width:1px;height:1px;opacity:0;pointer-events:none;border:0;left:-10000px;top:0';
+  return iframe;
+}
 
-  document.body.appendChild(iframe);
-  try {
-    await new Promise((resolve, reject) => {
-      iframe.addEventListener('load', resolve, { once: true });
-      iframe.addEventListener('error', reject, { once: true });
-      iframe.src = buildQuickCartProductUrl(ids);
-    });
+function loadQuickCartIframe(iframe, ids) {
+  return new Promise((resolve, reject) => {
+    iframe.addEventListener('load', resolve, { once: true });
+    iframe.addEventListener('error', () => reject(new Error('cart_failed')), { once: true });
+    iframe.src = buildQuickCartProductUrl(ids);
+  });
+}
 
-    const doc = await waitForPdpCartButton(iframe, 8000);
-    const btn = findProdCartButton(doc);
-    if (!btn || btn.disabled) throw new Error('cart_failed');
+const CRA_WARM_DEBOUNCE_MS = 160;
+let craWarm = null;
+let craWarmTimer = null;
+let craWarmEpoch = 0;
 
-    installCartResponseWatcher(doc);
-    clickProdCartButton(doc, btn);
-    await waitForFastCartResult(doc, beforeCount, 2500);
-  } finally {
-    setTimeout(() => iframe.remove(), 60);
+function discardQuickCartWarm() {
+  clearTimeout(craWarmTimer);
+  craWarmTimer = null;
+  const entry = craWarm;
+  craWarm = null;
+  craWarmEpoch += 1;
+  if (entry?.iframe) {
+    try { entry.iframe.remove(); } catch {}
   }
 }
 
-async function requestAddToCart(ids) {
-  return enqueueQuickCartOp(() => iframeAddToCart(ids));
+function scheduleQuickCartWarm(ids) {
+  const key = quickCartCacheKey(ids);
+  if (craWarm && craWarm.key === key) return;
+  clearTimeout(craWarmTimer);
+  craWarmTimer = setTimeout(() => { startQuickCartWarm(ids); }, CRA_WARM_DEBOUNCE_MS);
+}
+
+function startQuickCartWarm(ids) {
+  clearTimeout(craWarmTimer);
+  craWarmTimer = null;
+  const key = quickCartCacheKey(ids);
+  if (craWarm && craWarm.key === key) return craWarm.promise;
+
+  discardQuickCartWarm();
+  const epoch = craWarmEpoch;
+  const entry = { key, ids, iframe: null, promise: null, epoch };
+  entry.promise = (async () => {
+    const iframe = createQuickCartIframe();
+    entry.iframe = iframe;
+    document.body.appendChild(iframe);
+    await loadQuickCartIframe(iframe, ids);
+    if (craWarm !== entry || entry.epoch !== craWarmEpoch) {
+      try { iframe.remove(); } catch {}
+      throw new Error('warm_aborted');
+    }
+    const doc = await waitForPdpCartButton(iframe, 8000);
+    if (craWarm !== entry || entry.epoch !== craWarmEpoch) {
+      try { iframe.remove(); } catch {}
+      throw new Error('warm_aborted');
+    }
+    await installCartResponseWatcher(iframe);
+    return { iframe, doc, key };
+  })();
+  craWarm = entry;
+  entry.promise.catch(() => {
+    if (craWarm === entry) {
+      craWarm = null;
+      try { entry.iframe?.remove(); } catch {}
+    }
+  });
+  return entry.promise;
+}
+
+async function openFreshQuickCartPdp(ids) {
+  const key = quickCartCacheKey(ids);
+  const iframe = createQuickCartIframe();
+  document.body.appendChild(iframe);
+  try {
+    await loadQuickCartIframe(iframe, ids);
+    const doc = await waitForPdpCartButton(iframe, 8000);
+    await installCartResponseWatcher(iframe);
+    return { iframe, doc, key };
+  } catch (e) {
+    try { iframe.remove(); } catch {}
+    throw e;
+  }
+}
+
+async function acquireQuickCartPdp(ids) {
+  const key = quickCartCacheKey(ids);
+  clearTimeout(craWarmTimer);
+  craWarmTimer = null;
+
+  if (craWarm && craWarm.key === key) {
+    const entry = craWarm;
+    craWarm = null;
+    craWarmEpoch += 1;
+    try {
+      return await entry.promise;
+    } catch {
+      return openFreshQuickCartPdp(ids);
+    }
+  }
+
+  if (craWarm) discardQuickCartWarm();
+  return openFreshQuickCartPdp(ids);
+}
+
+async function iframeAddToCart(ids) {
+  const { iframe, doc } = await acquireQuickCartPdp(ids);
+  try {
+    const btn = findProdCartButton(doc);
+    if (!btn || btn.disabled) throw new Error('cart_failed');
+
+    try { doc.documentElement.removeAttribute('data-cra-cart'); } catch {}
+    await installCartResponseWatcher(iframe);
+    await clickProdCartButton(iframe, btn);
+    await waitForFastCartResult(doc, 2500, iframe);
+  } finally {
+    try { iframe.remove(); } catch {}
+  }
+}
+
+function requestAddToCart(ids) {
+  return iframeAddToCart(ids);
 }
 
 function attachQuickCartButton(item) {
@@ -1954,9 +2037,18 @@ function attachQuickCartButton(item) {
     if (typeof e.stopImmediatePropagation === 'function') e.stopImmediatePropagation();
   };
 
+  const key = quickCartCacheKey(ids);
+  btn.addEventListener('pointerenter', () => scheduleQuickCartWarm(ids), { passive: true });
+  btn.addEventListener('pointerleave', () => {
+    clearTimeout(craWarmTimer);
+    craWarmTimer = null;
+    if (craWarm && craWarm.key === key) discardQuickCartWarm();
+  }, { passive: true });
+
   ['mousedown', 'mouseup', 'pointerdown', 'pointerup', 'auxclick', 'dblclick', 'click'].forEach((type) => {
     btn.addEventListener(type, (e) => {
       stopNav(e);
+      if (type === 'pointerdown' || type === 'mousedown') startQuickCartWarm(ids);
       if (type !== 'click') return;
       if (btn.dataset.state === 'loading') return;
       setQuickCartBtnState(btn, 'loading');
@@ -1974,7 +2066,8 @@ function attachQuickCartButton(item) {
 }
 
 function removeQuickCartButtons() {
-  document.querySelectorAll('.cra-quick-cart-btn, .cra-quick-cart-wrap').forEach(el => el.remove());
+  discardQuickCartWarm();
+  document.querySelectorAll('.cra-quick-cart-btn, .cra-quick-cart-wrap, iframe[data-cra-ui]').forEach(el => el.remove());
 }
 
 function applyQuickCartButtons() {
@@ -2013,9 +2106,6 @@ function initQuickCartSync() {
 
 initQuickCartSync();
 
-/* ===== 광고 요소 숨기기 (기본 프리셋 기반) ===== */
-/* 숨길 요소는 기본 프리셋(preset-data.js)에 고정. 사용자는 설정 팝업에서
-   각 항목을 켜고 끄고(craPresetOff), 이 스크립트는 그 결과를 화면에 반영만 한다. */
 let craRemoverEnabled = true;
 let craObserverStarted = false;
 let craChangeBound = false;
@@ -2034,19 +2124,16 @@ function craIsOwnUI(el) {
   return !!(el && el.closest && el.closest('[data-cra-ui], [data-cra-keyword-filter], [data-cra-keyword-tags-wrap]'));
 }
 
-/* preset-data.js 의 기본 프리셋 항목 목록 */
 function craPresetItems() {
   const p = (typeof window !== 'undefined' && window.CRA_BUILTIN_PRESET) || null;
   return p && Array.isArray(p.items) ? p.items.filter(it => it && it.selector) : [];
 }
 
-/* 사용자가 '보이기(끔)'로 돌린 셀렉터만 저장한다(설정 팝업에서 관리). 기본값은 전부 숨김. */
 function craGetOff(cb) {
   try { chrome.storage.sync.get(['craPresetOff'], r => cb(new Set(r.craPresetOff || []))); }
   catch { cb(new Set()); }
 }
 
-/* 기본 프리셋 항목을 화면에서 숨긴다(사용자가 끈 항목은 제외). */
 function applyHiddenElements() {
   if (!window.chrome || !chrome.storage || !chrome.runtime || !chrome.runtime.id) return;
   ensureRemoverStyles();
@@ -2056,7 +2143,7 @@ function applyHiddenElements() {
       document.querySelectorAll('.cra-force-hidden').forEach(el => el.classList.remove('cra-force-hidden'));
       if (!craRemoverEnabled) return;
       craPresetItems().forEach(it => {
-        if (off.has(it.selector)) return; // 사용자가 '보이기'로 켠 항목은 숨기지 않음
+        if (off.has(it.selector)) return; 
         try {
           document.querySelectorAll(it.selector).forEach(el => {
             if (!craIsOwnUI(el)) el.classList.add('cra-force-hidden');
@@ -2080,7 +2167,7 @@ function craObserveForReapply() {
 
 function initElementRemover() {
   if (!window.chrome || !chrome.storage || !chrome.runtime || !chrome.runtime.id) return;
-  /* 설정 팝업에서 항목 토글·기능 on/off 시 새로고침 없이 즉시 반영 */
+  
   if (!craChangeBound && chrome.storage.onChanged) {
     chrome.storage.onChanged.addListener((changes, area) => {
       if (area !== 'sync') return;
