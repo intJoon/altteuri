@@ -1,3 +1,4 @@
+// Catalog revision for the built-in preset list (independent of settingsVersion).
 globalThis.ALT_BUILTIN_PRESET = {
   name: '추천 프리셋',
   version: 6,

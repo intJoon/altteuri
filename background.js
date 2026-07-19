@@ -41,12 +41,18 @@ function migratePresetOffMeaning(data, fromVersion) {
   return next;
 }
 
+function isCoupangTabUrl(url) {
+  return !!url && (
+    url.startsWith('https://www.coupang.com/') ||
+    url.startsWith('https://cart.coupang.com/') ||
+    url.startsWith('https://mc.coupang.com/')
+  );
+}
+
 function reloadCoupangTabs() {
   chrome.tabs.query({}, tabs => {
     tabs.forEach(tab => {
-      if (tab.url && tab.url.startsWith('https://www.coupang.com/')) {
-        chrome.tabs.reload(tab.id);
-      }
+      if (isCoupangTabUrl(tab.url)) chrome.tabs.reload(tab.id);
     });
   });
 }
@@ -68,7 +74,7 @@ chrome.runtime.onInstalled.addListener(details => {
     const currentVersion = data.settingsVersion ?? 0;
     if (currentVersion < SETTINGS_VERSION) {
       const migrated = migratePresetOffMeaning(data, currentVersion);
-      chrome.storage.sync.set(mergeWithDefaults(migrated));
+      chrome.storage.sync.set(mergeWithDefaults(migrated), reloadCoupangTabs);
     }
   });
 });

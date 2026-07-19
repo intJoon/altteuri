@@ -9,11 +9,13 @@ const list = document.querySelector("#feedback-list");
 const retryButton = document.querySelector("#feedback-retry");
 const loadMoreWrap = document.querySelector("#load-more-wrap");
 const loadMoreButton = document.querySelector("#feedback-load-more");
+const loadMoreError = document.querySelector("#feedback-load-more-error");
 
 let comments = [];
 let total = 0;
 let hasMore = false;
 let isLoadingMore = false;
+let commentSequence = 0;
 const commentClamps = [];
 
 function setVisible(element, visible) {
@@ -26,6 +28,7 @@ function setFeedState(state) {
   setVisible(empty, state === "empty");
   setVisible(list, state === "ready");
   if (state !== "ready") setVisible(loadMoreWrap, false);
+  setVisible(loadMoreError, false);
   feed.setAttribute("aria-busy", String(state === "loading" || isLoadingMore));
 }
 
@@ -57,6 +60,8 @@ function wireCommentBodyClamp(bodyEl, toggleEl) {
     if (!needsToggle) {
       bodyEl.classList.remove("is-clamped");
       toggleEl.hidden = true;
+      toggleEl.setAttribute("aria-expanded", "false");
+      toggleEl.setAttribute("aria-label", "의견 더 보기");
       return;
     }
     toggleEl.hidden = false;
@@ -64,14 +69,20 @@ function wireCommentBodyClamp(bodyEl, toggleEl) {
       bodyEl.classList.remove("is-clamped");
       bodyEl.classList.add("is-expanded");
       toggleEl.textContent = "접기";
+      toggleEl.setAttribute("aria-expanded", "true");
+      toggleEl.setAttribute("aria-label", "의견 접기");
     } else {
       toggleEl.textContent = "펼치기";
+      toggleEl.setAttribute("aria-expanded", "false");
+      toggleEl.setAttribute("aria-label", "의견 더 보기");
     }
   };
   toggleEl.addEventListener("click", () => {
     const expanded = bodyEl.classList.toggle("is-expanded");
     bodyEl.classList.toggle("is-clamped", !expanded);
     toggleEl.textContent = expanded ? "접기" : "펼치기";
+    toggleEl.setAttribute("aria-expanded", String(expanded));
+    toggleEl.setAttribute("aria-label", expanded ? "의견 접기" : "의견 더 보기");
   });
   commentClamps.push({ bodyEl, sync });
   requestAnimationFrame(() => requestAnimationFrame(sync));
@@ -82,13 +93,20 @@ function createComment(item) {
   comment.className = "comment";
 
   const body = document.createElement("p");
+  commentSequence += 1;
+  const bodyId = `comment-body-${String(item.id || commentSequence).replace(/[^a-zA-Z0-9_-]/g, "")}`;
   body.className = "comment-body";
+  body.id = bodyId;
   body.textContent = typeof item.body === "string" ? item.body : "";
   comment.append(body);
 
   const toggle = document.createElement("button");
   toggle.type = "button";
   toggle.className = "comment-expand";
+  toggle.textContent = "펼치기";
+  toggle.setAttribute("aria-controls", bodyId);
+  toggle.setAttribute("aria-expanded", "false");
+  toggle.setAttribute("aria-label", "의견 더 보기");
   toggle.hidden = true;
   comment.append(toggle);
   wireCommentBodyClamp(body, toggle);
@@ -148,6 +166,7 @@ async function loadInitial() {
 async function loadMore() {
   if (!hasMore || isLoadingMore) return;
   isLoadingMore = true;
+  setVisible(loadMoreError, false);
   loadMoreButton.disabled = true;
   loadMoreButton.textContent = "불러오는 중";
   feed.setAttribute("aria-busy", "true");
@@ -160,6 +179,7 @@ async function loadMore() {
     renderComments();
   } catch {
     setVisible(loadMoreWrap, true);
+    setVisible(loadMoreError, true);
   } finally {
     isLoadingMore = false;
     loadMoreButton.disabled = false;

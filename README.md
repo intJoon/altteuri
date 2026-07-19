@@ -5,7 +5,7 @@ A Chrome extension for sorting, filtering, and simplifying [Coupang](https://www
 ## Features
 
 - Sort results by unit price, discount rate, or price.
-- Hide unwanted results and distracting page elements.
+- Hide unwanted results and distracting page elements. Display presets are checked by default when enabled; uncheck an item to hide it.
 - Choose how many results appear and add items to the cart from search.
 - Optionally submit feedback and view recent public feedback.
 

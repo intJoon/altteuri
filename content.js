@@ -1157,7 +1157,7 @@ if (enabled) {
 
 let excludedKeywords = [];
 let keywordFilterContainer = null;
-let keywordFilterEnabled = true;
+let keywordFilterEnabled = false;
 let lastTrackedSearchQuery = null;
 let kwChangeBound = false;
 
@@ -2142,7 +2142,7 @@ function initQuickCartSync() {
 
 initQuickCartSync();
 
-let altRemoverEnabled = true;
+let altRemoverEnabled = false;
 let altObserverStarted = false;
 let altChangeBound = false;
 

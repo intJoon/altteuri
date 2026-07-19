@@ -2,14 +2,56 @@
 <html lang="ko">
   <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="쿠팡 검색 결과를 원하는 기준으로 정렬하고 정리하는 Chrome 확장 프로그램, 알뜰이">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="description" content="쿠팡 검색 결과를 단위가격·할인율·가격순으로 정렬하고, 원하는 항목만 표시하는 Chrome 확장 프로그램, 알뜰이">
+    <meta name="robots" content="index, follow, max-image-preview:large">
     <meta name="theme-color" content="#346aff">
+    <meta property="og:type" content="website">
+    <meta property="og:locale" content="ko_KR">
+    <meta property="og:site_name" content="알뜰이">
+    <meta property="og:title" content="알뜰이 · Chrome 확장 프로그램">
+    <meta property="og:description" content="쿠팡 검색 결과를 단위가격·할인율·가격순으로 정렬하고, 원하는 항목만 표시하세요.">
+    <meta property="og:url" content="https://altteuri.vercel.app/">
+    <meta property="og:image" content="https://altteuri.vercel.app/og-image.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="파란 알뜰이 아이콘과 검색 결과를 원하는 기준으로 정렬하고 정리하세요 문구">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="알뜰이 · Chrome 확장 프로그램">
+    <meta name="twitter:description" content="쿠팡 검색 결과를 단위가격·할인율·가격순으로 정렬하고, 원하는 항목만 표시하세요.">
+    <meta name="twitter:image" content="https://altteuri.vercel.app/og-image.png">
+    <meta name="twitter:image:alt" content="파란 알뜰이 아이콘과 검색 결과를 원하는 기준으로 정렬하고 정리하세요 문구">
     <title>알뜰이 · Chrome 확장 프로그램</title>
-    <link rel="icon" href="/icon.png">
+    <link rel="canonical" href="https://altteuri.vercel.app/">
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="icon" type="image/png" href="/favicon-32.png" sizes="32x32">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="stylesheet" href="/styles.css">
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "알뜰이",
+        "applicationCategory": "BrowserApplication",
+        "operatingSystem": "Chrome",
+        "description": "쿠팡 검색 결과의 정렬, 키워드 필터, 표시 항목 조정, 검색 개수 고정, 장바구니 바로 담기를 제공하는 비공식 Chrome 확장 프로그램",
+        "url": "https://altteuri.vercel.app/",
+        "image": "https://altteuri.vercel.app/og-image.png",
+        "softwareVersion": "1.16.5",
+        "isAccessibleForFree": true,
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "KRW"
+        },
+        "sameAs": [
+          "https://github.com/intJoon/altteuri"
+        ]
+      }
+    </script>
   </head>
   <body>
+    <a class="skip-link" href="#main-content">본문으로 건너뛰기</a>
     <header class="hero">
       <div class="wrap hero-inner">
         <img class="hero-icon" src="/icon128.png" alt="알뜰이 아이콘" width="88" height="88">
@@ -20,7 +62,7 @@
       </div>
     </header>
 
-    <main>
+    <main id="main-content" tabindex="-1">
       <section class="section wrap" aria-labelledby="features-title">
         <div class="section-heading">
           <p class="eyebrow">주요 기능</p>
@@ -161,7 +203,7 @@
         </div>
       </section>
 
-      <section class="notice-section">
+      <section class="notice-section" aria-label="운영 및 데이터 안내">
         <div class="wrap notice-grid">
           <article>
             <p class="eyebrow">비제휴 안내</p>
@@ -184,17 +226,18 @@
         </div>
 
         <div class="feedback-panel">
-          <div class="feedback-feed" aria-live="polite" aria-busy="false">
-            <p id="feedback-loading" class="state">의견을 불러오는 중입니다.</p>
-            <div id="feedback-error" class="state" hidden>
+          <div class="feedback-feed" aria-busy="false">
+            <p id="feedback-loading" class="state" role="status">의견을 불러오는 중입니다.</p>
+            <div id="feedback-error" class="state" role="alert" hidden>
               <p>다시 불러와 주세요.</p>
               <button id="feedback-retry" class="secondary-button" type="button">다시 시도</button>
             </div>
-            <p id="feedback-empty" class="state" hidden>표시할 의견이 없습니다.</p>
+            <p id="feedback-empty" class="state" role="status" hidden>표시할 의견이 없습니다.</p>
             <ul id="feedback-list" class="comment-list" hidden></ul>
             <div id="load-more-wrap" class="load-more" hidden>
               <button id="feedback-load-more" class="secondary-button" type="button">더 보기</button>
             </div>
+            <p id="feedback-load-more-error" class="load-more-error" role="status" hidden>의견을 더 불러오지 못했습니다. 다시 시도해 주세요.</p>
           </div>
         </div>
       </section>

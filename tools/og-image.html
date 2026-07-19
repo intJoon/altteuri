@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    * { box-sizing: border-box; }
+    html, body { width: 1200px; height: 630px; margin: 0; overflow: hidden; }
+    body {
+      position: relative;
+      display: flex;
+      align-items: center;
+      padding: 80px;
+      background: #f7f9ff;
+      color: #212b36;
+      font-family: "Malgun Gothic", "Segoe UI", sans-serif;
+    }
+    body::before,
+    body::after {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(52, 106, 255, 0.08);
+      content: "";
+    }
+    body::before { top: -190px; right: -80px; width: 520px; height: 520px; }
+    body::after { bottom: -210px; left: -170px; width: 430px; height: 430px; }
+    img { z-index: 1; width: 320px; height: 320px; border-radius: 74px; }
+    main { z-index: 1; margin-left: 70px; }
+    .eyebrow { margin: 0 0 18px; color: #346aff; font-size: 24px; font-weight: 800; letter-spacing: .08em; }
+    h1 { margin: 0; font-size: 92px; line-height: 1.1; letter-spacing: -.06em; }
+    .copy { margin: 28px 0 0; color: #454b53; font-size: 31px; font-weight: 600; line-height: 1.5; letter-spacing: -.025em; }
+  </style>
+</head>
+<body>
+  <img src="../web/public/icon.png" alt="">
+  <main>
+    <p class="eyebrow">CHROME 확장 프로그램</p>
+    <h1>알뜰이</h1>
+    <p class="copy">검색 결과를 원하는 기준으로<br>정렬하고 정리하세요.</p>
+  </main>
+</body>
+</html>

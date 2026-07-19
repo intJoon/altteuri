@@ -23,16 +23,35 @@ function requestOrigin(req) {
   return host ? `${protocol}://${host}` : "";
 }
 
+function allowedExtensionOrigins() {
+  const raw = process.env.EXTENSION_IDS || process.env.EXTENSION_ID || "";
+  return new Set(
+    raw
+      .split(",")
+      .map((id) => id.trim())
+      .filter(Boolean)
+      .map((id) => `chrome-extension://${id}`)
+  );
+}
+
 function setCors(req, res) {
   const origin = req.headers.origin;
   if (!origin) return;
 
-  let isExtension = false;
-  try {
-    isExtension = new URL(origin).protocol === "chrome-extension:";
-  } catch {}
+  let allowed = origin === requestOrigin(req);
+  if (!allowed) {
+    try {
+      const url = new URL(origin);
+      if (url.protocol === "chrome-extension:") {
+        const allowlist = allowedExtensionOrigins();
+        // Empty allowlist keeps prior behavior for local/unpacked installs.
+        // Set EXTENSION_IDS (comma-separated) in production to lock to known extension IDs.
+        allowed = allowlist.size === 0 || allowlist.has(origin);
+      }
+    } catch {}
+  }
 
-  if (isExtension || origin === requestOrigin(req)) {
+  if (allowed) {
     res.setHeader("Access-Control-Allow-Origin", origin);
     res.setHeader("Vary", "Origin");
   }

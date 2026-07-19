@@ -238,7 +238,13 @@ function handleAltToggleClick() {
           updateAltToggleBtn(false);
           syncRemoveBody();
           syncRemoveNav();
-          chrome.tabs.query({ url: '*://www.coupang.com/*' }, tabs => {
+          chrome.tabs.query({
+            url: [
+              '*://www.coupang.com/*',
+              '*://cart.coupang.com/*',
+              '*://mc.coupang.com/*'
+            ]
+          }, tabs => {
             tabs.forEach(tab => chrome.tabs.reload(tab.id));
           });
         });
@@ -248,7 +254,13 @@ function handleAltToggleClick() {
           updateAltToggleBtn(true);
           syncRemoveBody();
           syncRemoveNav();
-          chrome.tabs.query({ url: '*://www.coupang.com/*' }, tabs => {
+          chrome.tabs.query({
+            url: [
+              '*://www.coupang.com/*',
+              '*://cart.coupang.com/*',
+              '*://mc.coupang.com/*'
+            ]
+          }, tabs => {
             tabs.forEach(tab => chrome.tabs.reload(tab.id));
           });
         });
