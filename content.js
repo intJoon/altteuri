@@ -178,8 +178,37 @@ function updateDiscountRateBadge(item, discountRate) {
   }
 }
 
-function updateRankMark(item, rank, forceShow = false) {
+function getSortableProductItems(productList) {
+  const list = productList || document.querySelector(SELECTORS.productList);
+  if (!list) return [];
+  return Array.from(list.querySelectorAll(':scope > ' + SELECTORS.productItem));
+}
+
+function clearRankMark(item) {
+  if (!item) return;
   item.querySelectorAll(".my-rank-mark, span[class^='RankMark_rank']").forEach(e => e.remove());
+}
+
+function isSortVisibleItem(item) {
+  if (!item) return false;
+  if (item.classList.contains('alt-force-hidden')) return false;
+  if (item.style && item.style.display === 'none') return false;
+  if (typeof keywordFilterEnabled !== 'undefined' && keywordFilterEnabled && shouldHideByKeyword(item)) {
+    return false;
+  }
+  return true;
+}
+
+function applySortedProductOrder(productList, orderedItems) {
+  if (!productList || !orderedItems.length) return;
+  const orderedSet = new Set(orderedItems);
+  const others = Array.from(productList.children).filter(el => !orderedSet.has(el));
+  orderedItems.forEach(item => productList.appendChild(item));
+  others.forEach(el => productList.appendChild(el));
+}
+
+function updateRankMark(item, rank, forceShow = false) {
+  clearRankMark(item);
   const imgBox = item.querySelector('figure, .ProductUnit_productImage__Mqcg1, .product-image, .main-image');
   let markText = '';
   if (forceShow) {
@@ -272,7 +301,7 @@ function sortByUnitPrice() {
   saveActiveSort('unit');
   const productList = document.querySelector(SELECTORS.productList);
   if (!productList) return;
-  const items = Array.from(productList.querySelectorAll(SELECTORS.productItem));
+  const items = getSortableProductItems(productList);
   if (items.length === 0) return;
   chrome.storage.sync.get(['unitPriceSortOrder'], result => {
     const sortOrder = result.unitPriceSortOrder || 'asc';
@@ -288,19 +317,29 @@ function sortByUnitPrice() {
       return { item, calc };
     }).filter(x => x.calc && x.calc.coupangUnit);
     sortable.sort(compare);
-    sortable.forEach((x, i) => {
-      updateUnitPriceBadge(x.item, x.calc);
-      updateRankMark(x.item, i + 1);
-      productList.appendChild(x.item);
-    });
-    items.filter(item => {
+    const unsortable = items.filter(item => {
       const calc = calculateUnitPrice(item);
       return !calc || !calc.coupangUnit;
-    }).forEach(item => {
-      updateUnitPriceBadge(item, null);
-      updateRankMark(item, '-');
-      productList.appendChild(item);
     });
+    let rank = 0;
+    sortable.forEach(x => {
+      updateUnitPriceBadge(x.item, x.calc);
+      if (!isSortVisibleItem(x.item)) {
+        clearRankMark(x.item);
+        return;
+      }
+      rank += 1;
+      updateRankMark(x.item, rank);
+    });
+    unsortable.forEach(item => {
+      updateUnitPriceBadge(item, null);
+      if (!isSortVisibleItem(item)) {
+        clearRankMark(item);
+        return;
+      }
+      updateRankMark(item, '-');
+    });
+    applySortedProductOrder(productList, [...sortable.map(x => x.item), ...unsortable]);
     updateUnitPriceSortButtonUI();
     applyKeywordFilter();
   });
@@ -311,7 +350,7 @@ function sortByDiscountRate() {
   saveActiveSort('discount');
   const productList = document.querySelector(SELECTORS.productList);
   if (!productList) return;
-  const items = Array.from(productList.querySelectorAll(SELECTORS.productItem));
+  const items = getSortableProductItems(productList);
   if (items.length === 0) return;
   let sortable = items.map(item => {
     const discountRate = calculateDiscountRate(item);
@@ -323,22 +362,17 @@ function sortByDiscountRate() {
     if (b.discountRate === 0) return -1;
     return b.discountRate - a.discountRate;
   });
-  sortable.forEach((x, i) => {
+  let rank = 0;
+  sortable.forEach(x => {
     updateDiscountRateBadge(x.item, x.discountRate);
-    if (x.discountRate > 0) {
-      updateRankMark(x.item, i + 1, true);
-    }
-    try {
-      const refNode = productList.children[i];
-      if (refNode && refNode.parentNode === productList && refNode !== x.item) {
-        productList.insertBefore(x.item, refNode);
-      } else if (productList.children[i] !== x.item) {
-        productList.appendChild(x.item);
-      }
-    } catch (e) {
-      productList.appendChild(x.item);
+    if (x.discountRate > 0 && isSortVisibleItem(x.item)) {
+      rank += 1;
+      updateRankMark(x.item, rank, true);
+    } else {
+      clearRankMark(x.item);
     }
   });
+  applySortedProductOrder(productList, sortable.map(x => x.item));
   updateDiscountRateSortButtonUI();
   applyKeywordFilter();
 }
@@ -348,7 +382,7 @@ function sortByPrice() {
   saveActiveSort('price');
   const productList = document.querySelector(SELECTORS.productList);
   if (!productList) return;
-  const items = Array.from(productList.querySelectorAll(SELECTORS.productItem));
+  const items = getSortableProductItems(productList);
   if (items.length === 0) return;
   chrome.storage.sync.get(['priceSortOrder'], result => {
     const sortOrder = result.priceSortOrder || 'asc';
@@ -361,16 +395,18 @@ function sortByPrice() {
       return { item, priceVal: getPriceValue(item) };
     }).filter(x => x.priceVal != null);
     sortable.sort(compare);
-    sortable.forEach((x, i) => {
-      updateRankMark(x.item, i + 1, true);
-      productList.appendChild(x.item);
+    const unsortable = items.filter(item => getPriceValue(item) == null);
+    let rank = 0;
+    sortable.forEach(x => {
+      if (!isSortVisibleItem(x.item)) {
+        clearRankMark(x.item);
+        return;
+      }
+      rank += 1;
+      updateRankMark(x.item, rank, true);
     });
-    items.filter(item => {
-      return getPriceValue(item) == null;
-    }).forEach(item => {
-      item.querySelectorAll('.my-rank-mark').forEach(e => e.remove());
-      productList.appendChild(item);
-    });
+    unsortable.forEach(item => clearRankMark(item));
+    applySortedProductOrder(productList, [...sortable.map(x => x.item), ...unsortable]);
     updatePriceSortButtonUI();
     applyKeywordFilter();
   });
@@ -800,7 +836,7 @@ function applySubFeatures() {
   };
   const delay = calculateDelay();
   setTimeout(() => {
-    applyHiddenElements();
+    applyHiddenElements({ reapplySort: true });
     applyQuickCartButtons();
   }, delay);
 }
@@ -2134,22 +2170,28 @@ function altGetOff(cb) {
   catch { cb(new Set()); }
 }
 
-function applyHiddenElements() {
-  if (!window.chrome || !chrome.storage || !chrome.runtime || !chrome.runtime.id) return;
+function applyHiddenElements(opts) {
+  const reapplySort = !!(opts && opts.reapplySort);
+  if (!window.chrome || !chrome.storage || !chrome.runtime || !chrome.runtime.id) {
+    if (reapplySort) reapplySortIfNeeded();
+    return;
+  }
   ensureRemoverStyles();
   chrome.storage.sync.get(['elementRemoverEnabled'], result => {
     altRemoverEnabled = !!result.elementRemoverEnabled;
     altGetOff(off => {
       document.querySelectorAll('.alt-force-hidden').forEach(el => el.classList.remove('alt-force-hidden'));
-      if (!altRemoverEnabled) return;
-      altPresetItems().forEach(it => {
-        if (off.has(it.selector)) return; 
-        try {
-          document.querySelectorAll(it.selector).forEach(el => {
-            if (!altIsOwnUI(el)) el.classList.add('alt-force-hidden');
-          });
-        } catch {}
-      });
+      if (altRemoverEnabled) {
+        altPresetItems().forEach(it => {
+          if (off.has(it.selector)) return;
+          try {
+            document.querySelectorAll(it.selector).forEach(el => {
+              if (!altIsOwnUI(el)) el.classList.add('alt-force-hidden');
+            });
+          } catch {}
+        });
+      }
+      if (reapplySort) reapplySortIfNeeded();
     });
   });
 }
@@ -2172,7 +2214,7 @@ function initElementRemover() {
     chrome.storage.onChanged.addListener((changes, area) => {
       if (area !== 'sync') return;
       if (changes.altPresetOff || changes.elementRemoverEnabled || changes.altEnabled) {
-        applyHiddenElements();
+        applyHiddenElements({ reapplySort: true });
       }
     });
     altChangeBound = true;

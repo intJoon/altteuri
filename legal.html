@@ -5,181 +5,102 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>알뜰이 · 개인정보처리방침 및 이용약관</title>
   <style>
-    :root { --blue: #346aff; --blue-dark: #2a58d6; --ink: #212b36; --muted: #8c8c8c; --line: #f0f0f0; }
-    * { box-sizing: border-box; }
-    body {
-      margin: 0; background: #f5f6f8; color: var(--ink);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
-      line-height: 1.65; font-size: 15px;
-    }
-    .wrap { max-width: 760px; margin: 0 auto; padding: 32px 20px 64px; }
-    header.hero {
-      background: #fff; border: 1px solid var(--line); border-radius: 14px;
-      padding: 24px 26px; margin-bottom: 20px;
-    }
-    .brand { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
-    .brand img { width: 44px; height: 44px; flex: none; }
-    .brand h1 { margin: 0; font-size: 20px; color: var(--ink); }
-    .brand .badge { margin: 4px 0 0; }
-    header.hero p { margin: 0; color: var(--muted); font-size: 14px; }
-    .badge {
-      display: inline-block; padding: 3px 10px; font-size: 12px; font-weight: 700;
-      color: var(--blue); background: #eef0f3; border-radius: 8px;
-    }
-    nav.toc { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; }
-    nav.toc a {
-      font-size: 13px; font-weight: 600; text-decoration: none; color: #fff;
-      background: var(--blue); border-radius: 8px; padding: 6px 14px;
-      transition: background 0.15s;
-    }
-    nav.toc a:hover { background: var(--blue-dark); }
-    section.card {
-      background: #fff; border: 1px solid var(--line); border-radius: 14px;
-      padding: 24px 26px; margin-bottom: 20px;
-    }
-    section.card h2 {
-      margin: 0 0 4px; font-size: 17px; padding-bottom: 12px; border-bottom: 2px solid var(--blue);
-    }
-    section.card h3 { font-size: 15px; margin: 22px 0 6px; }
-    p, li { color: #333; }
-    .muted { color: var(--muted); font-size: 13px; }
-    ul, ol { padding-left: 20px; }
-    table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 14px; }
-    th, td { border: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
-    th { background: #f7f8fa; font-weight: 700; }
-    .law {
-      margin-top: 18px; padding: 12px 14px; background: #f5f6f8;
-      border: 1px solid var(--line); border-radius: 10px; font-size: 13px; color: var(--muted);
-    }
-    footer {
-      display: flex; align-items: center; justify-content: center; gap: 8px;
-      color: var(--muted); font-size: 12px; margin-top: 8px;
-    }
-    footer img { width: 18px; height: 18px; }
-    strong.hl { color: var(--blue); }
+    :root { --blue:#346aff; --ink:#212b36; --muted:#68717c; --line:#e7e9ed; }
+    * { box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
+    body { margin:0; background:#f5f6f8; color:var(--ink); font:15px/1.7 -apple-system,BlinkMacSystemFont,"Segoe UI","Malgun Gothic",sans-serif; }
+    .wrap { max-width:900px; margin:0 auto; padding:32px 20px 64px; }
+    .hero,.card { background:#fff; border:1px solid var(--line); border-radius:14px; padding:26px; margin-bottom:20px; }
+    .brand { display:flex; align-items:center; gap:12px; }
+    .brand img { width:44px; height:44px; }
+    .brand h1 { margin:0; font-size:22px; }
+    .hero > p { color:var(--muted); margin:10px 0 0; }
+    nav { display:flex; flex-wrap:wrap; gap:8px; margin-top:18px; }
+    nav a { color:#fff; background:var(--blue); border-radius:8px; padding:7px 14px; text-decoration:none; font-weight:700; font-size:13px; }
+    .card h2 { margin:0 0 16px; padding-bottom:12px; border-bottom:2px solid var(--blue); font-size:22px; }
+    .card h3 { margin:28px 0 8px; font-size:18px; }
+    .card h4 { margin:22px 0 6px; font-size:16px; }
+    p { margin:8px 0; }
+    blockquote { margin:0 0 18px; padding:10px 14px; color:var(--muted); background:#f7f8fa; border-left:3px solid var(--blue); }
+    blockquote p { margin:2px 0; }
+    ul,ol { padding-left:24px; }
+    li { margin:5px 0; }
+    code { padding:2px 5px; background:#f1f3f5; border-radius:4px; font-size:.92em; }
+    a { color:var(--blue); overflow-wrap:anywhere; }
+    hr { border:0; border-top:1px solid var(--line); margin:28px 0; }
+    .table-wrap { overflow-x:auto; margin:12px 0; }
+    table { width:100%; border-collapse:collapse; min-width:620px; font-size:14px; }
+    th,td { border:1px solid var(--line); padding:9px 10px; text-align:left; vertical-align:top; }
+    th { background:#f7f8fa; }
+    footer { text-align:center; color:var(--muted); font-size:12px; }
+    @media (max-width:600px) { .wrap { padding:16px 10px 40px; } .hero,.card { padding:20px 16px; border-radius:10px; } }
   </style>
 </head>
 <body>
   <div class="wrap">
     <header class="hero">
-      <div class="brand">
-        <img src="icon128.png" alt="알뜰이 아이콘">
-        <div>
-          <h1>알뜰이</h1>
-          <span class="badge">법적 고지</span>
-        </div>
-      </div>
-      <p>개인정보처리방침 및 이용약관 · 시행일 2026-07-19</p>
-      <p class="muted" style="margin-top:10px;">
-        본 확장은 쿠팡 및 그 운영사와 <strong class="hl">아무런 제휴·후원 관계가 없는 비공식 오픈소스 도구</strong>이며,
-        브라우징 기록·계정·구매 내역을 수집하지 않습니다. 이용자가 선택적으로 제출한 의견은 제품 개선을 위해 개발자 운영 서비스에 저장됩니다.
-      </p>
-      <nav class="toc">
-        <a href="#privacy">개인정보처리방침</a>
-        <a href="#terms">이용약관</a>
-      </nav>
+      <div class="brand"><img src="icon128.png" alt="알뜰이 아이콘"><h1>알뜰이 법적 고지</h1></div>
+      <p>알뜰이의 개인정보처리방침과 이용약관입니다.</p>
+      <nav><a href="#privacy">개인정보처리방침</a><a href="#terms">이용약관</a></nav>
     </header>
-
-    <section class="card" id="privacy">
-      <h2>개인정보처리방침</h2>
-
-      <h3>1. 개인정보 처리 범위</h3>
-      <p>본 확장의 일반 기능은 이용자의 브라우징 기록·계정·구매 내역을 수집·전송·저장하지 않으며 해당 정보에 접근하지 않습니다.
-      기능 동작에 필요한 <strong>설정값은 이용자 본인의 브라우저 저장소(<code>chrome.storage</code>)에만 저장</strong>하고 개발자 운영 서비스로 전송하지 않습니다.
-      다만 이용자가 확장 팝업의 <strong>「의견 보내기」</strong>를 선택적으로 사용하면 직접 입력한 의견 내용과 확장 버전이 제품 개선을 위해 개발자 운영 서비스(<code>https://altteuri.vercel.app</code>)로 전송되어 저장됩니다. 소개 웹페이지에서는 최근 의견 목록만 볼 수 있습니다.</p>
-      <p class="muted">의견 제출에 로그인·닉네임 등 개인 식별정보를 요구하거나 요청하지 않습니다. 자유 입력란에 이름, 연락처, 계정 정보 등 개인정보를 입력하지 마십시오.</p>
-
-      <h3>2. 처리하는 정보 항목 및 목적</h3>
-      <table>
-        <thead><tr><th>구분</th><th>항목(예)</th><th>목적</th></tr></thead>
-        <tbody>
-          <tr><td>기능 on/off</td><td>알뜰이·정렬·필터·페이지 표시 항목 조정·검색 개수 고정·장바구니 바로 담기 사용 여부</td><td>기능 활성화 상태 저장</td></tr>
-          <tr><td>정렬 설정</td><td>정렬 on/off, 단위가·가격순 오름/내림, 현재 적용된 정렬 상태(local)</td><td>정렬 상태 유지</td></tr>
-          <tr><td>필터 설정</td><td>이용자가 직접 입력한 제외 키워드</td><td>검색결과 필터링</td></tr>
-          <tr><td>표시 설정</td><td>검색 개수 고정값, 표시 항목 프리셋 해제 목록</td><td>화면 표시 유지</td></tr>
-          <tr><td>의견 보내기(선택)</td><td>이용자가 직접 입력한 의견 내용(최대 500자), 확장 버전</td><td>의견 목록 제공, 이용자 의견 확인 및 제품 개선</td></tr>
-          <tr><td>요청 보호 정보</td><td>의견 API 요청의 출발지 IP 주소, IP 주소와 UTC 일자에서 생성한 일별 HMAC 해시</td><td>원문 IP는 저장하지 않고, 일별 해시로 동일 IP의 의견 제출을 하루 2건으로 제한</td></tr>
-        </tbody>
-      </table>
-      <p class="muted">브라우저 설정값과 제외 키워드는 외부로 전송되지 않습니다. 의견은 이용자가 직접 작성·제출할 때만 전송되며, 로그인·닉네임·계정 식별자를 요구하거나 별도로 결합하지 않습니다. 제출된 의견 내용·확장 버전·제출 시각은 최근 의견 목록에서 다른 이용자에게 공개될 수 있으므로, 공개를 원하지 않는 정보나 개인정보를 입력하지 마십시오.</p>
-
-      <h3>3. 저장 위치 및 보유·파기</h3>
-      <ul>
-        <li>설정값은 <code>chrome.storage.sync</code> / <code>chrome.storage.local</code>에 저장됩니다.</li>
-        <li><code>sync</code> 저장값은 브라우저(Chrome) 자체 기능으로 이용자 본인 계정의 다른 기기와 동기화될 수 있으며, 이는 브라우저 제공사의 기능으로 개발자는 접근할 수 없습니다.</li>
-        <li>이용자가 <strong>확장을 삭제</strong>하거나 브라우저의 <strong>확장/사이트 데이터 삭제</strong>를 사용하면 저장값은 지체 없이 삭제됩니다. (팝업에 전역 설정 초기화 버튼은 없음)</li>
-        <li>제출된 의견과 확장 버전은 제품 개선 목적에 필요한 기간 동안 보유하며, 더 이상 필요하지 않거나 이용자가 GitHub Issues로 삭제를 요청하면 지체 없이 데이터베이스에서 삭제합니다.</li>
-        <li>파기 대상 의견은 운영 데이터베이스에서 삭제하며, 수탁자의 백업본이 존재하는 경우 해당 수탁자의 보존 주기에 따라 격리된 상태로 만료·삭제됩니다. 별도 식별정보를 요구하지 않으므로 삭제 요청 시에는 대상 의견을 특정할 수 있는 내용과 제출 시점 등 필요한 정보를 함께 알려 주어야 합니다.</li>
-        <li>요청 제한용 일별 HMAC 해시는 원문 IP를 저장하지 않고 매일 다른 값으로 생성하며, 7일이 지난 해시는 후속 의견 요청 처리 시 삭제합니다.</li>
-      </ul>
-
-      <h3>4. 제3자 제공·위탁 / 자동수집장치</h3>
-      <p>처리 정보를 판매하거나 광고·분석·추적 목적으로 제3자에게 제공하지 않습니다. 브라우저 설정값도 외부 사업자에게 제공하거나 처리를 위탁하지 않습니다.</p>
-      <table>
-        <thead><tr><th>수탁자</th><th>위탁 업무</th><th>처리 정보</th></tr></thead>
-        <tbody>
-          <tr><td>Vercel Inc.</td><td>개발자 운영 웹 서비스 및 서버리스 API 호스팅, 요청 전달</td><td>의견 내용, 확장 버전, 요청 처리 과정의 접속 정보</td></tr>
-          <tr><td>Neon, Inc.</td><td>PostgreSQL 데이터베이스 호스팅</td><td>의견 내용, 확장 버전, 요청 제한용 일별 HMAC 해시 및 제출 횟수</td></tr>
-        </tbody>
-      </table>
-      <p>각 수탁자는 서비스 제공에 필요한 범위에서 정보를 처리합니다. 세부적인 처리 및 국외 이전 여부·보호조치는 각 사업자의 개인정보 관련 정책과 적용 법령을 따릅니다. 쿠키·웹비콘 등 자동수집장치는 설치·운영하지 않으며, 의견 API는 서비스 보호를 위해 요청 IP를 처리하고 비밀키와 UTC 일자를 사용한 HMAC 해시로 변환하여 동일 IP의 제출을 하루 2건으로 제한합니다. 원문 IP는 데이터베이스에 저장하지 않습니다.</p>
-
-      <h3>5. 정보주체의 권리</h3>
-      <p>이용자는 확장 설정 팝업에서 설정을 확인·변경할 수 있고, 확장 삭제·브라우저 데이터 삭제로 브라우저 설정값을 제거할 수 있습니다. 제출 의견의 열람·삭제는 GitHub Issues를 통해 요청할 수 있으며, 별도 식별정보가 없어 대상 의견을 합리적으로 특정할 수 없는 경우 처리가 제한될 수 있습니다.</p>
-
-      <h3>6. 안전성 확보 조치 및 문의</h3>
-      <p>의견 API는 입력 길이 검증, 비정상 자동 제출 방지(honeypot), 일별 HMAC 해시 기반 동일 IP 하루 2건 제한을 적용합니다. 제출 내용은 HTML로 실행하지 않고 텍스트로 렌더링하며, 데이터베이스 자격증명과 HMAC 비밀키는 확장에 포함하지 않고 서버리스 API 환경에서 관리합니다.</p>
-      <p>본 확장은 개인 개발자가 비영리로 배포합니다. 문의는 프로젝트 저장소 GitHub Issues(<a href="https://github.com/intJoon/altteuri/issues">github.com/intJoon/altteuri/issues</a>)로 접수합니다.</p>
-
-      <div class="law">
-        근거 법령 (확인일 2026-07-19, 법제처 국가법령정보): 개인정보 보호법 제30조(처리방침 수립·공개)·제4조(정보주체의 권리)·제21조(파기), 정보통신망법 참조.
-      </div>
-    </section>
-
-    <section class="card" id="terms">
-      <h2>이용약관</h2>
-
-      <h3>제1조 (목적)</h3>
-      <p>본 약관은 개인 개발자가 비영리·무료로 배포하는 「알뜰이」의 이용 조건과 개발자·이용자 간 권리·의무를 정합니다.</p>
-
-      <h3>제2조 (서비스의 성격)</h3>
-      <ul>
-        <li>본 확장은 쿠팡 검색결과·관련 페이지의 정렬·필터·페이지 표시 항목 조정·검색 개수 조정·장바구니 바로 담기 등 표시·조작을 <strong>보조</strong>하는 비공식 도구입니다.</li>
-        <li>본 확장은 <strong>쿠팡 및 그 운영사와 제휴·후원·위탁 관계가 없는 공식이 아닌 제품</strong>입니다.</li>
-        <li>화면 표시를 조정하고, 장바구니 바로 담기는 쿠팡 담기 버튼을 재사용하는 방식으로 동작합니다. 쿠팡의 상품·가격·거래 정보를 독자적으로 생성·변경하지 않습니다. 최초 설치 시 모든 기능은 꺼져 있으며, 이용자가 직접 켭니다.</li>
-        <li>의견 보내기는 선택 기능이며, 이용자가 제출한 의견 내용과 확장 버전은 의견 목록 제공 및 제품 개선을 위해 개발자 운영 서비스에 저장되고 다른 이용자에게 공개될 수 있습니다. 구체적인 처리 사항은 개인정보처리방침에 따릅니다.</li>
-      </ul>
-
-      <h3>제3조 (이용자의 의무)</h3>
-      <p>이용자는 관련 법령, 본 약관, 쿠팡 등 제3자 서비스의 이용약관을 준수해야 하며, 불법적 목적이나 제3자 권리를 침해하는 방식으로 사용해서는 안 됩니다. 의견 입력란에는 개인정보, 불법 정보 또는 제3자의 권리를 침해하는 내용을 입력해서는 안 됩니다.</p>
-
-      <h3>제4조 (지식재산권·제3자 상표)</h3>
-      <p>"쿠팡" 및 관련 명칭·로고·상표는 각 권리자에게 귀속되며, 본 확장은 식별 목적으로만 사용합니다. 소스코드의 권리는 해당 오픈소스 라이선스에 따릅니다.</p>
-
-      <h3>제5조 (무보증)</h3>
-      <ul>
-        <li>본 확장은 "있는 그대로(as-is)" 제공되며, 특정 목적 적합성·무결함·지속 정상동작을 보증하지 않습니다.</li>
-        <li>쿠팡 등 제3자 서비스의 화면 구조·정책 변경으로 기능이 예고 없이 동작하지 않을 수 있으며, 개발자는 수정·유지보수 의무를 부담하지 않습니다.</li>
-        <li>정렬 결과, 단위가격·할인율 계산 등은 참고용이며 정확성을 보증하지 않습니다. 구매 결정은 쿠팡 원본 정보를 직접 확인 후 하십시오.</li>
-      </ul>
-
-      <h3>제6조 (책임의 제한)</h3>
-      <p>개발자는 본 확장의 이용 또는 이용 불능으로 발생한 손해에 대해 관련 법령이 허용하는 범위에서 책임을 지지 않습니다.
-      다만 <strong>개발자의 고의 또는 중대한 과실로 인한 법률상 책임까지 배제하지 않습니다.</strong>
-      (「약관의 규제에 관한 법률」 제7조 준수)</p>
-
-      <h3>제7조 (준거법 및 관할)</h3>
-      <p>본 약관은 대한민국 법령에 따라 해석·적용되며, 분쟁은 관련 법령이 정하는 관할 법원에 따릅니다.</p>
-
-      <div class="law">
-        근거 법령 (확인일 2026-07-19, 법제처 국가법령정보): 약관의 규제에 관한 법률 제7조(면책조항의 금지) — 현행(시행 2024-08-07). 고의·중과실 책임을 배제하는 면책조항은 무효이므로 제6조에 반영.
-      </div>
-    </section>
-
-    <footer>
-      <img src="icon128.png" alt="">
-      <span>알뜰이 · 비공식 오픈소스 도구 · <a href="https://github.com/intJoon/altteuri" style="color: var(--blue); text-decoration: none;">github.com/intJoon/altteuri</a></span>
-    </footer>
+    <section class="card" id="privacy"><h2>개인정보처리방침</h2>
+<blockquote><p>본 문서는 대한민국 법령에 근거한 법적 고지로, 예외적으로 한국어로 작성한다.</p><p>「알뜰이」(이하 &quot;본 확장&quot;)의 개인정보 처리에 관한 방침입니다.</p><p>시행일: 2026-07-19</p></blockquote>
+<h3>1. 총칙 — 개인정보 처리 범위</h3>
+<p>본 확장은 개인이 비영리로 배포하는 오픈소스 브라우저 확장 프로그램입니다. 본 확장의 일반 기능(정렬·필터·표시 조정·검색 개수·장바구니 바로 담기 등)은 이용자의 브라우징 기록·계정 정보·구매 내역을 수집·전송·저장하지 않으며, 해당 정보에 접근하지 않습니다.</p>
+<p>기능 동작에 필요한 <strong>설정값(환경설정)은 이용자 본인의 브라우저 확장 저장소에만 저장</strong>되며 개발자 운영 서비스로 전송되지 않습니다.</p>
+<p>다만 이용자가 선택적으로 <strong>「의견 보내기」 기능</strong>(의견 목록 보기 또는 의견 제출)을 사용하면, 요청이 개발자 운영 서비스(<code>https://altteuri.vercel.app</code>, 미국 소재 인프라)로 전달됩니다. 의견 <strong>본문·확장 버전·요청 제한용 일별 식별값</strong>은 <strong>의견을 제출할 때</strong>에만 데이터베이스에 저장됩니다. 목록을 보기만 하는 경우 본 확장은 의견 본문·식별값을 저장하지 않으나, 호스팅 사업자가 접속 과정에서 접속 정보를 처리할 수 있습니다(「5. 개인정보의 국외 이전」).</p>
+<p>로그인·닉네임·이메일 등 <strong>개인 식별정보를 별도로 요구하거나 수집하지 않습니다.</strong> 그렇다고 해서 의견 기능에서 개인정보가 전혀 발생하지 않는다는 뜻은 아닙니다. 자유 입력란에 이름·연락처 등을 적으면 그 내용이 개인정보가 될 수 있고, 제출 시 처리하는 IP는 다른 정보와 결합하면 개인을 알아볼 수 있는 정보(개인정보 보호법 제2조제1호나목)에 해당할 수 있습니다. <strong>자유 입력란에 개인정보를 입력하지 마십시오.</strong></p>
+<h3>2. 처리하는 정보 항목 및 목적 (개인정보 보호법 제15조·제22조 참조)</h3>
+<div class="table-wrap"><table><thead><tr><th>처리 구분</th><th>항목(예)</th><th>목적</th><th>저장 위치</th><th>발생 시점</th></tr></thead><tbody><tr><td>기능 on/off</td><td>알뜰이 사용 여부, 정렬·필터·페이지 표시 항목 조정·검색 개수 고정·장바구니 바로 담기 사용 여부</td><td>기능 활성화 상태 저장</td><td>이용자 브라우저</td><td>설정 변경 시</td></tr><tr><td>정렬 설정</td><td>정렬 on/off, 단위가·가격순 오름/내림, 현재 적용된 정렬 상태(local)</td><td>정렬 상태 유지</td><td>이용자 브라우저</td><td>설정 변경 시</td></tr><tr><td>필터 설정</td><td>이용자가 직접 입력한 제외 키워드</td><td>검색결과 필터링</td><td>이용자 브라우저</td><td>설정 변경 시</td></tr><tr><td>표시 설정</td><td>검색 개수 고정값, 표시 항목 프리셋 해제 목록</td><td>화면 표시 유지</td><td>이용자 브라우저</td><td>설정 변경 시</td></tr><tr><td>의견 보내기(선택)</td><td>이용자가 직접 입력한 의견 내용(최대 500자), 확장 버전</td><td>의견 목록 제공·공개, 이용자 의견 확인 및 제품 개선</td><td>개발자 운영 서비스(Vercel·Neon)</td><td><strong>의견 제출 시</strong></td></tr><tr><td>요청 보호 정보</td><td>의견 제출 요청의 출발지 IP(처리 중만), IP를 복원할 수 없는 형태로 변환한 일별 식별값·제출 횟수</td><td>동일 IP에서 하루 2건으로 의견 제출 제한</td><td>원문 IP는 저장하지 않음</td><td><strong>의견 제출 시</strong></td></tr><tr><td>목록 보기 접속</td><td>의견 목록 요청에 따르는 접속 정보(호스팅 사업자 처리 가능)</td><td>최근 의견 목록 표시</td><td>본 확장은 저장하지 않음. 호스팅 사업자 로그 정책에 따를 수 있음</td><td><strong>목록을 보기만 할 때</strong></td></tr></tbody></table></div>
+<ul><li>브라우저 설정 항목은 특정 개인을 식별하기 위한 정보가 아니며, 이용자가 확장 설정에서 직접 입력·변경한 값입니다. 외부로 전송되지 않습니다.</li><li>「의견 보내기」 <strong>작성·제출</strong>은 확장 팝업에서만 가능합니다. 소개 웹페이지에서는 최근 의견 <strong>목록 보기만</strong> 가능합니다.</li><li>제출된 의견 내용·확장 버전·제출 시각(날짜)은 확장 및 소개 웹페이지의 최근 의견 목록에서 <strong>다른 이용자에게 공개</strong>될 수 있습니다. 이는 아래 「4」의 제3자 제공과 다릅니다.</li><li><strong>수집·이용의 법적 근거(의견 본문·확장 버전·요청 보호 정보):</strong> 개인정보 보호법 제15조제1항제1호(정보주체의 동의). 팝업에서 저장·공개·국외 처리 사실과 개인정보 입력 금지를 먼저 알리고, 이용자가 이를 확인한 뒤 <strong>「보내기」를 눌러 자발적으로 제출하는 방식</strong>으로 동의를 표시합니다. 제출하지 않아도 일반 기능 이용에는 불이익이 없습니다.</li><li>위 표의 처리 목적·수집 항목·보유 및 이용 기간·거부권은 같은 법 제15조제2항 고지 사항에 해당합니다.</li></ul>
+<h3>3. 저장 위치 및 보유·파기 (개인정보 보호법 제21조 참조)</h3>
+<div class="table-wrap"><table><thead><tr><th>구분</th><th>보유 기간</th><th>파기</th></tr></thead><tbody><tr><td>브라우저 설정값</td><td>이용자가 확장을 사용하는 동안</td><td>확장 삭제 또는 브라우저의 확장/사이트 데이터 삭제 시 지체 없이 삭제. (팝업에 전역 「설정 초기화」 버튼은 없으며, 검색 결과의 「전체해제」는 제외 키워드·쿠팡 필터만 초기화)</td></tr><tr><td>제출된 의견·확장 버전</td><td><strong>제출일로부터 최대 2년</strong>, 또는 이용자가 GitHub Issues로 삭제를 요청한 때 중 <strong>먼저 도래하는 때</strong>까지</td><td>의견 API 요청 처리 시 제출일로부터 730일이 지난 행을 DB에서 삭제. 수탁자 백업본이 있으면 해당 수탁자 보존 주기에 따라 격리 후 만료·삭제. 삭제 요청 시에도 지체 없이 삭제</td></tr><tr><td>요청 제한용 일별 식별값</td><td><strong>생성일로부터 7일</strong></td><td>후속 의견 제출 처리 시 7일이 지난 레코드 삭제. 원문 IP는 저장하지 않음</td></tr></tbody></table></div>
+<ul><li>설정값은 브라우저 확장 저장소에 저장됩니다.</li><li>설정값 중 일부는 이용자가 브라우저에 로그인한 본인 계정을 통해 브라우저(Google Chrome) 자체 기능으로 다른 기기와 동기화될 수 있습니다. 이 동기화는 브라우저 제공사의 기능이며, 본 확장 개발자는 해당 데이터에 접근할 수 없습니다. 동기화에 따른 국외 처리 여부는 브라우저 제공사의 정책을 따릅니다.</li><li>의견은 별도 계정·식별자를 두지 않으므로, 삭제 요청 시에는 대상 의견을 특정할 수 있는 <strong>내용·제출 날짜</strong> 등 필요한 정보를 함께 알려 주어야 합니다. 합리적으로 특정할 수 없으면 처리가 제한될 수 있습니다.</li></ul>
+<h3>4. 제3자 제공·공개·처리위탁 (개인정보 보호법 제17조·제26조 참조)</h3>
+<p>다음을 구분합니다.</p>
+<div class="table-wrap"><table><thead><tr><th>구분</th><th>본 확장의 취급</th></tr></thead><tbody><tr><td><strong>제3자 제공</strong>(제17조)</td><td>처리 정보를 판매하거나 광고·분석(애널리틱스)·추적 목적으로 다른 개인정보처리자에게 <strong>제공하지 않습니다.</strong> 브라우저 설정값도 외부에 제공하지 않습니다.</td></tr><tr><td><strong>공개</strong></td><td>제출된 의견 내용·확장 버전·제출 날짜는 의견 목록에 <strong>게시</strong>될 수 있습니다. 공개는 제3자 제공과 다르며, 이용자가 팝업의 사전 안내를 확인하고 제출합니다.</td></tr><tr><td><strong>처리위탁</strong>(제26조)</td><td>「의견 보내기」 인프라 운영을 위해 아래 수탁자에게 저장·호스팅을 위탁합니다.</td></tr></tbody></table></div>
+<div class="table-wrap"><table><thead><tr><th>수탁자</th><th>위탁 업무</th><th>처리 정보</th></tr></thead><tbody><tr><td>Vercel Inc.</td><td>개발자 운영 웹 서비스 및 서버리스 API 호스팅, 요청 전달</td><td>의견 내용, 확장 버전, 요청 처리 과정의 접속 정보</td></tr><tr><td>Neon, Inc.</td><td>데이터베이스 호스팅</td><td>의견 내용, 확장 버전, 요청 제한용 일별 식별값 및 제출 횟수</td></tr></tbody></table></div>
+<p>각 수탁자는 위탁 목적 범위에서 정보를 처리하며, 개발자는 위탁 목적·범위를 벗어난 처리를 하지 않도록 관리합니다. 수탁자와의 관계는 각 사업자의 <strong>서비스 약관 및 데이터 처리 계약(DPA)</strong>에 따릅니다.</p>
+<h3>5. 개인정보의 국외 이전 (개인정보 보호법 제28조의8, 같은 법 시행령 제31조제1항제2호·제29조의10 참조)</h3>
+<p>수탁자(Vercel Inc., Neon, Inc.)는 국외에 설립·소재한 사업자이므로, 「의견 보내기」 관련 요청·저장은 국외(미국) 인프라를 거칩니다. 국외 이전의 근거와 관련 사항을 아래에 공개합니다.</p>
+<p><strong>국외 이전의 근거:</strong> 개인정보 보호법 <strong>제28조의8제1항제3호가목</strong>입니다. 이용자가 요청한 의견 목록 보기·제출 기능을 제공하려면 해외 클라우드의 처리위탁·보관이 필요하므로, 관련 사항을 이 방침에 공개합니다. 팝업에도 저장·공개·국외 처리 사실을 짧게 먼저 알립니다.</p>
+<p><strong>목록 보기와 제출의 차이</strong></p>
+<ul><li><strong>목록을 보기만 할 때:</strong> 요청이 미국 소재 호스팅으로 전달되며, 호스팅 사업자가 접속 정보를 처리할 수 있습니다. 본 확장은 이 경우 의견 본문·식별값을 <strong>저장하지 않습니다.</strong></li><li><strong>의견을 제출할 때:</strong> 본문·확장 버전·일별 식별값이 <strong>저장</strong>됩니다.</li></ul>
+<p>일반 기능(정렬·필터·표시 조정 등)만 사용하고 의견 화면을 열지 않으면, 본 확장에 의한 의견 관련 국외 요청은 발생하지 않습니다.</p>
+<div class="table-wrap"><table><thead><tr><th>구분</th><th>내용</th></tr></thead><tbody><tr><td>이전되는 정보 항목</td><td>(제출 시) 의견 내용(최대 500자), 확장 버전, 요청 처리 과정의 IP(원문은 미저장) 및 일별 식별값·제출 횟수. (목록 보기 시) 호스팅 사업자가 처리할 수 있는 접속 정보</td></tr><tr><td>이전되는 국가</td><td>미국(수탁자가 지정·운영하는 서버 리전에 따름)</td></tr><tr><td>이전 시기 및 방법</td><td>의견 목록 보기 또는 의견 제출 시, HTTPS로 클라우드 인프라에 전송. 본문·식별값의 저장은 제출 시에만</td></tr><tr><td>이전받는 자(명칭·연락처)</td><td><strong>Vercel Inc.</strong> — privacy@vercel.com / 440 N Barranca Avenue #4133, Covina, CA 91723, United States (<a href="https://vercel.com/legal/privacy-notice">개인정보 고지</a>). <strong>Neon, Inc.</strong> — privacy@neon.tech / 2261 Market Street STE 22601, San Francisco, CA 94114, United States (등록주소: 209 Orange Street, Wilmington, DE 19801)</td></tr><tr><td>이용 목적</td><td>의견 목록 제공·공개, 제품 개선, 동일 IP 하루 2건 제출 제한(제출 시)</td></tr><tr><td>보유·이용 기간</td><td>「3」 표에 따름(의견·버전 최대 2년 또는 삭제 요청 시, 일별 식별값 7일)</td></tr><tr><td>이전 거부 방법 및 효과</td><td>의견 화면을 열지 않거나 의견을 제출하지 않으면 됩니다. 목록만 보면 본문·식별값은 저장되지 않습니다. 거부해도 일반 기능 이용에는 제한이 없습니다</td></tr></tbody></table></div>
+<p>국외 이전 시 보호조치로 HTTPS 전송, 「8」의 안전조치, 고충 처리(GitHub Issues), 수탁자 약관·DPA를 적용합니다.</p>
+<h3>6. 개인정보 자동 수집 장치의 설치·운영</h3>
+<p>본 확장은 쿠키, 웹비콘 등 개인정보를 자동으로 수집하는 장치를 설치·운영하지 않습니다. 설정값 저장에는 브라우저 확장 저장소만 사용합니다. 의견을 제출할 때는 서비스 보호를 위해 요청 IP를 처리 중에만 사용하고, IP를 복원할 수 없는 형태로 변환한 일별 식별값으로 동일 IP 제출을 하루 2건으로 제한합니다. 원문 IP는 저장하지 않습니다.</p>
+<h3>7. 정보주체의 권리와 행사 방법 (개인정보 보호법 제4조 참조)</h3>
+<ul><li>열람·정정: 확장 설정 팝업에서 현재 설정을 확인·변경</li><li>설정값 삭제·파기: 확장 프로그램 삭제, 또는 브라우저의 사이트/확장 데이터 삭제</li><li>동의 철회: 앞으로의 제출을 하지 않으면 됩니다. 이미 제출·공개된 의견의 삭제는 GitHub Issues로 요청</li><li>제출 의견의 열람·삭제 요청: GitHub Issues. 계정 식별자가 없어 대상 의견을 합리적으로 특정할 수 없으면 처리가 제한될 수 있습니다</li></ul>
+<h3>8. 안전성 확보 조치 (개인정보 보호법 제29조, 같은 법 시행령 제30조·제31조제1항제3호 참조)</h3>
+<ul><li>설정값은 개발자 운영 서비스로 전송되지 않고 이용자 브라우저 내에만 저장됩니다.</li><li>의견·요청 정보는 전송 시 HTTPS로 암호화합니다.</li><li>의견 제출 시 입력값을 검증하고, 동일 IP의 제출을 하루 2건으로 제한합니다.</li><li>요청 제한에 사용하는 원문 IP는 저장하지 않습니다.</li></ul>
+<h3>9. 개인정보 보호책임자 및 문의 (개인정보 보호법 제31조, 같은 법 시행령 제32조 참조)</h3>
+<ul><li>본 확장은 개인 개발자가 비영리로 배포하는 개인정보처리자입니다.</li><li>개인정보 보호책임자: 본 확장을 배포하는 개인 개발자(개인정보처리자 본인). 개인정보 보호법 제31조 및 시행령 제32조제3항제2호가목에 따라 사업주·대표자로서 개인정보 처리 업무를 총괄합니다.</li><li>문의·고충 처리: <a href="https://github.com/intJoon/altteuri/issues">https://github.com/intJoon/altteuri/issues</a></li></ul>
+<h3>10. 고지의 의무</h3>
+<p>본 방침의 내용이 추가·삭제·변경되는 경우, 본 문서·확장 배포 페이지·설치 시 안내(<code>legal.html</code>) 등을 통해 공개합니다.</p></section>
+    <section class="card" id="terms"><h2>이용약관</h2>
+<blockquote><p>본 문서는 대한민국 법령에 근거한 법적 고지로, 예외적으로 한국어로 작성한다.</p><p>「알뜰이」(이하 &quot;본 확장&quot;)의 이용에 관한 약관 및 면책 고지입니다.</p><p>시행일: 2026-07-19</p></blockquote>
+<h3>제1조 (목적)</h3>
+<p>본 약관은 개인 개발자가 비영리·무료로 배포하는 브라우저 확장 프로그램 「본 확장」의 이용 조건 및 개발자와 이용자 간의 권리·의무를 규정함을 목적으로 합니다.</p>
+<h3>제2조 (정의)</h3>
+<ol><li>&quot;본 확장&quot;이란 쿠팡 검색결과·관련 페이지에서 정렬·필터링·페이지 표시 항목 조정·검색 개수 조정·장바구니 바로 담기 등 화면·조작 보조 기능을 제공하는 브라우저 확장 프로그램을 말합니다.</li><li>&quot;이용자&quot;란 본 확장을 설치하여 사용하는 자를 말합니다.</li><li>&quot;쿠팡&quot;이란 본 확장과 무관한 별개의 제3자가 운영하는 온라인 쇼핑 서비스를 말합니다.</li><li>&quot;의견 보내기&quot;란 이용자가 제품 개선을 위한 의견을 선택적으로 작성하여 개발자 운영 서비스에 제출하는 기능을 말합니다.</li></ol>
+<h3>제3조 (약관의 효력 및 변경)</h3>
+<ol><li>본 약관은 본 확장의 설치·사용 시 적용됩니다.</li><li>개발자는 관련 법령을 위반하지 않는 범위에서 본 약관을 변경할 수 있으며, 변경 시 배포 페이지 또는 본 문서를 통해 고지합니다.</li></ol>
+<h3>제4조 (서비스의 내용 및 성격)</h3>
+<ol><li>본 확장은 이용자의 편의를 위해 쿠팡 검색결과·관련 페이지의 표시·조작을 <strong>보조</strong>하는 비공식 도구입니다.</li><li>본 확장은 <strong>쿠팡 및 그 운영사와 아무런 제휴·후원·위탁 관계가 없으며, 공식 제품이 아닙니다.</strong></li><li>본 확장은 이용자 브라우저에서 화면 표시를 조정합니다. 쿠팡의 상품·가격·거래 정보를 독자적으로 생성하거나 변경하지 않습니다. 최초 설치 시 모든 기능은 꺼져 있으며, 이용자가 직접 켭니다.</li><li>의견 보내기는 선택 기능입니다. 이용자가 의견을 제출하면 의견 내용과 확장 버전이 저장되고, 최근 의견 목록에서 다른 이용자에게 공개될 수 있습니다. 구체적인 처리·보유·국외 이전 및 동의 사항은 개인정보처리방침에 따릅니다.</li></ol>
+<h3>제5조 (이용자의 의무)</h3>
+<ol><li>이용자는 관련 법령 및 본 약관, 그리고 쿠팡 등 제3자 서비스의 이용약관을 준수하여야 합니다.</li><li>이용자는 본 확장을 불법적인 목적이나 제3자의 권리를 침해하는 방식으로 사용하여서는 안 됩니다.</li><li>이용자는 의견 입력란에 개인정보, 불법 정보 또는 제3자의 권리를 침해하는 내용을 입력하여서는 안 됩니다. 제출된 의견은 공개될 수 있으므로, 공개를 원하지 않는 내용을 적어서는 안 됩니다.</li></ol>
+<h3>제6조 (지식재산권 및 제3자 상표)</h3>
+<ol><li>&quot;쿠팡&quot; 및 관련 명칭·로고·상표는 각 권리자에게 귀속되며, 본 확장은 이를 식별 목적으로만 사용합니다.</li><li>본 확장의 소스코드에 대한 권리는 해당 오픈소스 라이선스가 정하는 바에 따릅니다.</li></ol>
+<h3>제7조 (무보증)</h3>
+<ol><li>본 확장은 &quot;있는 그대로(as-is)&quot; 제공되며, 개발자는 특정 목적에의 적합성, 무결함, 지속적 정상 동작을 보증하지 않습니다.</li><li>쿠팡 등 제3자 서비스의 화면 구조·정책 변경으로 본 확장의 일부 또는 전부 기능이 예고 없이 동작하지 않을 수 있으며, 개발자는 이에 대한 수정·유지보수 의무를 부담하지 않습니다.</li><li>본 확장이 제공·표시하는 정렬 결과, 단위가격·할인율 계산 등은 참고용이며 그 정확성을 보증하지 않습니다. 실제 구매 결정은 이용자가 쿠팡의 원본 정보를 직접 확인한 후 하여야 합니다.</li></ol>
+<h3>제8조 (책임의 제한)</h3>
+<ol><li>개발자는 본 확장의 이용 또는 이용 불능으로 인하여 이용자에게 발생한 손해에 대하여, 관련 법령이 허용하는 범위에서 책임을 지지 않습니다.</li><li>다만 본 조는 <strong>개발자(및 그 이행보조자·피고용자)의 고의 또는 중대한 과실로 인한 법률상의 책임까지 배제하지 아니합니다.</strong></li></ol>
+<h3>제9조 (준거법 및 관할)</h3>
+<ol><li>본 약관은 대한민국 법령에 따라 해석·적용됩니다.</li><li>본 확장의 이용과 관련하여 분쟁이 발생하는 경우, 관련 법령이 정하는 관할 법원에 따릅니다.</li></ol>
+<h3>부칙</h3>
+<p>본 약관은 2026-07-19부터 시행합니다.</p></section>
   </div>
 </body>
 </html>

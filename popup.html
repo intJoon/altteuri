@@ -4,7 +4,10 @@
     <meta charset="UTF-8">
     <style>
       * { box-sizing: border-box; }
-      html, body { overflow-x: hidden; }
+      html, body {
+        overflow: hidden;
+        max-height: 600px;
+      }
       body {
         width: 340px;
         margin: 0;
@@ -12,15 +15,34 @@
         background: #fff;
         color: #333;
         padding: 14px 16px 16px;
+        display: flex;
+        flex-direction: column;
       }
 
       .page[hidden] { display: none; }
+      .page {
+        width: 100%;
+        min-height: 0;
+      }
 
-      #page-detail { display: flex; flex-direction: column; overflow: hidden; }
+      #page-detail {
+        display: flex; flex-direction: column; overflow: hidden;
+        flex: 1 1 auto; min-height: 0;
+      }
       #page-detail[hidden] { display: none; }
       #remove-body { flex: 1 1 auto; display: flex; flex-direction: column; min-height: 0; }
 
-      .title { font-size: 15px; font-weight: 700; color: #212b36; margin-bottom: 12px; }
+      .title-bar {
+        display: flex; align-items: center; justify-content: space-between;
+        gap: 8px; margin-bottom: 12px;
+      }
+      .title { font-size: 15px; font-weight: 700; color: #212b36; }
+      .feedback-link {
+        border: none; background: none; padding: 2px 4px;
+        font-family: inherit; font-size: 12px; color: #8c8c8c;
+        cursor: pointer; transition: color 0.12s;
+      }
+      .feedback-link:hover { color: #346aff; }
 
       .section-title { font-size: 12px; color: #8c8c8c; margin: 16px 0 4px; }
 
@@ -122,9 +144,12 @@
       }
       #preset-list .preset-head:first-child { margin-top: 8px; }
 
-      #page-feedback { display: flex; flex-direction: column; overflow: hidden; }
+      #page-feedback {
+        display: flex; flex-direction: column; overflow: hidden;
+        flex: 1 1 auto; min-height: 0;
+      }
       #page-feedback[hidden] { display: none; }
-      .feedback-compose { margin-bottom: 12px; }
+      .feedback-compose { margin: 4px 0 12px; flex: none; }
       #feedback-body {
         width: 100%; min-height: 72px; max-height: 120px; resize: vertical;
         font-family: inherit; font-size: 13px; color: #333; line-height: 1.45;
@@ -149,12 +174,18 @@
       #btn-feedback-submit:hover { background: #2a58d6; }
       #btn-feedback-submit:disabled { background: #e9ebee; color: #9aa0a8; cursor: default; }
       #btn-feedback-submit.error { background: #e11d48; }
+      .feedback-notice {
+        margin: 0 0 10px; padding: 8px 10px; background: #f5f6f8; border-radius: 8px;
+        font-size: 11px; line-height: 1.45; color: #5c6570;
+      }
+      .feedback-notice a { color: #346aff; text-decoration: none; font-weight: 600; }
+      .feedback-notice a:hover { text-decoration: underline; }
       .feedback-hp {
         position: absolute; left: -9999px; width: 1px; height: 1px;
         opacity: 0; overflow: hidden; pointer-events: none;
       }
       #feedback-list {
-        flex: 1 1 auto; min-height: 0; max-height: 280px;
+        flex: 1 1 auto; min-height: 0;
         overflow-y: auto; overflow-x: hidden;
       }
       .feedback-item {
@@ -187,14 +218,13 @@
       .feedback-status[hidden] { display: none; }
       #feedback-error { color: #8c8c8c; }
       #btn-feedback-retry, #btn-feedback-load-more {
-        display: block; width: 100%; margin-top: 8px;
+        display: block; width: 100%; margin-top: 8px; flex: none;
         font-family: inherit; font-size: 13px; font-weight: 600;
         color: #346aff; background: #eef0f3; border: none; border-radius: 6px;
         padding: 8px 0; cursor: pointer; transition: background 0.12s;
       }
       #btn-feedback-retry:hover, #btn-feedback-load-more:hover { background: #e5e8ed; }
       #btn-feedback-load-more[hidden], #btn-feedback-retry[hidden] { display: none; }
-      #sec-feedback { margin-top: 8px; }
 
       .cbox {
         flex: none; width: 20px; height: 20px; margin: 0; position: relative; cursor: pointer;
@@ -215,7 +245,10 @@
   </head>
   <body>
     <section class="page" id="page-main">
-      <div class="title">알뜰이</div>
+      <div class="title-bar">
+        <div class="title">알뜰이</div>
+        <button type="button" class="feedback-link" id="nav-feedback">의견 보내기</button>
+      </div>
 
       <button id="alt-toggle" class="master-btn off">알뜰이 켜기</button>
 
@@ -272,12 +305,6 @@
         </div>
       </div>
 
-      <div class="section" id="sec-feedback">
-        <div class="row nav-row" id="nav-feedback" role="button" tabindex="0">
-          <span class="row-label">의견 보내기</span>
-          <span class="row-trailing"><span class="chevron"></span></span>
-        </div>
-      </div>
     </section>
 
     <section class="page" id="page-detail" hidden>
@@ -303,7 +330,18 @@
         <button class="nav-back" id="nav-back-feedback" aria-label="뒤로"><span class="chev-left"></span></button>
       </div>
 
+      <div class="section">
+        <div class="row">
+          <span class="row-label">의견 보내기</span>
+        </div>
+      </div>
+
       <div class="feedback-compose">
+        <p class="feedback-notice">
+          의견과 확장 버전은 미국 소재 서비스에 저장되고 목록에 공개될 수 있습니다.
+          개인정보는 적지 마세요. 보내기를 누르면 이 안내에 동의한 것으로 봅니다.
+          <a href="legal.html#privacy" id="feedback-privacy-link" target="_blank" rel="noopener">개인정보처리방침</a>
+        </p>
         <textarea id="feedback-body" maxlength="500" rows="3" placeholder="의견을 남겨 주세요"></textarea>
         <input class="feedback-hp" type="text" name="website" id="feedback-honeypot" tabindex="-1" autocomplete="off">
         <div class="feedback-compose-meta">

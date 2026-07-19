@@ -6,6 +6,14 @@ const MAX_VERSION = 50;
 const DEFAULT_PAGE_SIZE = 5;
 const MAX_PAGE_SIZE = 100;
 const DAILY_POST_LIMIT = 2;
+const COMMENT_RETENTION_DAYS = 730;
+
+async function purgeExpiredComments(sql) {
+  await sql`
+    DELETE FROM comments
+    WHERE created_at < NOW() - (${COMMENT_RETENTION_DAYS} * INTERVAL '1 day')
+  `;
+}
 
 function requestOrigin(req) {
   const protocol = String(req.headers["x-forwarded-proto"] || "https").split(",")[0].trim();
@@ -129,6 +137,7 @@ export default async function handler(req, res) {
     const offset = Math.max(parsePageNumber(url.searchParams.get("offset"), 0), 0);
 
     try {
+      await purgeExpiredComments(sql);
       const countRows = await sql`SELECT COUNT(*)::int AS total FROM comments`;
       const total = countRows[0]?.total ?? 0;
       const comments = await sql`
@@ -172,6 +181,7 @@ export default async function handler(req, res) {
     if (!sql) return json(res, 503, { error: "comments_unavailable" });
 
     try {
+      await purgeExpiredComments(sql);
       const inserted = await insertFeedback(sql, req, body, version);
       if (inserted === null) {
         return json(res, 503, { error: "rate_limit_unavailable" });

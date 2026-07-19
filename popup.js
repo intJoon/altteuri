@@ -102,6 +102,14 @@ function showPage(name) {
     detailHeightLock = 0;
   }
 
+  if (pageFeedback) {
+    // 세부창과 동일하게 메인 페이지 높이를 상한으로 사용
+    // (알뜰이 꺼짐 등으로 메인이 아주 짧을 때는 작성 UI가 잘리지 않을 최소 높이 보장)
+    pageFeedback.style.maxHeight = name === 'feedback'
+      ? Math.max(pageMain.offsetHeight, 300) + 'px'
+      : '';
+  }
+
   if (pageMain) pageMain.hidden = name !== 'main';
   if (pageDetail) pageDetail.hidden = name !== 'detail';
   if (pageFeedback) pageFeedback.hidden = name !== 'feedback';
@@ -366,12 +374,7 @@ if (navRemove) {
   });
 }
 if (navBack) navBack.addEventListener('click', showMain);
-if (navFeedback) {
-  navFeedback.addEventListener('click', showFeedback);
-  navFeedback.addEventListener('keydown', e => {
-    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); showFeedback(); }
-  });
-}
+if (navFeedback) navFeedback.addEventListener('click', showFeedback);
 if (navBackFeedback) navBackFeedback.addEventListener('click', showMain);
 
 const feedbackBody = document.getElementById('feedback-body');
@@ -384,6 +387,7 @@ const feedbackLoading = document.getElementById('feedback-loading');
 const feedbackError = document.getElementById('feedback-error');
 const feedbackRetry = document.getElementById('btn-feedback-retry');
 const feedbackLoadMore = document.getElementById('btn-feedback-load-more');
+const feedbackPrivacyLink = document.getElementById('feedback-privacy-link');
 
 let feedbackOffset = 0;
 let feedbackHasMore = false;
@@ -671,6 +675,13 @@ if (feedbackBody) {
     updateFeedbackCharCount();
     if (feedbackDraftTimer) clearTimeout(feedbackDraftTimer);
     feedbackDraftTimer = setTimeout(saveFeedbackDraft, 200);
+  });
+}
+if (feedbackPrivacyLink) {
+  feedbackPrivacyLink.addEventListener('click', (e) => {
+    e.preventDefault();
+    const url = chrome.runtime.getURL('legal.html#privacy');
+    chrome.tabs.create({ url: url });
   });
 }
 if (feedbackSubmit) feedbackSubmit.addEventListener('click', submitFeedback);
