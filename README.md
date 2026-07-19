@@ -1,101 +1,78 @@
-> 예외: 이 저장소는 사용자 요청에 따라 README를 한국어로 작성합니다.
+# 알뜰이
 
-# Coupang Result Add-on
+A Manifest V3 Chrome extension that augments [Coupang](https://www.coupang.com) search results and related pages with custom sorting, configurable page elements, keyword filtering, result-count controls, quick add-to-cart, and optional product feedback. It is an **unofficial open-source tool with no affiliation, sponsorship, or delegation relationship with Coupang or its operator**. All shopping-related features are off by default.
 
-[쿠팡](https://www.coupang.com) 검색 결과·관련 페이지를 개선하는 Chrome 확장 프로그램(Manifest V3)입니다. 커스텀 정렬, 광고 요소 숨기기, 키워드 필터링, 검색 개수 고정, 장바구니 바로 담기를 제공합니다.
+**Repository:** https://github.com/intJoon/altteuri
 
-**저장소:** https://github.com/intJoon/coupang-result-addon
+## Features
 
-## 기능
+- Unit-price, discount-rate, and price sorting controls.
+- Configurable visibility for banners, promotions, and recommendation areas on search, product, cart, and order pages.
+- Excluded-keyword filtering that persists across Coupang filters and pagination, then resets for a new search.
+- Fixed search result counts of 36, 48, 60, or 72.
+- Quick add-to-cart from search result cards by reusing Coupang's own product-page cart flow.
+- **Send feedback:** an optional popup page for submitting up to 500 characters and viewing recent feedback. Submissions include the extension version and are sent through the developer-operated Vercel API for storage in Neon PostgreSQL.
+- **Introduction website:** `web/` contains the product introduction, privacy information, feedback UI, serverless API, and database schema.
 
-- 단위가격순 / 할인율순 / 가격순 정렬 버튼 (단위가·가격순은 오름/내림 토글, 할인율순은 높은 할인율 우선)
-- **광고 요소 숨기기**: 제작자가 정리한 기본 프리셋(검색결과·상품상세·장바구니·주문목록의 배너·프로모션·추천 캐러셀 등)을 처음부터 모두 숨김. 확장 팝업의 `광고요소 제거` 행을 **탭하면** 하위 페이지에서 각 항목을 **체크박스(체크 = 숨김)** 로 켜고 끌 수 있음(페이지별 그룹화, 초성·자모 항목 검색 지원, 변경 즉시 반영)
-- 키워드 제외 필터: 검색어(`q`)가 바뀌거나 검색을 다시 실행하면 초기화되고, 쿠팡 자체 필터·정렬·페이지 이동 시에는 유지됨
-- 검색 개수 고정: 토글을 켜면 `[36·48·60·72]` 세그먼트가 펼쳐져 개수를 고르고, 끄면 고정 해제(모핑 컨트롤). 최초 설치 기본값은 고정 on · 72개
-- **장바구니 바로 담기**: 검색 결과 그리드에서 상품 이미지 호버 시 장바구니 아이콘 표시. 클릭하면 숨김 iframe으로 상품 상세를 로드한 뒤 쿠팡 네이티브 담기 버튼을 대신 클릭(로그인·장바구니 API는 쿠팡 자체 플로우 재사용). 팝업에서 on/off(`quickCartEnabled`, 기본 on)
+Most settings are stored in `chrome.storage.sync`. Active sort restoration and feedback drafts use `chrome.storage.local`.
 
-각 기능은 확장 프로그램 팝업에서 켜고 끌 수 있습니다. **대부분의 설정은 `chrome.storage.sync`에 저장·동기화**되고, 활성 정렬 복원(`craActiveSort` / `craSortQuery`)만 `chrome.storage.local`에 저장됩니다(기기 간 동기화 없음).
+### Feature scope
 
-### 페이지별 기능 범위
+| Feature | Scope |
+|---|---|
+| Sorting, keyword filtering, result count, quick add-to-cart | Search results (`/np/search` on `www.coupang.com`) |
+| Configurable page elements | Matching pages on `www`, `cart`, and `mc.coupang.com` |
+| Feedback | Extension popup and the `web/` introduction site |
+| Extension on/off tab reload | `www.coupang.com` only |
 
-| 기능 | 적용 범위 |
-|------|-----------|
-| 정렬 3종 · 키워드 필터 · 검색개수 고정 · 장바구니 바로 담기 | 검색 결과(`/np/search`, `www.coupang.com`) |
-| 광고 요소 숨기기 | `www` / `cart` / `mc` 전 호스트(매칭된 페이지) |
-| 애드온 on/off 시 탭 리로드 | `www.coupang.com`만 |
+## Development installation
 
-## 설치 (개발자 모드)
+1. Open `chrome://extensions`.
+2. Enable **Developer mode**.
+3. Click **Load unpacked**.
+4. Select this repository directory.
 
-1. `chrome://extensions` 열기
-2. **개발자 모드** 켜기
-3. **압축해제된 확장 프로그램을 로드합니다** 클릭
-4. 이 프로젝트 폴더 선택
+Reload the extension after changing its source files.
 
-코드를 수정한 뒤에는 확장 프로그램을 **새로고침**하세요.
+## Feedback flow
 
-## 광고 요소 숨기기 사용법
+The popup and website send `GET` and `POST` requests to `https://altteuri.vercel.app/api/comments`. The Vercel serverless API validates the plain-text body, rejects honeypot submissions, and limits each IP address to two accepted submissions per UTC day. It stores only a daily HMAC of the IP for quota enforcement, while Neon credentials and the HMAC secret remain server-side. The extension receives access through its declared API `host_permissions`; database credentials are never included in extension or browser code.
 
-1. 확장 프로그램 아이콘을 눌러 팝업을 엽니다. 설정이 `정렬` / `필터` / `검색 표시` 그룹으로 묶여 있습니다(`장바구니 바로 담기`·검색개수는 `검색 표시`).
-2. `필터` 그룹의 `광고요소 제거` 행을 **탭하면** 원형 뒤로가기(`<`, `aria-label="뒤로"`)가 있는 하위 페이지로 들어갑니다. 상단의 `광고요소 제거` 스위치로 기능을 켜고, 아래에서 기본 프리셋 항목을 관리합니다.
-3. 항목은 `검색 결과` / `상품 상세` / `장바구니` / `주문목록` 페이지로 그룹화되어 있고(부제는 애플 설정 스타일), 항목마다 **체크박스**가 있습니다. 행을 탭하면 토글되며, 체크 = 숨김, 체크 해제 = 다시 보이기입니다. 상단의 **검색창**으로 항목을 찾을 수 있고, **초성·자모 검색**을 지원합니다(예: `ㄱㄱ`→"광고", `ㅅㅍ`→"상품", `상푸`→"상품"). 초성/자모 처리는 [es-hangul](https://github.com/toss/es-hangul)(MIT, Toss)의 방법론을 이식했습니다.
-4. 다시 보고 싶은 항목만 체크를 해제해 두면 됩니다. 설정은 자동 저장되고, 열려 있는 쿠팡 탭에 **새로고침 없이 즉시** 반영됩니다.
+No login, nickname, or personal identifier is requested. Users are instructed not to include personal information in free-text feedback. See the privacy policy for retention, deletion, and processing-provider details.
 
-## 프로젝트 구조
+## Project structure
 
-| 경로 | 역할 |
-|------|------|
-| `content.js` | 검색 페이지 로직, 요소 숨기기, 장바구니 바로 담기 |
-| `page-cart-hook.js` | PDP iframe MAIN world 훅(담기 API·클릭). CSP 때문에 `executeScript({ world:'MAIN', files })`로만 주입 |
-| `preset-data.js` | 기본 프리셋 데이터(`content.js`·`popup.js`보다 먼저 로드) |
-| `hangul-search.js` | 프리셋 목록 초성·자모 검색(`popup.html`에서 `popup.js` 앞에 로드) |
-| `popup.html` / `popup.js` | 설정 팝업 (기능 토글 + 광고 요소 숨기기 목록) |
-| `background.js` | 설치 시 기본값·설정 마이그레이션, 최초 설치 시 `legal.html` 안내, MAIN world 훅 주입 중계 |
-| `manifest.json` | 매니페스트 (버전은 `docs/버전.md`와 일치). 권한: `scripting`·`storage`·`tabs`. 호스트: `www`/`cart`/`mc.coupang.com` |
-| `legal.html` | 개인정보처리방침·이용약관 안내 페이지(최초 설치 시 표시) |
-| `docs/` | 개발 문서 + 법적 고지 (한국어, 버전 SSOT) |
+| Path | Role |
+|---|---|
+| `content.js` | Search-page behavior, configurable element visibility, and quick add-to-cart |
+| `page-cart-hook.js` | PDP iframe MAIN-world hook for cart API observation and clicks |
+| `preset-data.js` | Built-in page-element presets loaded before `content.js` and `popup.js` |
+| `hangul-search.js` | Korean initial-consonant and jamo search for the preset list |
+| `popup.html` / `popup.js` | Settings popup, preset page, and feedback page |
+| `background.js` | Default settings, migrations, first-install legal page, and MAIN-world injection relay |
+| `manifest.json` | Extension manifest and permissions; version matches `docs/버전.md` |
+| `legal.html` | Bundled privacy policy and terms shown after first installation |
+| `web/` | Introduction/privacy site, feedback UI, Vercel API, Neon client, and SQL schema |
+| `docs/` | Korean development records, version SSOT, privacy policy, and terms |
 
-## 저장소 키
+## Storage
 
-### chrome.storage.sync
+`chrome.storage.sync` holds feature toggles, sort preferences, excluded keywords, result-count settings, and preset visibility choices. `chrome.storage.local` holds the active sort/query pair and the unsent feedback draft. The built-in preset list remains in `preset-data.js`.
 
-| 키 | 용도 |
-|-----|------|
-| `addonEnabled` | 애드온 전체 on/off |
-| `elementRemoverEnabled` | 광고 요소 숨기기 기능 on/off |
-| `craPresetOff` | 사용자가 '보이기'로 끈 기본 프리셋 셀렉터 목록(기본값 빈 배열 = 전부 숨김) |
-| `keywordFilterEnabled` | 키워드 필터 on/off |
-| `excludedKeywords` | 제외 키워드 목록 |
-| `excludedKeywordsForQuery` | 제외 키워드가 속한 검색어(`q`) |
-| `unitPriceSortEnabled` / `discountRateSortEnabled` / `priceSortEnabled` | 커스텀 정렬 on/off |
-| `unitPriceSortOrder` / `priceSortOrder` | 단위가·가격순 오름(`asc`)/내림(`desc`) |
-| `forceCoupangListSize` / `coupangListSize` | 검색 개수 고정 |
-| `quickCartEnabled` | 장바구니 바로 담기 on/off (기본 on) |
-| `lastPreset` | 애드온을 껐다 켤 때 복원할 하위 기능 스냅샷 |
-| `settingsVersion` | 설정 스키마 버전 (마이그레이션용, 현재 6) |
+Shopping settings stay in the user's browser and are not sent to the developer-operated service. Only feedback that the user explicitly submits, together with the extension version, is sent to the feedback API.
 
-### chrome.storage.local
+## Privacy and legal notices
 
-| 키 | 용도 |
-|-----|------|
-| `craActiveSort` | 현재 적용 중 정렬(`unit` / `discount` / `price` / `null`) |
-| `craSortQuery` | 그 정렬이 적용된 검색어(`q`) — 같은 검색어일 때만 복원 |
+The extension does not collect browsing history, Coupang account information, or purchase history. Optional feedback is a separate flow: the submitted text and extension version are processed by the developer-operated Vercel service and stored in Neon for product improvement.
 
-> 숨길 요소 목록은 `preset-data.js`의 기본 프리셋에 고정되어 있으며, 사용자는 `craPresetOff`로 개별 항목만 켜고 끕니다. 프리셋은 검색 결과·상품 상세·장바구니(`cart.coupang.com`)·주문목록(`mc.coupang.com`) 페이지의 광고/추천 요소를 페이지별 그룹으로 다룹니다.
+- Privacy policy: [`docs/개인정보처리방침.md`](docs/개인정보처리방침.md)
+- Terms and disclaimer: [`docs/이용약관.md`](docs/이용약관.md)
+- `legal.html` bundles both notices for the first-install page.
+- `web/` provides the public introduction and privacy page used by the deployed service.
 
-## 법적 고지
+## Documentation
 
-본 확장은 **쿠팡 및 그 운영사와 아무런 제휴·후원 관계가 없는 비공식 오픈소스 도구**이며, 이용자의 개인정보를 수집·전송하지 않고 설정값만 이용자 브라우저(`chrome.storage`)에 저장합니다.
-
-- 개인정보처리방침: [`docs/개인정보처리방침.md`](docs/개인정보처리방침.md)
-- 이용약관·면책: [`docs/이용약관.md`](docs/이용약관.md)
-- 최초 설치 시 위 내용을 담은 `legal.html`이 자동으로 열립니다. 크롬 웹스토어 등록 시에는 개인정보처리방침을 공개 URL로 호스팅해 등록란에 기입하세요.
-
-> 근거 법령(확인일 2026-07-13, 법제처 국가법령정보): 개인정보 보호법 제30조·제4조·제21조, 약관의 규제에 관한 법률 제7조, 정보통신망법(참조).
-
-## 문서
-
-- 버전 이력 (SSOT): [`docs/버전.md`](docs/버전.md)
-- 결정·맥락: [`docs/방법론.md`](docs/방법론.md)
-- 출처: [`docs/출처.md`](docs/출처.md)
-- 업그레이드(폐기·대체): [`docs/업그레이드.md`](docs/업그레이드.md)
-- 법적 고지: [`docs/개인정보처리방침.md`](docs/개인정보처리방침.md) · [`docs/이용약관.md`](docs/이용약관.md)
+- Version history: [`docs/버전.md`](docs/버전.md)
+- Design decisions: [`docs/방법론.md`](docs/방법론.md)
+- Sources: [`docs/출처.md`](docs/출처.md)
+- Replacements and removals: [`docs/업그레이드.md`](docs/업그레이드.md)

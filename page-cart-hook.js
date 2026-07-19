@@ -26,10 +26,10 @@
   function mark(ok) {
     const v = ok ? 'ok' : 'fail';
     try {
-      document.documentElement.setAttribute('data-cra-cart', v);
+      document.documentElement.setAttribute('data-alt-cart', v);
     } catch (e) {}
     try {
-      window.parent.postMessage({ __craCart: v }, '*');
+      window.parent.postMessage({ __altCart: v }, '*');
     } catch (e) {}
   }
 
@@ -44,11 +44,11 @@
 
   function install() {
     try {
-      document.documentElement.removeAttribute('data-cra-cart');
+      document.documentElement.removeAttribute('data-alt-cart');
     } catch (e) {}
 
-    if (window.__craCartWatch) return;
-    window.__craCartWatch = 1;
+    if (window.__altCartWatch) return;
+    window.__altCartWatch = 1;
 
     if (window.fetch) {
       const of = window.fetch;
@@ -75,21 +75,21 @@
     const xo = XMLHttpRequest.prototype.open;
     const xs = XMLHttpRequest.prototype.send;
     XMLHttpRequest.prototype.open = function (m, u) {
-      this.__craU = u;
+      this.__altU = u;
       return xo.apply(this, arguments);
     };
     XMLHttpRequest.prototype.send = function (b) {
       this.addEventListener('load', function () {
-        if (isCartUrl(this.__craU)) mark(lookOk(this.responseText, this.status));
+        if (isCartUrl(this.__altU)) mark(lookOk(this.responseText, this.status));
       });
       this.addEventListener('error', function () {
-        if (isCartUrl(this.__craU)) mark(false);
+        if (isCartUrl(this.__altU)) mark(false);
       });
       return xs.apply(this, arguments);
     };
 
     window.addEventListener('message', function (e) {
-      if (!e.data || e.data.__craCartCmd !== 'click') return;
+      if (!e.data || e.data.__altCartCmd !== 'click') return;
       clickProdCart();
     });
   }

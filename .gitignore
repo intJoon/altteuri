@@ -9,3 +9,5 @@ node_modules/
 # Local Chromium/Chrome --user-data-dir (cookies, cache; large)
 profiles/
 tools/**/profile/
+.vercel
+.env*

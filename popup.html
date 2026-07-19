@@ -14,8 +14,11 @@
         padding: 14px 16px 16px;
       }
 
-      /* 페이지 전환 */
       .page[hidden] { display: none; }
+
+      #page-detail { display: flex; flex-direction: column; overflow: hidden; }
+      #page-detail[hidden] { display: none; }
+      #remove-body { flex: 1 1 auto; display: flex; flex-direction: column; min-height: 0; }
 
       .title { font-size: 15px; font-weight: 700; color: #212b36; margin-bottom: 12px; }
 
@@ -39,7 +42,6 @@
         transform: rotate(45deg);
       }
 
-      /* 쿠팡 블루 스위치 */
       .switch {
         position: relative; flex: none; width: 40px; height: 22px;
         background: #d2d5da; border-radius: 11px; cursor: pointer;
@@ -54,7 +56,6 @@
       }
       .switch:checked::before { transform: translateX(18px); }
 
-      /* 애드온 마스터 버튼 (쿠팡 블루) */
       .master-btn {
         width: 100%; font-size: 13px; font-weight: 600; color: #fff;
         background: #346aff; border: none; border-radius: 6px; padding: 10px 0;
@@ -63,7 +64,6 @@
       .master-btn:hover { background: #2a58d6; }
       .master-btn.off { background: #e9ebee; color: #9aa0a8; }
 
-      /* 검색 개수: 토글 ⇄ 세그먼트 모핑 컨트롤 */
       .size-control { display: flex; align-items: center; gap: 8px; }
       .size-seg {
         display: flex; gap: 2px; padding: 0; background: #eef0f3; border-radius: 8px;
@@ -80,7 +80,6 @@
         background: #fff; color: #346aff; font-weight: 700; box-shadow: 0 1px 2px rgba(0,0,0,0.12);
       }
 
-      /* 상세 페이지: 상단 바 (뒤로 + 더보기 메뉴) */
       .detail-bar {
         display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;
       }
@@ -99,7 +98,6 @@
         transform: rotate(45deg);
       }
 
-      /* 항목 검색 */
       .preset-search {
         width: 100%; font-size: 13px; color: #333; padding: 7px 10px; margin: 4px 0 2px;
         border: 1px solid #e4e6ea; border-radius: 8px; background: #f5f6f8; outline: none;
@@ -107,11 +105,10 @@
       .preset-search::-webkit-search-cancel-button { cursor: pointer; }
       .preset-search:focus { border-color: #346aff; background: #fff; }
 
-      #preset-list { max-height: 320px; overflow-y: auto; overflow-x: hidden; }
+      #preset-list { flex: 1 1 auto; min-height: 0; overflow-y: auto; overflow-x: hidden; }
       .preset-item-label { font-size: 13px; color: #454b53; white-space: nowrap; }
       .preset-empty { font-size: 13px; color: #b0b5bc; text-align: center; padding: 12px 0; }
 
-      /* 체크박스 선택 목록 (체크 = 숨김) */
       .preset-row {
         display: flex; align-items: center; justify-content: space-between; gap: 12px;
         min-height: 40px; padding: 6px 2px; border-bottom: 1px solid #f0f0f0; cursor: pointer;
@@ -119,14 +116,73 @@
       .section .preset-row:last-child { border-bottom: none; }
       .preset-row:active { background: #f7f8fa; }
 
-      /* 그룹 부제 (애플 설정 섹션 헤더 스타일) */
       .preset-head {
         margin: 20px 4px 7px; font-size: 13px; font-weight: 600;
         color: #8a8f98; letter-spacing: 0.01em;
       }
       #preset-list .preset-head:first-child { margin-top: 8px; }
 
-      /* 쿠팡 블루 체크박스 (개별 항목: 20px 라운드 사각) */
+      #page-feedback { display: flex; flex-direction: column; overflow: hidden; }
+      #page-feedback[hidden] { display: none; }
+      .feedback-compose { margin-bottom: 12px; }
+      #feedback-body {
+        width: 100%; min-height: 72px; max-height: 120px; resize: vertical;
+        font-family: inherit; font-size: 13px; color: #333; line-height: 1.45;
+        padding: 8px 10px; border: 1px solid #e4e6ea; border-radius: 8px;
+        background: #f5f6f8; outline: none;
+      }
+      #feedback-body:focus { border-color: #346aff; background: #fff; }
+      .feedback-compose-meta {
+        display: flex; align-items: center; justify-content: space-between;
+        gap: 8px; margin-top: 6px;
+      }
+      #feedback-char-count {
+        font-size: 12px; color: #8c8c8c; visibility: hidden;
+      }
+      #feedback-char-count.visible { visibility: visible; }
+      #feedback-char-count.warn { color: #d97706; }
+      #btn-feedback-submit {
+        flex: none; font-size: 13px; font-weight: 600; color: #fff;
+        background: #346aff; border: none; border-radius: 6px;
+        padding: 7px 14px; cursor: pointer; transition: background 0.15s;
+      }
+      #btn-feedback-submit:hover { background: #2a58d6; }
+      #btn-feedback-submit:disabled { background: #e9ebee; color: #9aa0a8; cursor: default; }
+      #btn-feedback-submit.error { background: #e11d48; }
+      .feedback-hp {
+        position: absolute; left: -9999px; width: 1px; height: 1px;
+        opacity: 0; overflow: hidden; pointer-events: none;
+      }
+      #feedback-list {
+        flex: 1 1 auto; min-height: 0; max-height: 280px;
+        overflow-y: auto; overflow-x: hidden;
+      }
+      .feedback-item {
+        padding: 10px 2px; border-bottom: 1px solid #f0f0f0;
+      }
+      .feedback-item:last-child { border-bottom: none; }
+      .feedback-item-body {
+        font-size: 13px; color: #333; line-height: 1.45;
+        white-space: pre-wrap; word-break: break-word;
+      }
+      .feedback-item-meta {
+        margin-top: 4px; font-size: 11px; color: #8c8c8c;
+      }
+      .feedback-status {
+        font-size: 13px; color: #b0b5bc; text-align: center; padding: 16px 0;
+      }
+      .feedback-status[hidden] { display: none; }
+      #feedback-error { color: #8c8c8c; }
+      #btn-feedback-retry, #btn-feedback-load-more {
+        display: block; width: 100%; margin-top: 8px;
+        font-family: inherit; font-size: 13px; font-weight: 600;
+        color: #346aff; background: #eef0f3; border: none; border-radius: 6px;
+        padding: 8px 0; cursor: pointer; transition: background 0.12s;
+      }
+      #btn-feedback-retry:hover, #btn-feedback-load-more:hover { background: #e5e8ed; }
+      #btn-feedback-load-more[hidden], #btn-feedback-retry[hidden] { display: none; }
+      #sec-feedback { margin-top: 8px; }
+
       .cbox {
         flex: none; width: 20px; height: 20px; margin: 0; position: relative; cursor: pointer;
         border: 1.5px solid #c4cdd5; border-radius: 5px; background: #fff;
@@ -145,11 +201,10 @@
     </style>
   </head>
   <body>
-    <!-- ===== 메인 페이지 ===== -->
     <section class="page" id="page-main">
-      <div class="title">쿠팡 검색결과 애드온</div>
+      <div class="title">알뜰이</div>
 
-      <button id="addon-toggle" class="master-btn off">애드온 켜기</button>
+      <button id="alt-toggle" class="master-btn off">알뜰이 켜기</button>
 
       <div id="feature-body">
         <div class="section" id="sec-sort">
@@ -172,10 +227,10 @@
           <div class="section-title">필터</div>
           <div class="row">
             <span class="row-label">키워드 필터링</span>
-            <input type="checkbox" id="toggle-keyword-filter" class="switch" checked>
+            <input type="checkbox" id="toggle-keyword-filter" class="switch">
           </div>
           <div class="row nav-row" id="nav-remove" role="button" tabindex="0">
-            <span class="row-label">광고요소 제거</span>
+            <span class="row-label">페이지 표시 항목 조정</span>
             <span class="row-trailing">
               <span class="row-detail" id="remove-detail"></span>
               <span class="chevron"></span>
@@ -187,10 +242,10 @@
           <div class="section-title">검색 표시</div>
           <div class="row">
             <span class="row-label">장바구니 바로 담기</span>
-            <input type="checkbox" id="toggle-quick-cart" class="switch" checked>
+            <input type="checkbox" id="toggle-quick-cart" class="switch">
           </div>
           <div class="row">
-            <span class="row-label">검색개수 고정</span>
+            <span class="row-label">검색 개수 고정</span>
             <div class="size-control" id="size-control">
               <div class="size-seg" id="size-seg" role="group" aria-label="검색 개수 선택">
                 <button type="button" class="size-chip" data-size="36">36</button>
@@ -198,14 +253,20 @@
                 <button type="button" class="size-chip" data-size="60">60</button>
                 <button type="button" class="size-chip" data-size="72">72</button>
               </div>
-              <input type="checkbox" id="force-list-size" class="switch" aria-label="검색개수 고정">
+              <input type="checkbox" id="force-list-size" class="switch" aria-label="검색 개수 고정">
             </div>
           </div>
         </div>
       </div>
+
+      <div class="section" id="sec-feedback">
+        <div class="row nav-row" id="nav-feedback" role="button" tabindex="0">
+          <span class="row-label">의견 보내기</span>
+          <span class="row-trailing"><span class="chevron"></span></span>
+        </div>
+      </div>
     </section>
 
-    <!-- ===== 상세(자식) 페이지: 광고요소 제거 ===== -->
     <section class="page" id="page-detail" hidden>
       <div class="detail-bar">
         <button class="nav-back" id="nav-back" aria-label="뒤로"><span class="chev-left"></span></button>
@@ -213,7 +274,7 @@
 
       <div class="section">
         <div class="row">
-          <span class="row-label">광고요소 제거</span>
+          <span class="row-label">페이지 표시 항목 조정</span>
           <input type="checkbox" id="toggle-remove-content" class="switch">
         </div>
       </div>
@@ -222,6 +283,30 @@
         <input type="search" id="preset-search" class="preset-search" placeholder="항목 검색" autocomplete="off">
         <div id="preset-list"></div>
       </div>
+    </section>
+
+    <section class="page" id="page-feedback" hidden>
+      <div class="detail-bar">
+        <button class="nav-back" id="nav-back-feedback" aria-label="뒤로"><span class="chev-left"></span></button>
+      </div>
+
+      <div class="feedback-compose">
+        <textarea id="feedback-body" maxlength="500" rows="3" placeholder="의견을 남겨 주세요"></textarea>
+        <input class="feedback-hp" type="text" name="website" id="feedback-honeypot" tabindex="-1" autocomplete="off">
+        <div class="feedback-compose-meta">
+          <span id="feedback-char-count">0 / 500</span>
+          <button type="button" id="btn-feedback-submit">보내기</button>
+        </div>
+      </div>
+
+      <div id="feedback-loading" class="feedback-status" hidden>불러오는 중…</div>
+      <div id="feedback-empty" class="feedback-status" hidden>아직 의견이 없습니다</div>
+      <div id="feedback-error" class="feedback-status" hidden>
+        불러오지 못했습니다
+        <button type="button" id="btn-feedback-retry">다시 시도</button>
+      </div>
+      <div id="feedback-list"></div>
+      <button type="button" id="btn-feedback-load-more" hidden>더보기</button>
     </section>
 
     <script src="preset-data.js"></script>

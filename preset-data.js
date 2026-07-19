@@ -1,4 +1,4 @@
-window.CRA_BUILTIN_PRESET = {
+window.ALT_BUILTIN_PRESET = {
   name: '추천 프리셋',
   version: 6,
   items: [

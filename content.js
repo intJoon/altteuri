@@ -35,8 +35,8 @@ function isExtensionEnabled(callback) {
     return;
   }
   try {
-    chrome.storage.sync.get(['addonEnabled'], result => {
-      callback(!!result.addonEnabled);
+    chrome.storage.sync.get(['altEnabled'], result => {
+      callback(!!result.altEnabled);
     });
   } catch (e) {
     callback(true);
@@ -232,8 +232,8 @@ function saveActiveSort(kind) {
   try {
     if (!window.chrome || !chrome.storage || !chrome.storage.local || !chrome.runtime || !chrome.runtime.id) return;
     chrome.storage.local.set({
-      craActiveSort: kind || null,
-      craSortQuery: kind ? (getSearchQueryKey() || '') : null
+      altActiveSort: kind || null,
+      altSortQuery: kind ? (getSearchQueryKey() || '') : null
     });
   } catch (e) {}
 }
@@ -244,10 +244,10 @@ function getActiveSort(callback) {
       callback(null);
       return;
     }
-    chrome.storage.local.get(['craActiveSort', 'craSortQuery'], r => {
-      if (!r.craActiveSort) { callback(null); return; }
-      if ((r.craSortQuery || '') !== (getSearchQueryKey() || '')) { callback(null); return; }
-      callback(r.craActiveSort);
+    chrome.storage.local.get(['altActiveSort', 'altSortQuery'], r => {
+      if (!r.altActiveSort) { callback(null); return; }
+      if ((r.altSortQuery || '') !== (getSearchQueryKey() || '')) { callback(null); return; }
+      callback(r.altActiveSort);
     });
   } catch (e) {
     callback(null);
@@ -1076,7 +1076,7 @@ function handleOptionChange() {
 
 window.handleOptionChange = handleOptionChange;
 
-function setListSizeFromAddon() {
+function setListSizeFromAlt() {
   if (!window.chrome || !chrome.storage || !chrome.runtime || !chrome.runtime.id) return;
   
   if (!/\/np\/search/.test(location.pathname)) return;
@@ -1102,8 +1102,8 @@ initSortAndSizeSync();
 isExtensionEnabled(enabled => {
 if (enabled) {
   chrome.storage.sync.get(['forceCoupangListSize'], result => {
-    if (result.forceCoupangListSize !== false) {
-      setListSizeFromAddon();
+    if (result.forceCoupangListSize) {
+      setListSizeFromAlt();
     }
   });
   observeProductList();
@@ -1125,7 +1125,7 @@ let keywordFilterEnabled = true;
 let lastTrackedSearchQuery = null;
 let kwChangeBound = false;
 
-const KEYWORD_FILTER_STYLE_ID = 'cra-keyword-filter-styles';
+const KEYWORD_FILTER_STYLE_ID = 'alt-keyword-filter-styles';
 
 function getSearchQueryKey(urlString = window.location.href) {
   try {
@@ -1149,11 +1149,11 @@ function normalizeStoredSearchQuery(stored) {
 
 function renderKeywordFilterTags() {
   
-  const tagsContainer = document.querySelector('[data-cra-keyword-tags]');
+  const tagsContainer = document.querySelector('[data-alt-keyword-tags]');
   if (!tagsContainer) { updateKeywordResetButton(); return; }
   tagsContainer.querySelectorAll('.fw-inline').forEach(el => el.remove());
-  tagsContainer.classList.toggle('cra-tags-empty', excludedKeywords.length === 0);
-  const wrap = tagsContainer.closest('[data-cra-keyword-tags-wrap]');
+  tagsContainer.classList.toggle('alt-tags-empty', excludedKeywords.length === 0);
+  const wrap = tagsContainer.closest('[data-alt-keyword-tags-wrap]');
   if (wrap) wrap.style.display = excludedKeywords.length ? '' : 'none';
   excludedKeywords.forEach(keyword => {
     const fw = document.createElement('div');
@@ -1240,16 +1240,16 @@ function ensureKeywordFilterStyles() {
   const style = document.createElement('style');
   style.id = KEYWORD_FILTER_STYLE_ID;
   style.textContent = `
-    .cra-keyword-filter {
+    .alt-keyword-filter {
       font-family: inherit;
     }
-    .cra-keyword-filter__row {
+    .alt-keyword-filter__row {
       display: flex;
       align-items: center;
       gap: 6px;
       flex-wrap: nowrap;
     }
-    .cra-keyword-filter__input {
+    .alt-keyword-filter__input {
       flex: 1 1 auto;
       min-width: 0;
       padding: 6px 8px;
@@ -1260,8 +1260,8 @@ function ensureKeywordFilterStyles() {
       background: #fff;
       box-sizing: border-box;
     }
-    .cra-keyword-filter__input:focus { border-color: #346aff; }
-    .cra-keyword-filter__btn {
+    .alt-keyword-filter__input:focus { border-color: #346aff; }
+    .alt-keyword-filter__btn {
       flex: 0 0 auto;
       padding: 6px 12px;
       border: 1px solid #ddd;
@@ -1273,15 +1273,15 @@ function ensureKeywordFilterStyles() {
       white-space: nowrap;
       box-sizing: border-box;
     }
-    .cra-keyword-filter__btn:hover { background: #eee; }
-    [data-cra-keyword-tags] {
+    .alt-keyword-filter__btn:hover { background: #eee; }
+    [data-alt-keyword-tags] {
       margin: 0;
       padding: 0;
     }
-    [data-cra-keyword-tags].cra-tags-empty {
+    [data-alt-keyword-tags].alt-tags-empty {
       display: none;
     }
-    .cra-keyword-tags {
+    .alt-keyword-tags {
       margin: 0 0 12px;
     }
   `;
@@ -1297,7 +1297,7 @@ function findKeywordFilterInsertTarget() {
   ];
   for (const sel of selectors) {
     const el = document.querySelector(sel);
-    if (el && !el.closest('[data-cra-keyword-filter]')) return el;
+    if (el && !el.closest('[data-alt-keyword-filter]')) return el;
   }
   const productList = document.querySelector(SELECTORS.productList);
   return productList ? productList.parentElement : null;
@@ -1315,7 +1315,7 @@ function applyProductVisibility() {
   if (!window.chrome || !chrome.storage || !chrome.runtime || !chrome.runtime.id) return;
   try {
     chrome.storage.sync.get(['keywordFilterEnabled'], result => {
-      keywordFilterEnabled = result.keywordFilterEnabled !== false;
+      keywordFilterEnabled = !!result.keywordFilterEnabled;
       const productList = document.querySelector(SELECTORS.productList);
       if (!productList) return;
       getProductItems(productList).forEach(item => {
@@ -1376,7 +1376,7 @@ function applyKeywordFilter() {
 }
 
 function createKeywordFilterUI() {
-  document.querySelectorAll('[data-cra-keyword-filter], [data-cra-keyword-tags-wrap], .keyword-filter-container').forEach(el => el.remove());
+  document.querySelectorAll('[data-alt-keyword-filter], [data-alt-keyword-tags-wrap], .keyword-filter-container').forEach(el => el.remove());
 
   
   const filterBar = document.querySelector('.filter-function-bar');
@@ -1387,8 +1387,8 @@ function createKeywordFilterUI() {
 
   
   const inputBlock = document.createElement('div');
-  inputBlock.className = 'cra-keyword-filter';
-  inputBlock.setAttribute('data-cra-keyword-filter', '');
+  inputBlock.className = 'alt-keyword-filter';
+  inputBlock.setAttribute('data-alt-keyword-filter', '');
 
   const header = document.createElement('div');
   header.className = 'filter-function-bar-header';
@@ -1398,7 +1398,7 @@ function createKeywordFilterUI() {
   resetWrap.className = 'fw-inline';
   const resetButton = document.createElement('button');
   resetButton.type = 'button';
-  resetButton.className = 'filter-reset-btn cra-reset-btn';
+  resetButton.className = 'filter-reset-btn alt-reset-btn';
   resetButton.textContent = '전체해제';
   resetWrap.appendChild(resetButton);
   header.appendChild(title);
@@ -1408,15 +1408,15 @@ function createKeywordFilterUI() {
   const body = document.createElement('div');
   body.className = 'fw-px-[10px] fw-pb-[8px] fw-pt-[10px]';
   const inputRow = document.createElement('div');
-  inputRow.className = 'cra-keyword-filter__row';
+  inputRow.className = 'alt-keyword-filter__row';
   const input = document.createElement('input');
   input.type = 'text';
   input.placeholder = '제외할 키워드 입력';
-  input.className = 'cra-keyword-filter__input';
+  input.className = 'alt-keyword-filter__input';
   const addButton = document.createElement('button');
   addButton.type = 'button';
   addButton.textContent = '추가';
-  addButton.className = 'cra-keyword-filter__btn';
+  addButton.className = 'alt-keyword-filter__btn';
   inputRow.appendChild(input);
   inputRow.appendChild(addButton);
   body.appendChild(inputRow);
@@ -1424,11 +1424,11 @@ function createKeywordFilterUI() {
 
   
   const tagsBlock = document.createElement('div');
-  tagsBlock.className = 'cra-keyword-tags';
-  tagsBlock.setAttribute('data-cra-keyword-tags-wrap', '');
+  tagsBlock.className = 'alt-keyword-tags';
+  tagsBlock.setAttribute('data-alt-keyword-tags-wrap', '');
   const tagsRow = document.createElement('div');
   tagsRow.className = 'selected-filters';
-  tagsRow.setAttribute('data-cra-keyword-tags', '');
+  tagsRow.setAttribute('data-alt-keyword-tags', '');
   const label = document.createElement('span');
   label.textContent = '제외된 키워드:';
   tagsRow.appendChild(label);
@@ -1460,7 +1460,7 @@ function createKeywordFilterUI() {
   addButton.addEventListener('click', addKeyword);
   resetButton.addEventListener('click', () => {
     
-    const native = document.querySelector('.filter-reset-btn:not(.cra-reset-btn)');
+    const native = document.querySelector('.filter-reset-btn:not(.alt-reset-btn)');
     excludedKeywords = [];
     saveExcludedKeywords();
     renderKeywordFilterTags();
@@ -1500,9 +1500,9 @@ function createKeywordFilterUI() {
 
 function updateKeywordResetButton() {
   if (!keywordFilterContainer) return;
-  const ourBtn = keywordFilterContainer.querySelector('.cra-reset-btn');
+  const ourBtn = keywordFilterContainer.querySelector('.alt-reset-btn');
   if (!ourBtn) return;
-  const native = document.querySelector('.filter-reset-btn:not(.cra-reset-btn)');
+  const native = document.querySelector('.filter-reset-btn:not(.alt-reset-btn)');
   if (native) native.style.display = 'none';
   const show = excludedKeywords.length > 0 || !!native;
   ourBtn.style.display = show ? '' : 'none';
@@ -1511,8 +1511,8 @@ function updateKeywordResetButton() {
 function ensureKeywordFilterPresent() {
   if (!keywordFilterEnabled) return;
   const filterBar = document.querySelector('.filter-function-bar');
-  const hasInput = document.querySelector('[data-cra-keyword-filter]');
-  const hasTags = document.querySelector('[data-cra-keyword-tags-wrap]');
+  const hasInput = document.querySelector('[data-alt-keyword-filter]');
+  const hasTags = document.querySelector('[data-alt-keyword-tags-wrap]');
   
   const ok = hasInput && (!filterBar || hasTags);
   if (!ok) {
@@ -1523,8 +1523,8 @@ function ensureKeywordFilterPresent() {
 }
 
 function removeKeywordFilterUI() {
-  document.querySelectorAll('[data-cra-keyword-filter], [data-cra-keyword-tags-wrap], .keyword-filter-container').forEach(el => el.remove());
-  const native = document.querySelector('.filter-reset-btn:not(.cra-reset-btn)');
+  document.querySelectorAll('[data-alt-keyword-filter], [data-alt-keyword-tags-wrap], .keyword-filter-container').forEach(el => el.remove());
+  const native = document.querySelector('.filter-reset-btn:not(.alt-reset-btn)');
   if (native) native.style.display = '';
   keywordFilterContainer = null;
 }
@@ -1545,7 +1545,7 @@ function initKeywordFilterSync() {
       excludedKeywords = [];
       saveExcludedKeywords();
       addKeywordFilterFeature();
-    } else if (changes.addonEnabled) {
+    } else if (changes.altEnabled) {
       addKeywordFilterFeature();
     }
   });
@@ -1587,7 +1587,7 @@ function initSortAndSizeSync() {
     if (changes.priceSortEnabled) handleSortFeatureToggle('price', !!changes.priceSortEnabled.newValue);
     if (changes.forceCoupangListSize || changes.coupangListSize) {
       chrome.storage.sync.get(['forceCoupangListSize'], r => {
-        if (r.forceCoupangListSize !== false) setListSizeFromAddon();
+        if (r.forceCoupangListSize) setListSizeFromAlt();
       });
     }
   });
@@ -1606,7 +1606,7 @@ function addKeywordFilterFeature(retryCount = 0) {
     if (!window.chrome || !chrome.storage || !chrome.runtime || !chrome.runtime.id) return;
     try {
       chrome.storage.sync.get(['keywordFilterEnabled'], result => {
-        keywordFilterEnabled = result.keywordFilterEnabled !== false;
+        keywordFilterEnabled = !!result.keywordFilterEnabled;
         if (!keywordFilterEnabled) {
           
           removeKeywordFilterUI();
@@ -1627,22 +1627,22 @@ function addKeywordFilterFeature(retryCount = 0) {
 }
 
 let quickCartChangeBound = false;
-const CRA_QUICK_CART_STYLE_ID = 'cra-quick-cart-styles';
+const ALT_QUICK_CART_STYLE_ID = 'alt-quick-cart-styles';
 
 function quickCartSleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 function ensureQuickCartStyles() {
-  let s = document.getElementById(CRA_QUICK_CART_STYLE_ID);
+  let s = document.getElementById(ALT_QUICK_CART_STYLE_ID);
   if (!s) {
     s = document.createElement('style');
-    s.id = CRA_QUICK_CART_STYLE_ID;
+    s.id = ALT_QUICK_CART_STYLE_ID;
     (document.head || document.documentElement).appendChild(s);
   }
   s.textContent = [
-    '@keyframes cra-quick-cart-spin { to { transform: rotate(360deg); } }',
-    '.cra-quick-cart-btn {',
+    '@keyframes alt-quick-cart-spin { to { transform: rotate(360deg); } }',
+    '.alt-quick-cart-btn {',
     '  position: absolute; right: 8px; bottom: 8px; z-index: 12;',
     '  width: 36px; height: 36px; padding: 0; border: none; border-radius: 50%;',
     '  display: inline-flex; align-items: center; justify-content: center;',
@@ -1650,21 +1650,21 @@ function ensureQuickCartStyles() {
     '  box-shadow: 0 1px 2px rgba(0,0,0,0.18); cursor: pointer;',
     '  opacity: 0; pointer-events: none; transition: opacity 0.15s, background 0.12s;',
     '}',
-    'li[class*="ProductUnit_productUnit"]:hover .cra-quick-cart-btn,',
-    '.cra-quick-cart-btn:focus-visible,',
-    '.cra-quick-cart-btn[data-state="loading"],',
-    '.cra-quick-cart-btn[data-state="done"],',
-    '.cra-quick-cart-btn[data-state="error"] { opacity: 1; pointer-events: auto; }',
-    '.cra-quick-cart-btn:hover { background: #f7f8fa; }',
-    '.cra-quick-cart-btn[data-state="loading"] { cursor: wait; opacity: 0.85; }',
-    '.cra-quick-cart-btn[data-state="loading"] svg { animation: cra-quick-cart-spin 0.75s linear infinite; transform-origin: center; }',
-    '.cra-quick-cart-btn[data-state="done"] { color: #1a9f5c; }',
-    '.cra-quick-cart-btn[data-state="error"] { color: #e53935; }',
-    '.cra-quick-cart-btn svg { width: 18px; height: 18px; display: block; }'
+    'li[class*="ProductUnit_productUnit"]:hover .alt-quick-cart-btn,',
+    '.alt-quick-cart-btn:focus-visible,',
+    '.alt-quick-cart-btn[data-state="loading"],',
+    '.alt-quick-cart-btn[data-state="done"],',
+    '.alt-quick-cart-btn[data-state="error"] { opacity: 1; pointer-events: auto; }',
+    '.alt-quick-cart-btn:hover { background: #f7f8fa; }',
+    '.alt-quick-cart-btn[data-state="loading"] { cursor: wait; opacity: 0.85; }',
+    '.alt-quick-cart-btn[data-state="loading"] svg { animation: alt-quick-cart-spin 0.75s linear infinite; transform-origin: center; }',
+    '.alt-quick-cart-btn[data-state="done"] { color: #1a9f5c; }',
+    '.alt-quick-cart-btn[data-state="error"] { color: #e53935; }',
+    '.alt-quick-cart-btn svg { width: 18px; height: 18px; display: block; }'
   ].join('\n');
 }
 
-function craQuickCartIcon(kind) {
+function altQuickCartIcon(kind) {
   if (kind === 'check') {
     return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M5 12l5 5L19 7"/></svg>';
   }
@@ -1697,10 +1697,10 @@ function getProductImageBox(item) {
 
 function setQuickCartBtnState(btn, state) {
   btn.dataset.state = state;
-  if (state === 'loading') btn.innerHTML = craQuickCartIcon('spin');
-  else if (state === 'done') btn.innerHTML = craQuickCartIcon('check');
-  else if (state === 'error') btn.innerHTML = craQuickCartIcon('error');
-  else btn.innerHTML = craQuickCartIcon('cart');
+  if (state === 'loading') btn.innerHTML = altQuickCartIcon('spin');
+  else if (state === 'done') btn.innerHTML = altQuickCartIcon('check');
+  else if (state === 'error') btn.innerHTML = altQuickCartIcon('error');
+  else btn.innerHTML = altQuickCartIcon('cart');
 }
 
 function buildQuickCartProductUrl(ids) {
@@ -1770,7 +1770,7 @@ function runInIframeMainWorld(iframe, action) {
       return;
     }
     try {
-      chrome.runtime.sendMessage({ type: 'cra-main', action, frameId }, (res) => {
+      chrome.runtime.sendMessage({ type: 'alt-main', action, frameId }, (res) => {
         if (chrome.runtime.lastError) {
           reject(new Error(chrome.runtime.lastError.message));
           return;
@@ -1787,7 +1787,7 @@ function runInIframeMainWorld(iframe, action) {
 async function installCartResponseWatcher(iframe) {
   try {
     const doc = iframe.contentDocument;
-    if (doc) doc.documentElement.removeAttribute('data-cra-cart');
+    if (doc) doc.documentElement.removeAttribute('data-alt-cart');
   } catch (e) {}
   try {
     await runInIframeMainWorld(iframe, 'install');
@@ -1800,12 +1800,12 @@ async function clickProdCartButton(iframe, btn) {
   } catch (e) {}
   try {
     const win = iframe.contentWindow;
-    if (win) win.postMessage({ __craCartCmd: 'click' }, '*');
+    if (win) win.postMessage({ __altCartCmd: 'click' }, '*');
   } catch (e) {}
 }
 
 function readCartWatchFlag(doc) {
-  try { return doc.documentElement.getAttribute('data-cra-cart'); } catch { return null; }
+  try { return doc.documentElement.getAttribute('data-alt-cart'); } catch { return null; }
 }
 
 function dispatchRealClick(el, win) {
@@ -1859,7 +1859,7 @@ async function waitForFastCartResult(doc, maxMs, iframe) {
 
     const onMsg = (e) => {
       if (iframe && e.source && e.source !== iframe.contentWindow) return;
-      const v = e.data && e.data.__craCart;
+      const v = e.data && e.data.__altCart;
       if (v === 'ok') return finish(resolve);
       if (v === 'fail') return finish(() => reject(new Error('cart_failed')));
     };
@@ -1867,7 +1867,7 @@ async function waitForFastCartResult(doc, maxMs, iframe) {
 
     const obs = new MutationObserver(check);
     try {
-      obs.observe(doc.documentElement, { attributes: true, attributeFilter: ['data-cra-cart'] });
+      obs.observe(doc.documentElement, { attributes: true, attributeFilter: ['data-alt-cart'] });
       obs.observe(doc.body || doc.documentElement, { childList: true, subtree: true, characterData: true });
     } catch {}
 
@@ -1887,7 +1887,7 @@ function quickCartCacheKey(ids) {
 
 function createQuickCartIframe() {
   const iframe = document.createElement('iframe');
-  iframe.setAttribute('data-cra-ui', '');
+  iframe.setAttribute('data-alt-ui', '');
   iframe.setAttribute('aria-hidden', 'true');
   iframe.tabIndex = -1;
   iframe.style.cssText = 'position:fixed;width:1px;height:1px;opacity:0;pointer-events:none;border:0;left:-10000px;top:0';
@@ -1902,17 +1902,17 @@ function loadQuickCartIframe(iframe, ids) {
   });
 }
 
-const CRA_WARM_DEBOUNCE_MS = 160;
-let craWarm = null;
-let craWarmTimer = null;
-let craWarmEpoch = 0;
+const ALT_WARM_DEBOUNCE_MS = 160;
+let altWarm = null;
+let altWarmTimer = null;
+let altWarmEpoch = 0;
 
 function discardQuickCartWarm() {
-  clearTimeout(craWarmTimer);
-  craWarmTimer = null;
-  const entry = craWarm;
-  craWarm = null;
-  craWarmEpoch += 1;
+  clearTimeout(altWarmTimer);
+  altWarmTimer = null;
+  const entry = altWarm;
+  altWarm = null;
+  altWarmEpoch += 1;
   if (entry?.iframe) {
     try { entry.iframe.remove(); } catch {}
   }
@@ -1920,41 +1920,41 @@ function discardQuickCartWarm() {
 
 function scheduleQuickCartWarm(ids) {
   const key = quickCartCacheKey(ids);
-  if (craWarm && craWarm.key === key) return;
-  clearTimeout(craWarmTimer);
-  craWarmTimer = setTimeout(() => { startQuickCartWarm(ids); }, CRA_WARM_DEBOUNCE_MS);
+  if (altWarm && altWarm.key === key) return;
+  clearTimeout(altWarmTimer);
+  altWarmTimer = setTimeout(() => { startQuickCartWarm(ids); }, ALT_WARM_DEBOUNCE_MS);
 }
 
 function startQuickCartWarm(ids) {
-  clearTimeout(craWarmTimer);
-  craWarmTimer = null;
+  clearTimeout(altWarmTimer);
+  altWarmTimer = null;
   const key = quickCartCacheKey(ids);
-  if (craWarm && craWarm.key === key) return craWarm.promise;
+  if (altWarm && altWarm.key === key) return altWarm.promise;
 
   discardQuickCartWarm();
-  const epoch = craWarmEpoch;
+  const epoch = altWarmEpoch;
   const entry = { key, ids, iframe: null, promise: null, epoch };
   entry.promise = (async () => {
     const iframe = createQuickCartIframe();
     entry.iframe = iframe;
     document.body.appendChild(iframe);
     await loadQuickCartIframe(iframe, ids);
-    if (craWarm !== entry || entry.epoch !== craWarmEpoch) {
+    if (altWarm !== entry || entry.epoch !== altWarmEpoch) {
       try { iframe.remove(); } catch {}
       throw new Error('warm_aborted');
     }
     const doc = await waitForPdpCartButton(iframe, 8000);
-    if (craWarm !== entry || entry.epoch !== craWarmEpoch) {
+    if (altWarm !== entry || entry.epoch !== altWarmEpoch) {
       try { iframe.remove(); } catch {}
       throw new Error('warm_aborted');
     }
     await installCartResponseWatcher(iframe);
     return { iframe, doc, key };
   })();
-  craWarm = entry;
+  altWarm = entry;
   entry.promise.catch(() => {
-    if (craWarm === entry) {
-      craWarm = null;
+    if (altWarm === entry) {
+      altWarm = null;
       try { entry.iframe?.remove(); } catch {}
     }
   });
@@ -1978,13 +1978,13 @@ async function openFreshQuickCartPdp(ids) {
 
 async function acquireQuickCartPdp(ids) {
   const key = quickCartCacheKey(ids);
-  clearTimeout(craWarmTimer);
-  craWarmTimer = null;
+  clearTimeout(altWarmTimer);
+  altWarmTimer = null;
 
-  if (craWarm && craWarm.key === key) {
-    const entry = craWarm;
-    craWarm = null;
-    craWarmEpoch += 1;
+  if (altWarm && altWarm.key === key) {
+    const entry = altWarm;
+    altWarm = null;
+    altWarmEpoch += 1;
     try {
       return await entry.promise;
     } catch {
@@ -1992,7 +1992,7 @@ async function acquireQuickCartPdp(ids) {
     }
   }
 
-  if (craWarm) discardQuickCartWarm();
+  if (altWarm) discardQuickCartWarm();
   return openFreshQuickCartPdp(ids);
 }
 
@@ -2002,7 +2002,7 @@ async function iframeAddToCart(ids) {
     const btn = findProdCartButton(doc);
     if (!btn || btn.disabled) throw new Error('cart_failed');
 
-    try { doc.documentElement.removeAttribute('data-cra-cart'); } catch {}
+    try { doc.documentElement.removeAttribute('data-alt-cart'); } catch {}
     await installCartResponseWatcher(iframe);
     await clickProdCartButton(iframe, btn);
     await waitForFastCartResult(doc, 2500, iframe);
@@ -2016,7 +2016,7 @@ function requestAddToCart(ids) {
 }
 
 function attachQuickCartButton(item) {
-  if (!item || item.querySelector('.cra-quick-cart-btn')) return;
+  if (!item || item.querySelector('.alt-quick-cart-btn')) return;
   const ids = parseProductCartIds(item);
   if (!ids) return;
   const imgBox = getProductImageBox(item);
@@ -2025,8 +2025,8 @@ function attachQuickCartButton(item) {
 
   const btn = document.createElement('button');
   btn.type = 'button';
-  btn.className = 'cra-quick-cart-btn';
-  btn.setAttribute('data-cra-ui', '');
+  btn.className = 'alt-quick-cart-btn';
+  btn.setAttribute('data-alt-ui', '');
   btn.setAttribute('aria-label', '장바구니 담기');
   btn.title = '장바구니 담기';
   setQuickCartBtnState(btn, 'idle');
@@ -2040,9 +2040,9 @@ function attachQuickCartButton(item) {
   const key = quickCartCacheKey(ids);
   btn.addEventListener('pointerenter', () => scheduleQuickCartWarm(ids), { passive: true });
   btn.addEventListener('pointerleave', () => {
-    clearTimeout(craWarmTimer);
-    craWarmTimer = null;
-    if (craWarm && craWarm.key === key) discardQuickCartWarm();
+    clearTimeout(altWarmTimer);
+    altWarmTimer = null;
+    if (altWarm && altWarm.key === key) discardQuickCartWarm();
   }, { passive: true });
 
   ['mousedown', 'mouseup', 'pointerdown', 'pointerup', 'auxclick', 'dblclick', 'click'].forEach((type) => {
@@ -2067,7 +2067,7 @@ function attachQuickCartButton(item) {
 
 function removeQuickCartButtons() {
   discardQuickCartWarm();
-  document.querySelectorAll('.cra-quick-cart-btn, .cra-quick-cart-wrap, iframe[data-cra-ui]').forEach(el => el.remove());
+  document.querySelectorAll('.alt-quick-cart-btn, .alt-quick-cart-wrap, iframe[data-alt-ui]').forEach(el => el.remove());
 }
 
 function applyQuickCartButtons() {
@@ -2083,12 +2083,12 @@ function applyQuickCartButtons() {
     if (!window.chrome || !chrome.storage || !chrome.runtime || !chrome.runtime.id) return;
     try {
       chrome.storage.sync.get(['quickCartEnabled'], result => {
-        if (result.quickCartEnabled === false) {
-          removeQuickCartButtons();
+        if (result.quickCartEnabled) {
+          ensureQuickCartStyles();
+          getProductItems().forEach(attachQuickCartButton);
           return;
         }
-        ensureQuickCartStyles();
-        getProductItems().forEach(attachQuickCartButton);
+        removeQuickCartButtons();
       });
     } catch (e) {}
   });
@@ -2100,37 +2100,37 @@ function initQuickCartSync() {
   quickCartChangeBound = true;
   chrome.storage.onChanged.addListener((changes, area) => {
     if (area !== 'sync') return;
-    if (changes.quickCartEnabled || changes.addonEnabled) applyQuickCartButtons();
+    if (changes.quickCartEnabled || changes.altEnabled) applyQuickCartButtons();
   });
 }
 
 initQuickCartSync();
 
-let craRemoverEnabled = true;
-let craObserverStarted = false;
-let craChangeBound = false;
+let altRemoverEnabled = true;
+let altObserverStarted = false;
+let altChangeBound = false;
 
-const CRA_REMOVER_STYLE_ID = 'cra-element-remover-styles';
+const ALT_REMOVER_STYLE_ID = 'alt-element-remover-styles';
 
 function ensureRemoverStyles() {
-  if (document.getElementById(CRA_REMOVER_STYLE_ID)) return;
+  if (document.getElementById(ALT_REMOVER_STYLE_ID)) return;
   const s = document.createElement('style');
-  s.id = CRA_REMOVER_STYLE_ID;
-  s.textContent = '.cra-force-hidden { display: none !important; }';
+  s.id = ALT_REMOVER_STYLE_ID;
+  s.textContent = '.alt-force-hidden { display: none !important; }';
   (document.head || document.documentElement).appendChild(s);
 }
 
-function craIsOwnUI(el) {
-  return !!(el && el.closest && el.closest('[data-cra-ui], [data-cra-keyword-filter], [data-cra-keyword-tags-wrap]'));
+function altIsOwnUI(el) {
+  return !!(el && el.closest && el.closest('[data-alt-ui], [data-alt-keyword-filter], [data-alt-keyword-tags-wrap]'));
 }
 
-function craPresetItems() {
-  const p = (typeof window !== 'undefined' && window.CRA_BUILTIN_PRESET) || null;
+function altPresetItems() {
+  const p = (typeof window !== 'undefined' && window.ALT_BUILTIN_PRESET) || null;
   return p && Array.isArray(p.items) ? p.items.filter(it => it && it.selector) : [];
 }
 
-function craGetOff(cb) {
-  try { chrome.storage.sync.get(['craPresetOff'], r => cb(new Set(r.craPresetOff || []))); }
+function altGetOff(cb) {
+  try { chrome.storage.sync.get(['altPresetOff'], r => cb(new Set(r.altPresetOff || []))); }
   catch { cb(new Set()); }
 }
 
@@ -2138,15 +2138,15 @@ function applyHiddenElements() {
   if (!window.chrome || !chrome.storage || !chrome.runtime || !chrome.runtime.id) return;
   ensureRemoverStyles();
   chrome.storage.sync.get(['elementRemoverEnabled'], result => {
-    craRemoverEnabled = result.elementRemoverEnabled !== false;
-    craGetOff(off => {
-      document.querySelectorAll('.cra-force-hidden').forEach(el => el.classList.remove('cra-force-hidden'));
-      if (!craRemoverEnabled) return;
-      craPresetItems().forEach(it => {
+    altRemoverEnabled = !!result.elementRemoverEnabled;
+    altGetOff(off => {
+      document.querySelectorAll('.alt-force-hidden').forEach(el => el.classList.remove('alt-force-hidden'));
+      if (!altRemoverEnabled) return;
+      altPresetItems().forEach(it => {
         if (off.has(it.selector)) return; 
         try {
           document.querySelectorAll(it.selector).forEach(el => {
-            if (!craIsOwnUI(el)) el.classList.add('cra-force-hidden');
+            if (!altIsOwnUI(el)) el.classList.add('alt-force-hidden');
           });
         } catch {}
       });
@@ -2154,9 +2154,9 @@ function applyHiddenElements() {
   });
 }
 
-function craObserveForReapply() {
-  if (craObserverStarted) return;
-  craObserverStarted = true;
+function altObserveForReapply() {
+  if (altObserverStarted) return;
+  altObserverStarted = true;
   let t = null;
   const obs = new MutationObserver(() => {
     if (t) return;
@@ -2168,22 +2168,22 @@ function craObserveForReapply() {
 function initElementRemover() {
   if (!window.chrome || !chrome.storage || !chrome.runtime || !chrome.runtime.id) return;
   
-  if (!craChangeBound && chrome.storage.onChanged) {
+  if (!altChangeBound && chrome.storage.onChanged) {
     chrome.storage.onChanged.addListener((changes, area) => {
       if (area !== 'sync') return;
-      if (changes.craPresetOff || changes.elementRemoverEnabled || changes.addonEnabled) {
+      if (changes.altPresetOff || changes.elementRemoverEnabled || changes.altEnabled) {
         applyHiddenElements();
       }
     });
-    craChangeBound = true;
+    altChangeBound = true;
   }
   isExtensionEnabled(enabled => {
     if (!enabled) {
-      document.querySelectorAll('.cra-force-hidden').forEach(el => el.classList.remove('cra-force-hidden'));
+      document.querySelectorAll('.alt-force-hidden').forEach(el => el.classList.remove('alt-force-hidden'));
       return;
     }
     applyHiddenElements();
-    craObserveForReapply();
+    altObserveForReapply();
   });
 }
 

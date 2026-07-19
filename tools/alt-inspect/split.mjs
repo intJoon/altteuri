@@ -6,28 +6,23 @@ function srpDump() {
   const clip = (s, n) => (s || '').replace(/\s+/g, ' ').trim().slice(0, n);
   const topOf = (el) => { const r = el.getBoundingClientRect(); return Math.round(r.top + window.scrollY); };
   const out = {};
-  // product list container
   const containers = ['#product-list', '#productList', 'ul#productList', 'ul#product-list'];
   out.container = containers.find(c => document.querySelector(c)) || null;
   const listSel = out.container || '#product-list';
   const lis = Array.from(document.querySelectorAll(listSel + ' > li'));
   out.totalLi = lis.length;
-  // sponsored detection variants
   const hasAdInfo = lis.filter(li => li.querySelector('button[aria-label="Ad information"]'));
   const hasCampaign = lis.filter(li => li.querySelector('a[href*="/np/campaigns/"]'));
   const hasAdSpan = lis.filter(li => Array.from(li.querySelectorAll('span')).some(s => s.textContent.trim() === '광고'));
   out.countAdInfo = hasAdInfo.length;
   out.countCampaign = hasCampaign.length;
   out.countAdSpan = hasAdSpan.length;
-  // try :has selectors
   const trySel = (sel) => { try { return document.querySelectorAll(sel).length; } catch (e) { return 'ERR:' + e.message; } };
   out.hasSelCampaign = trySel(listSel + ' > li:has(a[href*="/np/campaigns/"])');
   out.hasSelAdInfo = trySel(listSel + ' > li:has(button[aria-label="Ad information"])');
-  // sample sponsored li class + top of first sponsored
   const firstSpon = hasAdInfo[0] || hasCampaign[0] || hasAdSpan[0];
   out.firstSponsoredTop = firstSpon ? topOf(firstSpon) : null;
   out.sampleSponsoredCls = firstSpon ? clip(firstSpon.className, 90) : '';
-  // order of SRP preset items
   const measure = (sel) => { try { const els = Array.from(document.querySelectorAll(sel)); const tops = els.map(topOf).filter(t => t > 0).sort((a, b) => a - b); return { count: els.length, top: tops[0] ?? null }; } catch (e) { return { err: e.message }; } };
   out.order = {
     'coupang-top-banner': measure('div.coupang-top-banner'),

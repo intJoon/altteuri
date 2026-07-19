@@ -1,17 +1,17 @@
-const SETTINGS_VERSION = 6;
+const SETTINGS_VERSION = 8;
 
 const DEFAULT_SETTINGS = {
   settingsVersion: SETTINGS_VERSION,
-  addonEnabled: true,
-  unitPriceSortEnabled: true,
-  discountRateSortEnabled: true,
-  priceSortEnabled: true,
-  elementRemoverEnabled: true,
-  craPresetOff: [],
-  forceCoupangListSize: true,
+  altEnabled: false,
+  unitPriceSortEnabled: false,
+  discountRateSortEnabled: false,
+  priceSortEnabled: false,
+  elementRemoverEnabled: false,
+  altPresetOff: [],
+  forceCoupangListSize: false,
   coupangListSize: '72',
-  keywordFilterEnabled: true,
-  quickCartEnabled: true
+  keywordFilterEnabled: false,
+  quickCartEnabled: false
 };
 
 function mergeWithDefaults(stored) {
@@ -35,7 +35,7 @@ chrome.runtime.onInstalled.addListener(details => {
 
   chrome.storage.sync.get(null, stored => {
     const data = stored || {};
-    const hasAnySettings = data.settingsVersion !== undefined || data.addonEnabled !== undefined;
+    const hasAnySettings = data.settingsVersion !== undefined || data.altEnabled !== undefined;
 
     if (!hasAnySettings) {
       chrome.storage.sync.set(DEFAULT_SETTINGS, reloadCoupangTabs);
@@ -50,7 +50,7 @@ chrome.runtime.onInstalled.addListener(details => {
 });
 
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
-  if (!msg || msg.type !== 'cra-main') return;
+  if (!msg || msg.type !== 'alt-main') return;
   const tabId = sender.tab && sender.tab.id;
   const frameId = msg.frameId;
   if (tabId == null || frameId == null || msg.action !== 'install') {

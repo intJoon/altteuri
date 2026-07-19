@@ -30,11 +30,11 @@ async function run() {
 
   const hook = await Runtime.evaluate({
     expression: `(() => {
-      window.__craCartCaptures = [];
-      if (!window.__craCartHooked) {
-        window.__craCartHooked = true;
+      window.__altCartCaptures = [];
+      if (!window.__altCartHooked) {
+        window.__altCartHooked = true;
         const push = (kind, url, body, method) => {
-          if (/cart|add|pang|next-api/i.test(url)) window.__craCartCaptures.push({ kind, url, body, method, t: Date.now() });
+          if (/cart|add|pang|next-api/i.test(url)) window.__altCartCaptures.push({ kind, url, body, method, t: Date.now() });
         };
         const origFetch = window.fetch;
         window.fetch = async function(...args) {
@@ -47,11 +47,11 @@ async function run() {
         const XO = XMLHttpRequest.prototype.open;
         const XS = XMLHttpRequest.prototype.send;
         XMLHttpRequest.prototype.open = function(method, url, ...rest) {
-          this.__craUrl = url; this.__craMethod = method;
+          this.__altUrl = url; this.__altMethod = method;
           return XO.call(this, method, url, ...rest);
         };
         XMLHttpRequest.prototype.send = function(body) {
-          push('xhr', this.__craUrl, body, this.__craMethod);
+          push('xhr', this.__altUrl, body, this.__altMethod);
           return XS.call(this, body);
         };
       }
@@ -89,7 +89,7 @@ async function run() {
   }
 
   const captures = await Runtime.evaluate({
-    expression: 'window.__craCartCaptures || []',
+    expression: 'window.__altCartCaptures || []',
     returnByValue: true
   });
   console.log('JS_CAPTURES', JSON.stringify(captures.result.value, null, 2));
