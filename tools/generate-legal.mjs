@@ -181,3 +181,4 @@ const html = `<!DOCTYPE html>
 `;
 
 writeFileSync(join(root, "legal.html"), html, "utf8");
+writeFileSync(join(root, "web", "public", "legal.html"), html, "utf8");
