@@ -732,11 +732,11 @@ function getPresetItems() {
   return p && Array.isArray(p.items) ? p.items.filter(it => it && it.selector) : [];
 }
 
-function setPresetItemHidden(selector, hidden) {
+function setPresetItemOff(selector, isOff) {
   try {
     chrome.storage.sync.get(['altPresetOff'], result => {
       const off = new Set(result.altPresetOff || []);
-      if (hidden) off.delete(selector); else off.add(selector);
+      if (isOff) off.add(selector); else off.delete(selector);
       chrome.storage.sync.set({ altPresetOff: Array.from(off) }, syncRemoveNav);
     });
   } catch (e) {
@@ -786,7 +786,7 @@ function renderPresetList() {
         const card = document.createElement('div');
         card.className = 'section';
         list.forEach(it => {
-          const hidden = !off.has(it.selector); 
+          const shown = !off.has(it.selector);
           const row = document.createElement('div');
           row.className = 'preset-row';
           const label = document.createElement('span');
@@ -796,11 +796,11 @@ function renderPresetList() {
           const cb = document.createElement('input');
           cb.type = 'checkbox';
           cb.className = 'cbox';
-          cb.checked = hidden;
+          cb.checked = shown;
           cb.setAttribute('aria-label', it.name || it.selector);
-          cb.addEventListener('change', () => setPresetItemHidden(it.selector, cb.checked));
+          cb.addEventListener('change', () => setPresetItemOff(it.selector, !cb.checked));
           row.addEventListener('click', e => {
-            if (e.target === cb) return; 
+            if (e.target === cb) return;
             cb.checked = !cb.checked;
             cb.dispatchEvent(new Event('change'));
           });

@@ -2183,7 +2183,7 @@ function applyHiddenElements(opts) {
       document.querySelectorAll('.alt-force-hidden').forEach(el => el.classList.remove('alt-force-hidden'));
       if (altRemoverEnabled) {
         altPresetItems().forEach(it => {
-          if (off.has(it.selector)) return;
+          if (!off.has(it.selector)) return;
           try {
             document.querySelectorAll(it.selector).forEach(el => {
               if (!altIsOwnUI(el)) el.classList.add('alt-force-hidden');
