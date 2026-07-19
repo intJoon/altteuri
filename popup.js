@@ -389,7 +389,9 @@ let feedbackOffset = 0;
 let feedbackHasMore = false;
 let feedbackAbort = null;
 let feedbackSubmitting = false;
+let feedbackLoadingMore = false;
 let feedbackDraftTimer = null;
+const feedbackClamps = [];
 
 function abortFeedbackFetch() {
   if (feedbackAbort) {
@@ -406,6 +408,17 @@ function formatFeedbackDate(iso) {
   const m = String(d.getMonth() + 1).padStart(2, '0');
   const day = String(d.getDate()).padStart(2, '0');
   return y + '-' + m + '-' + day;
+}
+
+function remountFeedbackClamps() {
+  for (let i = feedbackClamps.length - 1; i >= 0; i -= 1) {
+    const entry = feedbackClamps[i];
+    if (!entry.bodyEl.isConnected) {
+      feedbackClamps.splice(i, 1);
+      continue;
+    }
+    entry.sync();
+  }
 }
 
 function wireFeedbackBodyClamp(bodyEl, toggleEl) {
@@ -433,6 +446,7 @@ function wireFeedbackBodyClamp(bodyEl, toggleEl) {
     bodyEl.classList.toggle('is-clamped', !expanded);
     toggleEl.textContent = expanded ? '접기' : '펼치기';
   });
+  feedbackClamps.push({ bodyEl, sync });
   requestAnimationFrame(() => requestAnimationFrame(sync));
 }
 
@@ -520,7 +534,11 @@ function clearFeedbackDraft() {
 
 async function fetchFeedbackComments(reset) {
   if (!API_BASE) return;
-  abortFeedbackFetch();
+  if (!reset && feedbackLoadingMore) return;
+
+  if (reset) {
+    abortFeedbackFetch();
+  }
   const controller = new AbortController();
   feedbackAbort = controller;
 
@@ -529,6 +547,12 @@ async function fetchFeedbackComments(reset) {
     feedbackHasMore = false;
     if (feedbackList) feedbackList.innerHTML = '';
     setFeedbackListState('loading');
+  } else {
+    feedbackLoadingMore = true;
+    if (feedbackLoadMore) {
+      feedbackLoadMore.disabled = true;
+      feedbackLoadMore.textContent = '불러오는 중…';
+    }
   }
 
   const offset = reset ? 0 : feedbackOffset;
@@ -560,6 +584,15 @@ async function fetchFeedbackComments(reset) {
     }
   } finally {
     if (feedbackAbort === controller) feedbackAbort = null;
+    if (!reset) {
+      feedbackLoadingMore = false;
+      if (feedbackLoadMore) {
+        feedbackLoadMore.disabled = false;
+        if (feedbackLoadMore.textContent !== '다시 시도') {
+          feedbackLoadMore.textContent = '더 보기';
+        }
+      }
+    }
   }
 }
 
@@ -616,6 +649,7 @@ async function submitFeedback() {
 
     if (feedbackList) {
       feedbackList.insertBefore(createFeedbackItem(comment), feedbackList.firstChild);
+      feedbackOffset += 1;
       setFeedbackListState('list');
     }
 
@@ -624,7 +658,7 @@ async function submitFeedback() {
   } catch (e) {
     feedbackSubmit.classList.add('error');
     feedbackSubmit.textContent = e && e.message === 'rate_limited'
-      ? '오늘 2개까지'
+      ? '하루에 2개까지 보낼 수 있습니다'
       : '실패 · 다시 시도';
     feedbackSubmit.disabled = false;
   } finally {
@@ -645,9 +679,12 @@ if (feedbackRetry) {
 }
 if (feedbackLoadMore) {
   feedbackLoadMore.addEventListener('click', () => {
-    feedbackLoadMore.textContent = '더 보기';
     fetchFeedbackComments(false);
   });
+}
+window.addEventListener('resize', remountFeedbackClamps);
+if (document.fonts && document.fonts.ready) {
+  document.fonts.ready.then(remountFeedbackClamps).catch(() => {});
 }
 
 const presetListEl = document.getElementById('preset-list');

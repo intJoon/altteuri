@@ -12,7 +12,7 @@ A Manifest V3 Chrome extension that augments [Coupang](https://www.coupang.com) 
 - Fixed search result counts of 36, 48, 60, or 72.
 - Quick add-to-cart from search result cards by reusing Coupang's own product-page cart flow.
 - **Send feedback:** an optional popup page for submitting up to 500 characters and viewing recent feedback. Submissions include the extension version and are sent through the developer-operated Vercel API for storage in Neon PostgreSQL.
-- **Introduction website:** `web/` contains the product introduction, privacy information, feedback UI, serverless API, and database schema.
+- **Introduction website:** `web/` contains the product introduction, privacy information, a read-only recent-feedback list, serverless API, and database schema.
 
 Most settings are stored in `chrome.storage.sync`. Active sort restoration and feedback drafts use `chrome.storage.local`.
 
@@ -22,7 +22,8 @@ Most settings are stored in `chrome.storage.sync`. Active sort restoration and f
 |---|---|
 | Sorting, keyword filtering, result count, quick add-to-cart | Search results (`/np/search` on `www.coupang.com`) |
 | Configurable page elements | Matching pages on `www`, `cart`, and `mc.coupang.com` |
-| Feedback | Extension popup and the `web/` introduction site |
+| Feedback submission | Extension popup only |
+| Feedback viewing | Extension popup and the `web/` introduction site |
 | Extension on/off tab reload | `www.coupang.com` only |
 
 ## Development installation
@@ -36,7 +37,7 @@ Reload the extension after changing its source files.
 
 ## Feedback flow
 
-The popup and website send `GET` and `POST` requests to `https://altteuri.vercel.app/api/comments`. The Vercel serverless API validates the plain-text body, rejects honeypot submissions, and limits each IP address to two accepted submissions per UTC day. It stores only a daily HMAC of the IP for quota enforcement, while Neon credentials and the HMAC secret remain server-side. The extension receives access through its declared API `host_permissions`; database credentials are never included in extension or browser code.
+The popup sends `GET` and `POST` requests to `https://altteuri.vercel.app/api/comments`. The introduction website uses `GET` only to show recent feedback. The Vercel serverless API validates the plain-text body, rejects honeypot submissions, and limits each IP address to two accepted submissions per UTC day. It stores only a daily HMAC of the IP for quota enforcement, while Neon credentials and the HMAC secret remain server-side. The extension receives access through its declared API `host_permissions`; database credentials are never included in extension or browser code.
 
 No login, nickname, or personal identifier is requested. Users are instructed not to include personal information in free-text feedback. See the privacy policy for retention, deletion, and processing-provider details.
 

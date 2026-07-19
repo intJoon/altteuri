@@ -1,13 +1,6 @@
 const API = "/api/comments";
 const PAGE_SIZE = 5;
-const MAX_BODY = 500;
-const WARN_AT = 450;
 
-const form = document.querySelector("#feedback-form");
-const bodyInput = document.querySelector("#feedback-body");
-const counter = document.querySelector("#feedback-counter");
-const submitButton = document.querySelector("#feedback-submit");
-const submitStatus = document.querySelector("#submit-status");
 const feed = document.querySelector(".feedback-feed");
 const loading = document.querySelector("#feedback-loading");
 const errorState = document.querySelector("#feedback-error");
@@ -21,6 +14,7 @@ let comments = [];
 let total = 0;
 let hasMore = false;
 let isLoadingMore = false;
+const commentClamps = [];
 
 function setVisible(element, visible) {
   element.hidden = !visible;
@@ -32,7 +26,7 @@ function setFeedState(state) {
   setVisible(empty, state === "empty");
   setVisible(list, state === "ready");
   if (state !== "ready") setVisible(loadMoreWrap, false);
-  feed.setAttribute("aria-busy", String(state === "loading"));
+  feed.setAttribute("aria-busy", String(state === "loading" || isLoadingMore));
 }
 
 function formatDate(value) {
@@ -42,6 +36,17 @@ function formatDate(value) {
     dateStyle: "medium",
     timeStyle: "short",
   }).format(date);
+}
+
+function remountCommentClamps() {
+  for (let i = commentClamps.length - 1; i >= 0; i -= 1) {
+    const entry = commentClamps[i];
+    if (!entry.bodyEl.isConnected) {
+      commentClamps.splice(i, 1);
+      continue;
+    }
+    entry.sync();
+  }
 }
 
 function wireCommentBodyClamp(bodyEl, toggleEl) {
@@ -69,12 +74,13 @@ function wireCommentBodyClamp(bodyEl, toggleEl) {
     bodyEl.classList.toggle("is-clamped", !expanded);
     toggleEl.textContent = expanded ? "접기" : "펼치기";
   });
+  commentClamps.push({ bodyEl, sync });
   requestAnimationFrame(() => requestAnimationFrame(sync));
 }
 
-function createComment(item, isNew = false) {
+function createComment(item) {
   const comment = document.createElement("li");
-  comment.className = isNew ? "comment new" : "comment";
+  comment.className = "comment";
 
   const body = document.createElement("p");
   body.className = "comment-body";
@@ -107,10 +113,8 @@ function createComment(item, isNew = false) {
   return comment;
 }
 
-function renderComments({ highlightFirst = false } = {}) {
-  list.replaceChildren(
-    ...comments.map((comment, index) => createComment(comment, highlightFirst && index === 0))
-  );
+function renderComments() {
+  list.replaceChildren(...comments.map((comment) => createComment(comment)));
   setFeedState(comments.length ? "ready" : "empty");
   setVisible(loadMoreWrap, comments.length > 0 && hasMore);
 }
@@ -147,6 +151,7 @@ async function loadMore() {
   isLoadingMore = true;
   loadMoreButton.disabled = true;
   loadMoreButton.textContent = "불러오는 중";
+  feed.setAttribute("aria-busy", "true");
 
   try {
     const page = await fetchPage(comments.length);
@@ -155,83 +160,20 @@ async function loadMore() {
     hasMore = comments.length < total;
     renderComments();
   } catch {
-    submitStatus.className = "submit-status error";
-    submitStatus.textContent = "추가 의견을 불러오지 못했습니다.";
+    setVisible(loadMoreWrap, true);
   } finally {
     isLoadingMore = false;
     loadMoreButton.disabled = false;
     loadMoreButton.textContent = "더 보기";
+    feed.setAttribute("aria-busy", "false");
   }
 }
 
-function updateCounter() {
-  const length = bodyInput.value.length;
-  counter.textContent = length >= WARN_AT ? `${length}/${MAX_BODY}` : "";
-  counter.classList.toggle("limit", length >= MAX_BODY);
-}
-
-function setSubmitStatus(message, type = "") {
-  submitStatus.className = `submit-status${type ? ` ${type}` : ""}`;
-  submitStatus.textContent = message;
-}
-
-async function submitComment(event) {
-  event.preventDefault();
-  const body = bodyInput.value.trim();
-  if (!body) {
-    bodyInput.focus();
-    return;
-  }
-
-  submitButton.disabled = true;
-  submitButton.textContent = "보내는 중";
-  setSubmitStatus("");
-
-  try {
-    const response = await fetch(API, {
-      method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        body,
-        website: form.elements.website.value,
-      }),
-    });
-
-    if (!response.ok) {
-      const data = await response.json().catch(() => ({}));
-      throw new Error(data.error || "post_failed");
-    }
-
-    const data = await response.json();
-    bodyInput.value = "";
-    updateCounter();
-    setSubmitStatus("의견이 등록되었습니다.", "success");
-
-    if (data.comment) {
-      comments = [data.comment, ...comments];
-      total += 1;
-      hasMore = comments.length < total;
-      renderComments({ highlightFirst: true });
-    }
-  } catch (error) {
-    const message =
-      error.message === "rate_limited"
-        ? "의견은 하루에 2개까지 보낼 수 있습니다."
-        : "의견을 보내지 못했습니다. 다시 시도해 주세요.";
-    setSubmitStatus(message, "error");
-  } finally {
-    submitButton.disabled = false;
-    submitButton.textContent = "의견 보내기";
-  }
-}
-
-bodyInput.addEventListener("input", updateCounter);
-form.addEventListener("submit", submitComment);
 retryButton.addEventListener("click", loadInitial);
 loadMoreButton.addEventListener("click", loadMore);
+window.addEventListener("resize", remountCommentClamps);
+if (document.fonts?.ready) {
+  document.fonts.ready.then(remountCommentClamps).catch(() => {});
+}
 
-updateCounter();
 loadInitial();
