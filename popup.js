@@ -11,7 +11,7 @@ const toggleKeywordFilter = document.getElementById('toggle-keyword-filter');
 const toggleQuickCart = document.getElementById('toggle-quick-cart');
 
 const API_BASE = 'https://altteuri.vercel.app';
-const FEEDBACK_PAGE_SIZE = 10;
+const FEEDBACK_PAGE_SIZE = 5;
 const FEEDBACK_DRAFT_KEY = 'altFeedbackDraft';
 const FEEDBACK_MAX_LEN = 500;
 const FEEDBACK_COUNT_SHOW_AT = 450;
@@ -408,6 +408,34 @@ function formatFeedbackDate(iso) {
   return y + '-' + m + '-' + day;
 }
 
+function wireFeedbackBodyClamp(bodyEl, toggleEl) {
+  const sync = () => {
+    const expanded = bodyEl.classList.contains('is-expanded');
+    bodyEl.classList.remove('is-expanded');
+    bodyEl.classList.add('is-clamped');
+    const needsToggle = bodyEl.scrollHeight > bodyEl.clientHeight + 1;
+    if (!needsToggle) {
+      bodyEl.classList.remove('is-clamped');
+      toggleEl.hidden = true;
+      return;
+    }
+    toggleEl.hidden = false;
+    if (expanded) {
+      bodyEl.classList.remove('is-clamped');
+      bodyEl.classList.add('is-expanded');
+      toggleEl.textContent = '접기';
+    } else {
+      toggleEl.textContent = '펼치기';
+    }
+  };
+  toggleEl.addEventListener('click', () => {
+    const expanded = bodyEl.classList.toggle('is-expanded');
+    bodyEl.classList.toggle('is-clamped', !expanded);
+    toggleEl.textContent = expanded ? '접기' : '펼치기';
+  });
+  requestAnimationFrame(() => requestAnimationFrame(sync));
+}
+
 function createFeedbackItem(comment) {
   const item = document.createElement('div');
   item.className = 'feedback-item';
@@ -416,6 +444,11 @@ function createFeedbackItem(comment) {
   const body = document.createElement('div');
   body.className = 'feedback-item-body';
   body.textContent = (comment && comment.body) || '';
+
+  const toggle = document.createElement('button');
+  toggle.type = 'button';
+  toggle.className = 'feedback-item-toggle';
+  toggle.hidden = true;
 
   const meta = document.createElement('div');
   meta.className = 'feedback-item-meta';
@@ -426,7 +459,9 @@ function createFeedbackItem(comment) {
   meta.textContent = parts.join(' · ');
 
   item.appendChild(body);
+  item.appendChild(toggle);
   item.appendChild(meta);
+  wireFeedbackBodyClamp(body, toggle);
   return item;
 }
 
@@ -610,7 +645,7 @@ if (feedbackRetry) {
 }
 if (feedbackLoadMore) {
   feedbackLoadMore.addEventListener('click', () => {
-    feedbackLoadMore.textContent = '더보기';
+    feedbackLoadMore.textContent = '더 보기';
     fetchFeedbackComments(false);
   });
 }

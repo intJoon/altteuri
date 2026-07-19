@@ -3,7 +3,7 @@ import { getSql } from "../lib/db.mjs";
 
 const MAX_BODY = 500;
 const MAX_VERSION = 50;
-const DEFAULT_PAGE_SIZE = 10;
+const DEFAULT_PAGE_SIZE = 5;
 const MAX_PAGE_SIZE = 100;
 const DAILY_POST_LIMIT = 2;
 

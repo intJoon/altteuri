@@ -414,6 +414,36 @@ textarea::placeholder {
   word-break: break-word;
 }
 
+.comment-body.is-clamped {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+  white-space: normal;
+}
+
+.comment-body.is-expanded {
+  display: block;
+  white-space: pre-wrap;
+}
+
+.comment-expand {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--blue);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.comment-expand[hidden] {
+  display: none;
+}
+
 .comment-meta {
   display: flex;
   flex-wrap: wrap;

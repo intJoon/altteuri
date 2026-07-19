@@ -165,6 +165,19 @@
         font-size: 13px; color: #333; line-height: 1.45;
         white-space: pre-wrap; word-break: break-word;
       }
+      .feedback-item-body.is-clamped {
+        display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3;
+        overflow: hidden; white-space: normal;
+      }
+      .feedback-item-body.is-expanded {
+        display: block; white-space: pre-wrap;
+      }
+      .feedback-item-toggle {
+        display: inline-block; margin-top: 4px; padding: 0;
+        font-family: inherit; font-size: 12px; font-weight: 600;
+        color: #346aff; background: none; border: none; cursor: pointer;
+      }
+      .feedback-item-toggle[hidden] { display: none; }
       .feedback-item-meta {
         margin-top: 4px; font-size: 11px; color: #8c8c8c;
       }
@@ -306,7 +319,7 @@
         <button type="button" id="btn-feedback-retry">다시 시도</button>
       </div>
       <div id="feedback-list"></div>
-      <button type="button" id="btn-feedback-load-more" hidden>더보기</button>
+      <button type="button" id="btn-feedback-load-more" hidden>더 보기</button>
     </section>
 
     <script src="preset-data.js"></script>

@@ -1,5 +1,5 @@
 const API = "/api/comments";
-const PAGE_SIZE = 10;
+const PAGE_SIZE = 5;
 const MAX_BODY = 500;
 const WARN_AT = 450;
 
@@ -44,6 +44,34 @@ function formatDate(value) {
   }).format(date);
 }
 
+function wireCommentBodyClamp(bodyEl, toggleEl) {
+  const sync = () => {
+    const expanded = bodyEl.classList.contains("is-expanded");
+    bodyEl.classList.remove("is-expanded");
+    bodyEl.classList.add("is-clamped");
+    const needsToggle = bodyEl.scrollHeight > bodyEl.clientHeight + 1;
+    if (!needsToggle) {
+      bodyEl.classList.remove("is-clamped");
+      toggleEl.hidden = true;
+      return;
+    }
+    toggleEl.hidden = false;
+    if (expanded) {
+      bodyEl.classList.remove("is-clamped");
+      bodyEl.classList.add("is-expanded");
+      toggleEl.textContent = "접기";
+    } else {
+      toggleEl.textContent = "펼치기";
+    }
+  };
+  toggleEl.addEventListener("click", () => {
+    const expanded = bodyEl.classList.toggle("is-expanded");
+    bodyEl.classList.toggle("is-clamped", !expanded);
+    toggleEl.textContent = expanded ? "접기" : "펼치기";
+  });
+  requestAnimationFrame(() => requestAnimationFrame(sync));
+}
+
 function createComment(item, isNew = false) {
   const comment = document.createElement("li");
   comment.className = isNew ? "comment new" : "comment";
@@ -52,6 +80,13 @@ function createComment(item, isNew = false) {
   body.className = "comment-body";
   body.textContent = typeof item.body === "string" ? item.body : "";
   comment.append(body);
+
+  const toggle = document.createElement("button");
+  toggle.type = "button";
+  toggle.className = "comment-expand";
+  toggle.hidden = true;
+  comment.append(toggle);
+  wireCommentBodyClamp(body, toggle);
 
   const meta = document.createElement("div");
   meta.className = "comment-meta";
@@ -125,7 +160,7 @@ async function loadMore() {
   } finally {
     isLoadingMore = false;
     loadMoreButton.disabled = false;
-    loadMoreButton.textContent = "더보기";
+    loadMoreButton.textContent = "더 보기";
   }
 }
 
