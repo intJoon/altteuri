@@ -692,7 +692,7 @@ if (feedbackBody) {
 if (feedbackPrivacyLink) {
   feedbackPrivacyLink.addEventListener('click', (e) => {
     e.preventDefault();
-    const url = chrome.runtime.getURL('legal.html#privacy');
+    const url = `${API_BASE}/legal.html#privacy`;
     chrome.tabs.create({ url: url });
   });
 }
