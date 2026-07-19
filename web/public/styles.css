@@ -31,8 +31,6 @@ html {
 
 body {
   margin: 0;
-  padding-right: env(safe-area-inset-right);
-  padding-left: env(safe-area-inset-left);
   background: #f7f9ff;
   color: var(--text);
 }
@@ -84,8 +82,8 @@ a {
 .hero {
   position: relative;
   overflow: hidden;
-  padding-top: env(safe-area-inset-top, 0px);
-  background:
+  background-color: #f7f9ff;
+  background-image:
     radial-gradient(circle at 72% 16%, rgba(52, 106, 255, 0.14), transparent 34%),
     linear-gradient(180deg, #f7f9ff 0%, #fff 100%);
   border-bottom: 1px solid var(--line);
@@ -1245,11 +1243,7 @@ footer a:hover {
   display: grid;
   min-height: 100svh;
   place-items: center;
-  padding:
-    max(24px, env(safe-area-inset-top))
-    max(20px, env(safe-area-inset-right))
-    max(24px, env(safe-area-inset-bottom))
-    max(20px, env(safe-area-inset-left));
+  padding: 24px 20px;
   background: var(--background);
 }
 

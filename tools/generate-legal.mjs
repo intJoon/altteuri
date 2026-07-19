@@ -133,7 +133,7 @@ const html = `<!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="알뜰이 Chrome 확장 프로그램의 개인정보처리방침과 이용약관">
   <meta name="robots" content="index, follow">
   <meta name="theme-color" content="#f5f6f8">
@@ -164,7 +164,7 @@ const html = `<!DOCTYPE html>
     body { margin:0; background:#f5f6f8; color:var(--ink); font:15px/1.7 -apple-system,BlinkMacSystemFont,"Segoe UI","Malgun Gothic",sans-serif; }
     .skip-link { position:fixed; top:12px; left:12px; z-index:10; padding:9px 13px; border-radius:7px; background:var(--ink); color:#fff; font-weight:700; text-decoration:none; transform:translateY(-160%); }
     .skip-link:focus { transform:translateY(0); }
-    .wrap { max-width:900px; margin:0 auto; padding:max(32px,env(safe-area-inset-top)) max(20px,env(safe-area-inset-right)) max(64px,env(safe-area-inset-bottom)) max(20px,env(safe-area-inset-left)); }
+    .wrap { max-width:900px; margin:0 auto; padding:32px 20px 64px; }
     .hero,.card { background:#fff; border:1px solid var(--line); border-radius:14px; padding:26px; margin-bottom:20px; }
     .brand { display:flex; align-items:center; gap:12px; }
     .brand img { width:44px; height:44px; }
@@ -192,7 +192,7 @@ const html = `<!DOCTYPE html>
     footer { text-align:center; color:var(--muted); font-size:12px; }
     #main-content:focus { outline:none; }
     :focus-visible { outline:2px solid var(--blue); outline-offset:3px; }
-    @media (max-width:600px) { .wrap { padding:max(16px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) max(40px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left)); } .hero,.card { padding:20px 16px; border-radius:10px; } }
+    @media (max-width:600px) { .wrap { padding:16px 16px 40px; } .hero,.card { padding:20px 16px; border-radius:10px; } }
     @media (prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } *,*::before,*::after { transition-duration:.01ms!important; } }
   </style>
 </head>
