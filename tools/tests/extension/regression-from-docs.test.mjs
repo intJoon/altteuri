@@ -25,11 +25,16 @@ test('R1: master switch keys are not defaults; migration still deletes them', as
   const settings = loadSettings();
   assert.equal('altEnabled' in settings.DEFAULT_SETTINGS, false);
   assert.equal('lastPreset' in settings.DEFAULT_SETTINGS, false);
+  assert.equal(settings.SETTINGS_VERSION, 4);
+  assert.equal(settings.needsSettingsMigration(10), true);
+  assert.equal(settings.canonicalSettingsVersion(10), 4);
   const popupHtml = await readExt('popup.html');
   assert.doesNotMatch(popupHtml, /altEnabled|알뜰이 켜기|lastPreset/);
   const background = await readExt('background.js');
   assert.match(background, /delete next\.altEnabled/);
   assert.match(background, /delete next\.lastPreset/);
+  assert.match(background, /needsSettingsMigration/);
+  assert.match(background, /canonicalSettingsVersion/);
 });
 
 test('R2: legacy A.schedule helper is gone', async () => {
