@@ -263,30 +263,10 @@ test('shared settings cover every feature toggle', async () => {
   vm.runInContext(source, context, { filename: 'settings-defaults.js' });
   const settings = context.AltteuriSettings;
 
-  assert.equal(settings.SETTINGS_VERSION, 4);
   assert.equal(settings.DEFAULT_SETTINGS.settingsVersion, settings.SETTINGS_VERSION);
   settings.FEATURE_TOGGLE_KEYS.forEach(key => {
     assert.equal(settings.DEFAULT_SETTINGS[key], false, `default for ${key} must be false`);
   });
   assert.equal(Object.isFrozen(settings.DEFAULT_SETTINGS), true);
   assert.equal(Object.isFrozen(settings.DEFAULT_SETTINGS.altPresetOff), true);
-});
-
-test('legacy settingsVersion labels remap to contiguous 1–4', async () => {
-  const context = vm.createContext({});
-  const source = await readFile(resolve(extension, 'settings-defaults.js'), 'utf8');
-  vm.runInContext(source, context, { filename: 'settings-defaults.js' });
-  const { canonicalSettingsVersion, needsSettingsMigration, SETTINGS_VERSION } = context.AltteuriSettings;
-
-  assert.equal(canonicalSettingsVersion(6), 1);
-  assert.equal(canonicalSettingsVersion(8), 2);
-  assert.equal(canonicalSettingsVersion(9), 3);
-  assert.equal(canonicalSettingsVersion(10), 4);
-  assert.equal(canonicalSettingsVersion(4), 4);
-  assert.equal(canonicalSettingsVersion(0), 0);
-
-  assert.equal(needsSettingsMigration(10), true);
-  assert.equal(needsSettingsMigration(4), false);
-  assert.equal(needsSettingsMigration(2), true);
-  assert.equal(SETTINGS_VERSION, 4);
 });

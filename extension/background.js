@@ -1,12 +1,6 @@
 importScripts('settings-defaults.js', 'preset-data.js');
 
-const {
-  SETTINGS_VERSION,
-  DEFAULT_SETTINGS,
-  FEATURE_TOGGLE_KEYS,
-  canonicalSettingsVersion,
-  needsSettingsMigration
-} = globalThis.AltteuriSettings;
+const { SETTINGS_VERSION, DEFAULT_SETTINGS, FEATURE_TOGGLE_KEYS } = globalThis.AltteuriSettings;
 
 function mergeWithDefaults(stored) {
   return { ...DEFAULT_SETTINGS, ...stored, settingsVersion: SETTINGS_VERSION };
@@ -18,9 +12,8 @@ function getBuiltinPresetSelectors() {
   return items.filter(it => it && it.selector).map(it => it.selector);
 }
 
-// Canonical schema 3+ already uses altPresetOff as "hidden" (check = show).
-function migratePresetOffMeaning(data, fromCanonical) {
-  if (fromCanonical >= 3) return data;
+function migratePresetOffMeaning(data, fromVersion) {
+  if (fromVersion >= 9) return data;
   const next = { ...data };
   const oldShow = new Set(next.altPresetOff || []);
   if (next.elementRemoverEnabled) {
@@ -63,15 +56,14 @@ chrome.runtime.onInstalled.addListener(details => {
       return;
     }
 
-    const rawVersion = data.settingsVersion ?? 0;
-    if (!needsSettingsMigration(rawVersion)) return;
-
-    const fromCanonical = canonicalSettingsVersion(rawVersion);
-    const migrated = migratePresetOffMeaning(data, fromCanonical);
-    const next = mergeWithDefaults(migrated);
-    delete next.altEnabled;
-    delete next.lastPreset;
-    chrome.storage.sync.set(next, reloadCoupangTabs);
+    const currentVersion = data.settingsVersion ?? 0;
+    if (currentVersion < SETTINGS_VERSION) {
+      const migrated = migratePresetOffMeaning(data, currentVersion);
+      const next = mergeWithDefaults(migrated);
+      delete next.altEnabled;
+      delete next.lastPreset;
+      chrome.storage.sync.set(next, reloadCoupangTabs);
+    }
   });
 });
 
