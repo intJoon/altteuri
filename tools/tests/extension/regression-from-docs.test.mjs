@@ -30,6 +30,7 @@ test('R1: master switch keys are not defaults; migration still deletes them', as
   const background = await readExt('background.js');
   assert.match(background, /delete next\.altEnabled/);
   assert.match(background, /delete next\.lastPreset/);
+  assert.match(background, /fromVersion === 3 \|\| fromVersion === 4/);
 });
 
 test('R2: legacy A.schedule helper is gone', async () => {

@@ -13,7 +13,8 @@ function getBuiltinPresetSelectors() {
 }
 
 function migratePresetOffMeaning(data, fromVersion) {
-  if (fromVersion >= 9) return data;
+  // check=show already: legacy labels 9+, or brief 2.2.2 contiguous labels 3–4
+  if (fromVersion >= 9 || fromVersion === 3 || fromVersion === 4) return data;
   const next = { ...data };
   const oldShow = new Set(next.altPresetOff || []);
   if (next.elementRemoverEnabled) {

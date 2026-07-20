@@ -9,7 +9,7 @@
       position: relative;
       display: flex;
       align-items: center;
-      padding: 80px;
+      justify-content: center;
       background: #f7f9ff;
       color: #212b36;
       font-family: "Malgun Gothic", "Segoe UI", sans-serif;
@@ -23,17 +23,37 @@
     }
     body::before { top: -190px; right: -80px; width: 520px; height: 520px; }
     body::after { bottom: -210px; left: -170px; width: 430px; height: 430px; }
-    img { z-index: 1; width: 320px; height: 320px; border-radius: 74px; }
-    main { z-index: 1; margin-left: 70px; }
-    h1 { margin: 0; font-size: 92px; line-height: 1.1; letter-spacing: -.06em; }
-    .copy { margin: 28px 0 0; color: #346aff; font-size: 31px; font-weight: 800; line-height: 1.4; letter-spacing: -.02em; }
+    .stage {
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      gap: 56px;
+    }
+    img { width: 300px; height: 300px; border-radius: 70px; }
+    h1 {
+      margin: 0;
+      font-size: 168px;
+      line-height: .94;
+      letter-spacing: -.06em;
+    }
+    .copy {
+      margin: 22px 0 0;
+      color: #212b36;
+      font-size: 72px;
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -.03em;
+      white-space: nowrap;
+    }
   </style>
 </head>
 <body>
-  <img src="../web/public/icon.png" alt="">
-  <main>
-    <h1>알뜰이</h1>
-    <p class="copy">쿠팡용 크롬 확장 프로그램</p>
-  </main>
+  <div class="stage">
+    <img src="../web/public/icon.png" alt="">
+    <main>
+      <h1>알뜰이</h1>
+      <p class="copy">쿠팡용 Chrome 확장</p>
+    </main>
+  </div>
 </body>
 </html>

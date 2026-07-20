@@ -25,7 +25,7 @@ npx hyperframes render -f 30 -q high -o out/altteuri-intro.mp4
 쿠팡 검색, 아직도 하나씩 비교하세요?
 
 알뜰이 — 단위가격·할인율·키워드 필터·장바구니 바로 담기
-Chrome 확장 프로그램 · 무료
+쿠팡용 Chrome 확장 · 무료
 
 🔗 altteuri.vercel.app
 📦 github.com/intJoon/altteuri
