@@ -36,27 +36,6 @@ body {
   color: var(--text);
 }
 
-/* iOS 26 Safari ignores theme-color; top status/notch tint comes from a fixed edge sample. */
-.safari-top-tint {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 6px;
-  pointer-events: none;
-  z-index: 1;
-  background-color: #f7f9ff;
-}
-
-@supports (-webkit-touch-callout: none) {
-  @media (width < 768px) {
-    .safari-top-tint {
-      display: block;
-    }
-  }
-}
-
 .skip-link {
   position: absolute;
   top: -100px;
@@ -106,10 +85,14 @@ a {
 .hero {
   position: relative;
   overflow: hidden;
+  /* Bleed the painted gradient into the notch; keep copy below the unsafe area. */
+  margin-top: calc(-1 * env(safe-area-inset-top, 0px));
+  padding-top: env(safe-area-inset-top, 0px);
   background-color: #f7f9ff;
   background-image:
-    radial-gradient(circle at 72% 16%, rgba(52, 106, 255, 0.14), transparent 34%),
-    linear-gradient(180deg, #f7f9ff 0%, #fff 100%);
+    radial-gradient(ellipse 110% 80% at 72% -8%, rgba(52, 106, 255, 0.26), transparent 52%),
+    radial-gradient(circle at 8% 12%, rgba(52, 106, 255, 0.1), transparent 32%),
+    linear-gradient(180deg, #eaf0ff 0%, #f7f9ff 36%, #fff 100%);
   border-bottom: 1px solid var(--line);
 }
 
@@ -128,7 +111,7 @@ a {
 .hero-inner {
   position: relative;
   z-index: 1;
-  padding: calc(112px + env(safe-area-inset-top, 0px)) 0 104px;
+  padding: 112px 0 104px;
 }
 
 .hero-icon {
@@ -1355,7 +1338,7 @@ footer a:hover {
   }
 
   .hero-inner {
-    padding: calc(76px + env(safe-area-inset-top, 0px)) 0 72px;
+    padding: 76px 0 72px;
   }
 
   .hero-icon {
