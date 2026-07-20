@@ -32,6 +32,11 @@ html {
 body {
   margin: 0;
   min-height: 100svh;
+  padding:
+    env(safe-area-inset-top, 0px)
+    env(safe-area-inset-right, 0px)
+    env(safe-area-inset-bottom, 0px)
+    env(safe-area-inset-left, 0px);
   background: #f7f9ff;
   color: var(--text);
 }
@@ -78,14 +83,22 @@ a {
 .wrap {
   width: min(1080px, calc(100% - 40px));
   margin: 0 auto;
-  padding-right: env(safe-area-inset-right, 0px);
-  padding-left: env(safe-area-inset-left, 0px);
 }
 
 .hero {
   position: relative;
   overflow: hidden;
-  padding-top: env(safe-area-inset-top, 0px);
+  /* Pull full-bleed hero (and its gradient) into the notch; body padding keeps other sections safe. */
+  margin:
+    calc(-1 * env(safe-area-inset-top, 0px))
+    calc(-1 * env(safe-area-inset-right, 0px))
+    0
+    calc(-1 * env(safe-area-inset-left, 0px));
+  padding:
+    env(safe-area-inset-top, 0px)
+    env(safe-area-inset-right, 0px)
+    0
+    env(safe-area-inset-left, 0px);
   background-color: #f7f9ff;
   background-image:
     radial-gradient(circle at 72% 16%, rgba(52, 106, 255, 0.14), transparent 34%),
@@ -1218,7 +1231,6 @@ footer {
   align-items: center;
   justify-content: space-between;
   gap: 24px;
-  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 .footer-brand {
