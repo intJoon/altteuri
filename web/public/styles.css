@@ -2,7 +2,6 @@
   --blue: #346aff;
   --blue-dark: #2a58d6;
   --blue-soft: #edf2ff;
-  --hero-top: #eaf0ff;
   --ink: #212b36;
   --text: #454b53;
   --muted: #68717c;
@@ -27,44 +26,16 @@
 
 html {
   scroll-behavior: smooth;
-  background-color: var(--hero-top);
+  background-color: #f7f9ff;
 }
 
 body {
   margin: 0;
-  min-height: 100svh;
-  background-color: var(--hero-top);
+  background-color: #f7f9ff;
   color: var(--text);
 }
 
-/*
-  iOS 26 Safari ignores theme-color. It tints the status/notch chrome from a
-  fixed top edge background-color (solid only — not gradients). Match the
-  hero gradient's top stop so the white system bar disappears.
-*/
-.safari-status-tint {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 12px;
-  margin: 0;
-  padding: 0;
-  border: 0;
-  pointer-events: none;
-  z-index: 1;
-  background-color: #eaf0ff;
-}
-
-@supports (-webkit-touch-callout: none) {
-  @media (width < 768px) {
-    .safari-status-tint {
-      display: block;
-    }
-  }
-}
-
+/* Keep skip link out of Safari 26 edge sampling until focused. */
 .skip-link {
   position: absolute;
   top: -100px;
@@ -107,18 +78,15 @@ a {
 .wrap {
   width: min(1080px, calc(100% - 40px));
   margin: 0 auto;
-  padding-right: env(safe-area-inset-right, 0px);
-  padding-left: env(safe-area-inset-left, 0px);
 }
 
 .hero {
   position: relative;
   overflow: hidden;
-  background-color: var(--hero-top);
+  background-color: #f7f9ff;
   background-image:
-    radial-gradient(ellipse 110% 80% at 72% -8%, rgba(52, 106, 255, 0.26), transparent 52%),
-    radial-gradient(circle at 8% 12%, rgba(52, 106, 255, 0.1), transparent 32%),
-    linear-gradient(180deg, #eaf0ff 0%, #f7f9ff 36%, #fff 100%);
+    radial-gradient(circle at 72% 16%, rgba(52, 106, 255, 0.14), transparent 34%),
+    linear-gradient(180deg, #f7f9ff 0%, #fff 100%);
   border-bottom: 1px solid var(--line);
 }
 
@@ -137,7 +105,7 @@ a {
 .hero-inner {
   position: relative;
   z-index: 1;
-  padding: calc(112px + env(safe-area-inset-top, 0px)) 0 104px;
+  padding: 112px 0 104px;
 }
 
 .hero-icon {
@@ -1247,7 +1215,6 @@ footer {
   align-items: center;
   justify-content: space-between;
   gap: 24px;
-  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 .footer-brand {
@@ -1285,12 +1252,8 @@ footer a:hover {
   display: grid;
   min-height: 100svh;
   place-items: center;
-  padding:
-    max(24px, env(safe-area-inset-top, 0px))
-    max(20px, env(safe-area-inset-right, 0px))
-    max(24px, env(safe-area-inset-bottom, 0px))
-    max(20px, env(safe-area-inset-left, 0px));
-  background: #f7f8fa;
+  padding: 24px 20px;
+  background: var(--background);
 }
 
 .not-found {
@@ -1364,7 +1327,7 @@ footer a:hover {
   }
 
   .hero-inner {
-    padding: calc(76px + env(safe-area-inset-top, 0px)) 0 72px;
+    padding: 76px 0 72px;
   }
 
   .hero-icon {
