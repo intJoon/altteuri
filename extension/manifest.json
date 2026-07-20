@@ -2,14 +2,29 @@
   "name": "알뜰이",
   "short_name": "알뜰이",
   "description": "쿠팡 검색·관련 페이지에서 정렬, 키워드 필터, 표시 항목 조정, 검색 개수 고정, 장바구니 바로 담기를 제공하는 비공식 보조 도구입니다.",
-  "version": "1.16.5",
+  "version": "1.16.6",
   "manifest_version": 3,
   "permissions": ["scripting", "storage", "tabs"],
   "host_permissions": ["https://www.coupang.com/*", "https://cart.coupang.com/*", "https://mc.coupang.com/*", "https://altteuri.vercel.app/*"],
   "content_scripts": [
     {
       "matches": ["https://www.coupang.com/*", "https://cart.coupang.com/*", "https://mc.coupang.com/*"],
-      "js": ["preset-data.js", "content.js"],
+      "js": ["preset-data.js", "content/early.js"],
+      "run_at": "document_start"
+    },
+    {
+      "matches": ["https://www.coupang.com/*", "https://cart.coupang.com/*", "https://mc.coupang.com/*"],
+      "js": [
+        "preset-data.js",
+        "pure-logic.js",
+        "content/core.js",
+        "content/keyword-filter.js",
+        "content/sort.js",
+        "content/list-size.js",
+        "content/quick-cart.js",
+        "content/element-remover.js",
+        "content/boot.js"
+      ],
       "run_at": "document_idle"
     }
   ],

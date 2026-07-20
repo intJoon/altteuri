@@ -134,24 +134,23 @@ const html = `<!DOCTYPE html>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="알뜰이 Chrome 확장 프로그램의 개인정보처리방침과 이용약관">
+  <meta name="description" content="알뜰이 쿠팡용 크롬 확장 프로그램의 개인정보처리방침과 이용약관">
   <meta name="robots" content="index, follow">
   <meta name="theme-color" content="#f5f6f8">
   <meta property="og:type" content="website">
   <meta property="og:locale" content="ko_KR">
-  <meta property="og:site_name" content="알뜰이">
   <meta property="og:title" content="알뜰이 · 개인정보처리방침 및 이용약관">
-  <meta property="og:description" content="알뜰이 Chrome 확장 프로그램의 개인정보처리방침과 이용약관">
+  <meta property="og:description" content="알뜰이 쿠팡용 크롬 확장 프로그램의 개인정보처리방침과 이용약관">
   <meta property="og:url" content="https://altteuri.vercel.app/legal.html">
   <meta property="og:image" content="https://altteuri.vercel.app/og-image.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="파란 알뜰이 아이콘과 다양한 검색 편의 기능으로 더 알뜰한 쇼핑을 도와드릴게요 문구">
+  <meta property="og:image:alt" content="파란 알뜰이 아이콘과 알뜰이, 쿠팡용 크롬 확장 프로그램 문구">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="알뜰이 · 개인정보처리방침 및 이용약관">
-  <meta name="twitter:description" content="알뜰이 Chrome 확장 프로그램의 개인정보처리방침과 이용약관">
+  <meta name="twitter:description" content="알뜰이 쿠팡용 크롬 확장 프로그램의 개인정보처리방침과 이용약관">
   <meta name="twitter:image" content="https://altteuri.vercel.app/og-image.png">
-  <meta name="twitter:image:alt" content="파란 알뜰이 아이콘과 다양한 검색 편의 기능으로 더 알뜰한 쇼핑을 도와드릴게요 문구">
+  <meta name="twitter:image:alt" content="파란 알뜰이 아이콘과 알뜰이, 쿠팡용 크롬 확장 프로그램 문구">
   <title>알뜰이 · 개인정보처리방침 및 이용약관</title>
   <link rel="canonical" href="https://altteuri.vercel.app/legal.html">
   <link rel="icon" href="/favicon.ico" sizes="any">
@@ -213,5 +212,5 @@ const html = `<!DOCTYPE html>
 </html>
 `;
 
-writeFileSync(join(root, "legal.html"), html, "utf8");
+writeFileSync(join(root, "extension", "legal.html"), html, "utf8");
 writeFileSync(join(root, "web", "public", "legal.html"), html, "utf8");

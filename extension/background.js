@@ -1,20 +1,6 @@
-importScripts('preset-data.js');
+importScripts('settings-defaults.js', 'preset-data.js');
 
-const SETTINGS_VERSION = 9;
-
-const DEFAULT_SETTINGS = {
-  settingsVersion: SETTINGS_VERSION,
-  altEnabled: false,
-  unitPriceSortEnabled: false,
-  discountRateSortEnabled: false,
-  priceSortEnabled: false,
-  elementRemoverEnabled: false,
-  altPresetOff: [],
-  forceCoupangListSize: false,
-  coupangListSize: '72',
-  keywordFilterEnabled: false,
-  quickCartEnabled: false
-};
+const { SETTINGS_VERSION, DEFAULT_SETTINGS, FEATURE_TOGGLE_KEYS } = globalThis.AltteuriSettings;
 
 function mergeWithDefaults(stored) {
   return { ...DEFAULT_SETTINGS, ...stored, settingsVersion: SETTINGS_VERSION };
@@ -26,8 +12,6 @@ function getBuiltinPresetSelectors() {
   return items.filter(it => it && it.selector).map(it => it.selector);
 }
 
-// v8: altPresetOff = show exceptions (everything else hidden when feature on)
-// v9: altPresetOff = hidden items (everything else shown when feature on)
 function migratePresetOffMeaning(data, fromVersion) {
   if (fromVersion >= 9) return data;
   const next = { ...data };
@@ -64,7 +48,8 @@ chrome.runtime.onInstalled.addListener(details => {
 
   chrome.storage.sync.get(null, stored => {
     const data = stored || {};
-    const hasAnySettings = data.settingsVersion !== undefined || data.altEnabled !== undefined;
+    const hasAnySettings = data.settingsVersion !== undefined
+      || FEATURE_TOGGLE_KEYS.some(key => data[key] !== undefined);
 
     if (!hasAnySettings) {
       chrome.storage.sync.set(DEFAULT_SETTINGS, reloadCoupangTabs);
@@ -74,7 +59,10 @@ chrome.runtime.onInstalled.addListener(details => {
     const currentVersion = data.settingsVersion ?? 0;
     if (currentVersion < SETTINGS_VERSION) {
       const migrated = migratePresetOffMeaning(data, currentVersion);
-      chrome.storage.sync.set(mergeWithDefaults(migrated), reloadCoupangTabs);
+      const next = mergeWithDefaults(migrated);
+      delete next.altEnabled;
+      delete next.lastPreset;
+      chrome.storage.sync.set(next, reloadCoupangTabs);
     }
   });
 });

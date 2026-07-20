@@ -1,0 +1,127 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="popup.css">
+  </head>
+  <body>
+    <section class="page" id="page-main">
+      <div class="title-bar">
+        <div class="title">알뜰이</div>
+        <button type="button" class="feedback-link" id="nav-feedback">의견 보내기</button>
+      </div>
+
+      <div id="feature-body">
+        <div class="section" id="sec-sort">
+          <div class="section-title">정렬</div>
+          <div class="row">
+            <span class="row-label">단위가격순</span>
+            <input type="checkbox" id="toggle-unit-price-sort" class="switch">
+          </div>
+          <div class="row">
+            <span class="row-label">할인율순</span>
+            <input type="checkbox" id="toggle-discount-rate-sort" class="switch">
+          </div>
+          <div class="row">
+            <span class="row-label">가격순</span>
+            <input type="checkbox" id="toggle-price-sort" class="switch">
+          </div>
+        </div>
+
+        <div class="section" id="sec-filter">
+          <div class="section-title">필터</div>
+          <div class="row">
+            <span class="row-label">키워드 필터링</span>
+            <input type="checkbox" id="toggle-keyword-filter" class="switch">
+          </div>
+          <div class="row nav-row" id="nav-remove" role="button" tabindex="0">
+            <span class="row-label">페이지 표시 항목 조정</span>
+            <span class="row-trailing">
+              <span class="row-detail" id="remove-detail"></span>
+              <span class="chevron"></span>
+            </span>
+          </div>
+        </div>
+
+        <div class="section" id="sec-list">
+          <div class="section-title">검색 표시</div>
+          <div class="row">
+            <span class="row-label">장바구니 바로 담기</span>
+            <input type="checkbox" id="toggle-quick-cart" class="switch">
+          </div>
+          <div class="row">
+            <span class="row-label">검색 개수 고정</span>
+            <div class="size-control" id="size-control">
+              <div class="size-seg" id="size-seg" role="group" aria-label="검색 개수 선택">
+                <button type="button" class="size-chip" data-size="36">36</button>
+                <button type="button" class="size-chip" data-size="48">48</button>
+                <button type="button" class="size-chip" data-size="60">60</button>
+                <button type="button" class="size-chip" data-size="72">72</button>
+              </div>
+              <input type="checkbox" id="force-list-size" class="switch" aria-label="검색 개수 고정">
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <section class="page" id="page-detail" hidden>
+      <div class="detail-bar">
+        <button class="nav-back" id="nav-back" aria-label="뒤로"><span class="chev-left"></span></button>
+      </div>
+
+      <div class="section">
+        <div class="row">
+          <span class="row-label">페이지 표시 항목 조정</span>
+          <input type="checkbox" id="toggle-remove-content" class="switch">
+        </div>
+      </div>
+
+      <div id="remove-body">
+        <input type="search" id="preset-search" class="preset-search" placeholder="항목 검색" autocomplete="off">
+        <div id="preset-list"></div>
+      </div>
+    </section>
+
+    <section class="page" id="page-feedback" hidden>
+      <div class="detail-bar">
+        <button class="nav-back" id="nav-back-feedback" aria-label="뒤로"><span class="chev-left"></span></button>
+      </div>
+
+      <div class="section">
+        <div class="row">
+          <span class="row-label">의견 보내기</span>
+        </div>
+      </div>
+
+      <div class="feedback-compose">
+        <p class="feedback-notice">
+          의견과 확장 버전은 미국 소재 서비스에 저장되고 목록에 공개될 수 있습니다.
+          개인정보는 적지 마세요. 보내기를 누르면 이 안내에 동의한 것으로 봅니다.
+          <a href="https://altteuri.vercel.app/legal.html#privacy" id="feedback-privacy-link" target="_blank" rel="noopener">개인정보처리방침</a>
+        </p>
+        <textarea id="feedback-body" maxlength="500" rows="3" placeholder="의견을 남겨 주세요"></textarea>
+        <input class="feedback-hp" type="text" name="website" id="feedback-honeypot" tabindex="-1" autocomplete="off">
+        <div class="feedback-compose-meta">
+          <span id="feedback-char-count">0 / 500</span>
+          <button type="button" id="btn-feedback-submit">보내기</button>
+        </div>
+      </div>
+
+      <div id="feedback-loading" class="feedback-status" hidden>불러오는 중…</div>
+      <div id="feedback-empty" class="feedback-status" hidden>아직 의견이 없습니다</div>
+      <div id="feedback-error" class="feedback-status" hidden>
+        불러오지 못했습니다
+        <button type="button" id="btn-feedback-retry">다시 시도</button>
+      </div>
+      <div id="feedback-list"></div>
+      <button type="button" id="btn-feedback-load-more" hidden>더 보기</button>
+    </section>
+
+    <script src="settings-defaults.js"></script>
+    <script src="preset-data.js"></script>
+    <script src="hangul-search.js"></script>
+    <script src="popup.js"></script>
+  </body>
+</html>

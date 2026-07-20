@@ -1,4 +1,3 @@
-const altToggle = document.getElementById('alt-toggle');
 const toggleUnitPriceSort = document.getElementById('toggle-unit-price-sort');
 const toggleDiscountRateSort = document.getElementById('toggle-discount-rate-sort');
 const togglePriceSort = document.getElementById('toggle-price-sort');
@@ -23,51 +22,35 @@ function syncSizeControl(force, size) {
   sizeChips.forEach(c => c.classList.toggle('active', c.dataset.size === s));
 }
 
-function updateToggleState() {
+function applyFeatureControls(result) {
+  toggleUnitPriceSort.checked = !!result.unitPriceSortEnabled;
+  toggleDiscountRateSort.checked = !!result.discountRateSortEnabled;
+  togglePriceSort.checked = !!result.priceSortEnabled;
+  toggleRemoveContent.checked = !!result.elementRemoverEnabled;
+  syncRemoveBody();
+  syncSizeControl(!!result.forceCoupangListSize, result.coupangListSize || '72');
+  if (toggleKeywordFilter) toggleKeywordFilter.checked = !!result.keywordFilterEnabled;
+  if (toggleQuickCart) toggleQuickCart.checked = !!result.quickCartEnabled;
+}
+
+function updateToggleState(done) {
   try {
     chrome.storage.sync.get([
-      'lastPreset',
-      'altEnabled',
       'unitPriceSortEnabled',
       'discountRateSortEnabled',
       'priceSortEnabled',
-      'elementRemoverEnabled', 
+      'elementRemoverEnabled',
       'forceCoupangListSize',
       'coupangListSize',
       'keywordFilterEnabled',
       'quickCartEnabled'
     ], result => {
-      const isEnabled = !!result.altEnabled;
-      const unitPriceSort = !!result.unitPriceSortEnabled;
-      const discountRateSort = !!result.discountRateSortEnabled;
-      const priceSort = !!result.priceSortEnabled;
-      const removeContent = !!result.elementRemoverEnabled;
-      const forceListSize = !!result.forceCoupangListSize;
-      const listSize = result.coupangListSize || '72';
-      const keywordFilter = !!result.keywordFilterEnabled;
-      const quickCart = !!result.quickCartEnabled;
-      updateAltToggleBtn(isEnabled);
-      toggleUnitPriceSort.checked = unitPriceSort;
-      toggleDiscountRateSort.checked = discountRateSort;
-      togglePriceSort.checked = priceSort;
-      toggleRemoveContent.checked = removeContent;
-      syncRemoveBody();
-      syncSizeControl(forceListSize, listSize);
-      if(toggleKeywordFilter) toggleKeywordFilter.checked = keywordFilter;
-      if(toggleQuickCart) toggleQuickCart.checked = quickCart;
+      applyFeatureControls(result || {});
+      if (typeof done === 'function') done();
     });
   } catch (e) {
+    if (typeof done === 'function') done();
   }
-}
-
-function updateAltToggleBtn(isEnabled) {
-  if (altToggle) {
-    altToggle.textContent = isEnabled ? '알뜰이 끄기' : '알뜰이 켜기';
-    altToggle.classList.toggle('off', !isEnabled);
-  }
-  
-  const body = document.getElementById('feature-body');
-  if (body) body.style.display = isEnabled ? '' : 'none';
 }
 
 function syncRemoveBody() {
@@ -86,13 +69,59 @@ const navRemove = document.getElementById('nav-remove');
 const navBack = document.getElementById('nav-back');
 const navFeedback = document.getElementById('nav-feedback');
 const navBackFeedback = document.getElementById('nav-back-feedback');
+const POPUP_PAGE_KEY = 'altPopupPage';
 let detailHeightLock = 0;
 let currentPage = 'main';
 
-function showPage(name) {
+function measureExpandedMainHeight() {
+  if (!pageMain) return 0;
+  const wasMainHidden = !!pageMain.hidden;
+  if (!wasMainHidden) return pageMain.offsetHeight;
+  const prevBodyVisibility = document.body.style.visibility;
+  document.body.style.visibility = 'hidden';
+  pageMain.hidden = false;
+  const height = pageMain.offsetHeight;
+  pageMain.hidden = true;
+  document.body.style.visibility = prevBodyVisibility;
+  return height;
+}
+
+function clearPresetSearch() {
+  presetQuery = '';
+  if (presetSearchEl) presetSearchEl.value = '';
+  renderPresetList();
+}
+
+function persistPopupPage(name) {
+  try {
+    if (!chrome.storage || !chrome.storage.session) return;
+    chrome.storage.session.set({ [POPUP_PAGE_KEY]: name });
+  } catch (e) {}
+}
+
+function restorePopupPage(done) {
+  try {
+    if (!chrome.storage || !chrome.storage.session) {
+      done('main');
+      return;
+    }
+    chrome.storage.session.get([POPUP_PAGE_KEY], result => {
+      const name = result && result[POPUP_PAGE_KEY];
+      done(name === 'detail' || name === 'feedback' ? name : 'main');
+    });
+  } catch (e) {
+    done('main');
+  }
+}
+
+function showPage(name, opts) {
+  const options = opts || {};
   const prev = currentPage;
   if (name !== 'feedback' && prev === 'feedback') {
     abortFeedbackFetch();
+  }
+  if (prev === 'detail' && name !== 'detail') {
+    clearPresetSearch();
   }
 
   if (name === 'detail') {
@@ -103,17 +132,20 @@ function showPage(name) {
   }
 
   if (pageFeedback) {
-    // 세부창과 동일하게 메인 페이지 높이를 상한으로 사용
-    // (알뜰이 꺼짐 등으로 메인이 아주 짧을 때는 작성 UI가 잘리지 않을 최소 높이 보장)
-    pageFeedback.style.maxHeight = name === 'feedback'
-      ? Math.max(pageMain.offsetHeight, 300) + 'px'
-      : '';
+    pageFeedback.style.height = '';
+    if (name === 'feedback') {
+      const cap = measureExpandedMainHeight();
+      pageFeedback.style.maxHeight = cap ? cap + 'px' : '';
+    } else {
+      pageFeedback.style.maxHeight = '';
+    }
   }
 
   if (pageMain) pageMain.hidden = name !== 'main';
   if (pageDetail) pageDetail.hidden = name !== 'detail';
   if (pageFeedback) pageFeedback.hidden = name !== 'feedback';
   currentPage = name;
+  if (!options.skipPersist) persistPopupPage(name);
 
   if (name === 'detail') syncRemoveBody();
   if (name === 'feedback') enterFeedbackPage();
@@ -124,192 +156,32 @@ function showDetail() { showPage('detail'); }
 function showMain() { showPage('main'); }
 function showFeedback() { showPage('feedback'); }
 
-function saveLastPreset() {
-  try {
-    chrome.storage.sync.get([
-      'unitPriceSortEnabled',
-      'discountRateSortEnabled',
-      'priceSortEnabled',
-      'elementRemoverEnabled',
-      'forceCoupangListSize',
-      'keywordFilterEnabled',
-      'quickCartEnabled'
-    ], result => {
-      const lastPreset = {
-        unitPriceSort: !!result.unitPriceSortEnabled,
-        discountRateSort: !!result.discountRateSortEnabled,
-        priceSort: !!result.priceSortEnabled,
-        removeContent: !!result.elementRemoverEnabled,
-        forceListSize: !!result.forceCoupangListSize,
-        keywordFilter: !!result.keywordFilterEnabled,
-        quickCart: !!result.quickCartEnabled
-      };
-      chrome.storage.sync.set({ lastPreset });
-    });
-  } catch (e) {
-  }
-}
-
-function restoreLastPreset() {
-  try {
-    chrome.storage.sync.get(['lastPreset'], result => {
-      const lastPreset = result.lastPreset || {
-        unitPriceSort: false,
-        discountRateSort: false,
-        priceSort: false,
-        removeContent: false,
-        forceListSize: false,
-        keywordFilter: false,
-        quickCart: false
-      };
-      chrome.storage.sync.set({
-        unitPriceSortEnabled: lastPreset.unitPriceSort,
-        discountRateSortEnabled: lastPreset.discountRateSort,
-        priceSortEnabled: lastPreset.priceSort,
-        elementRemoverEnabled: lastPreset.removeContent,
-        forceCoupangListSize: lastPreset.forceListSize,
-        keywordFilterEnabled: lastPreset.keywordFilter,
-        quickCartEnabled: lastPreset.quickCart
-      }, () => {
-        toggleUnitPriceSort.checked = lastPreset.unitPriceSort;
-        toggleDiscountRateSort.checked = lastPreset.discountRateSort;
-        togglePriceSort.checked = lastPreset.priceSort;
-        toggleRemoveContent.checked = lastPreset.removeContent;
-        chrome.storage.sync.get(['coupangListSize'], r => syncSizeControl(lastPreset.forceListSize, r.coupangListSize));
-        if(toggleKeywordFilter) toggleKeywordFilter.checked = lastPreset.keywordFilter;
-        if(toggleQuickCart) toggleQuickCart.checked = lastPreset.quickCart;
-      });
-    });
-  } catch (e) {
-  }
-}
-
-function checkAndUpdateMainToggle() {
-  try {
-    chrome.storage.sync.get([
-      'unitPriceSortEnabled',
-      'discountRateSortEnabled',
-      'priceSortEnabled',
-      'elementRemoverEnabled', 
-      'forceCoupangListSize',
-      'keywordFilterEnabled',
-      'quickCartEnabled'
-    ], result => {
-      const unitPriceSort = !!result.unitPriceSortEnabled;
-      const discountRateSort = !!result.discountRateSortEnabled;
-      const priceSort = !!result.priceSortEnabled;
-      const removeContent = !!result.elementRemoverEnabled;
-      const forceListSize = !!result.forceCoupangListSize;
-      const keywordFilter = !!result.keywordFilterEnabled;
-      const quickCart = !!result.quickCartEnabled;
-      const shouldEnable = unitPriceSort || discountRateSort || priceSort || removeContent || forceListSize || keywordFilter || quickCart;
-      chrome.storage.sync.set({ altEnabled: shouldEnable }, () => {
-        updateAltToggleBtn(shouldEnable);
-      });
-    });
-  } catch (e) {
-  }
-}
-
-function handleAltToggleClick() {
-  try {
-    chrome.storage.sync.get(['altEnabled'], result => {
-      const isEnabled = !!result.altEnabled;
-      if (isEnabled) {
-        saveLastPreset();
-        chrome.storage.sync.set({
-          altEnabled: false,
-          unitPriceSortEnabled: false,
-          discountRateSortEnabled: false,
-          priceSortEnabled: false,
-          elementRemoverEnabled: false,
-          forceCoupangListSize: false,
-          keywordFilterEnabled: false,
-          quickCartEnabled: false
-        }, () => {
-          try { chrome.storage.local.set({ altActiveSort: null, altSortQuery: null }); } catch (e) {}
-          toggleUnitPriceSort.checked = false;
-          toggleDiscountRateSort.checked = false;
-          togglePriceSort.checked = false;
-          toggleRemoveContent.checked = false;
-          syncSizeControl(false);
-          if(toggleKeywordFilter) toggleKeywordFilter.checked = false;
-          if(toggleQuickCart) toggleQuickCart.checked = false;
-          updateAltToggleBtn(false);
-          syncRemoveBody();
-          syncRemoveNav();
-          chrome.tabs.query({
-            url: [
-              '*://www.coupang.com/*',
-              '*://cart.coupang.com/*',
-              '*://mc.coupang.com/*'
-            ]
-          }, tabs => {
-            tabs.forEach(tab => chrome.tabs.reload(tab.id));
-          });
-        });
-      } else {
-        restoreLastPreset();
-        chrome.storage.sync.set({ altEnabled: true }, () => {
-          updateAltToggleBtn(true);
-          syncRemoveBody();
-          syncRemoveNav();
-          chrome.tabs.query({
-            url: [
-              '*://www.coupang.com/*',
-              '*://cart.coupang.com/*',
-              '*://mc.coupang.com/*'
-            ]
-          }, tabs => {
-            tabs.forEach(tab => chrome.tabs.reload(tab.id));
-          });
-        });
-      }
-    });
-  } catch (e) {
-  }
-}
-
 function handleUnitPriceSortChange() {
-  const unitPriceSort = toggleUnitPriceSort.checked;
   try {
-    chrome.storage.sync.set({ unitPriceSortEnabled: unitPriceSort }, () => {
-      checkAndUpdateMainToggle();
-    });
-  } catch (e) {
-  }
+    chrome.storage.sync.set({ unitPriceSortEnabled: toggleUnitPriceSort.checked });
+  } catch (e) {}
 }
 
 function handleDiscountRateSortChange() {
-  const discountRateSort = toggleDiscountRateSort.checked;
   try {
-    chrome.storage.sync.set({ discountRateSortEnabled: discountRateSort }, () => {
-      checkAndUpdateMainToggle();
-    });
-  } catch (e) {
-  }
+    chrome.storage.sync.set({ discountRateSortEnabled: toggleDiscountRateSort.checked });
+  } catch (e) {}
 }
 
 function handlePriceSortChange() {
-  const priceSort = togglePriceSort.checked;
   try {
-    chrome.storage.sync.set({ priceSortEnabled: priceSort }, () => {
-      checkAndUpdateMainToggle();
-    });
-  } catch (e) {
-  }
+    chrome.storage.sync.set({ priceSortEnabled: togglePriceSort.checked });
+  } catch (e) {}
 }
 
 function handleRemoveContentChange() {
   const removeContent = toggleRemoveContent.checked;
   try {
     chrome.storage.sync.set({ elementRemoverEnabled: removeContent }, () => {
-      checkAndUpdateMainToggle();
       syncRemoveBody();
       syncRemoveNav();
     });
-  } catch (e) {
-  }
+  } catch (e) {}
 }
 
 function applyListSize(force, size) {
@@ -317,23 +189,38 @@ function applyListSize(force, size) {
     ? { forceCoupangListSize: true, coupangListSize: String(size || '72') }
     : { forceCoupangListSize: false };
   try {
-    chrome.storage.sync.set(data, () => {
-      checkAndUpdateMainToggle();
-    });
-  } catch (e) {
-  }
+    chrome.storage.sync.set(data);
+  } catch (e) {}
+}
+
+function readSelectedListSize(fallback) {
+  const active = sizeChips.find(c => c.classList.contains('active'));
+  if (active && active.dataset.size) return String(active.dataset.size);
+  return String(fallback || '72');
 }
 
 function handleForceListSizeToggle() {
   const on = forceListSizeToggle.checked;
-  if (on) {
-    const active = sizeChips.find(c => c.classList.contains('active'));
-    const size = active ? active.dataset.size : '72';
-    syncSizeControl(true, size);
-    applyListSize(true, size);
-  } else {
-    syncSizeControl(false);
-    applyListSize(false);
+  try {
+    chrome.storage.sync.get(['coupangListSize'], result => {
+      const kept = String(result.coupangListSize || readSelectedListSize('72'));
+      if (on) {
+        syncSizeControl(true, kept);
+        applyListSize(true, kept);
+      } else {
+        syncSizeControl(false, kept);
+        applyListSize(false);
+      }
+    });
+  } catch (e) {
+    const kept = readSelectedListSize('72');
+    if (on) {
+      syncSizeControl(true, kept);
+      applyListSize(true, kept);
+    } else {
+      syncSizeControl(false, kept);
+      applyListSize(false);
+    }
   }
 }
 
@@ -344,34 +231,25 @@ function handleSizeChipClick(e) {
 }
 
 function handleKeywordFilterChange() {
-  const keywordFilter = toggleKeywordFilter.checked;
   try {
-    chrome.storage.sync.set({ keywordFilterEnabled: keywordFilter }, () => {
-      checkAndUpdateMainToggle();
-    });
-  } catch (e) {
-  }
+    chrome.storage.sync.set({ keywordFilterEnabled: toggleKeywordFilter.checked });
+  } catch (e) {}
 }
 
 function handleQuickCartChange() {
-  const quickCart = toggleQuickCart.checked;
   try {
-    chrome.storage.sync.set({ quickCartEnabled: quickCart }, () => {
-      checkAndUpdateMainToggle();
-    });
-  } catch (e) {
-  }
+    chrome.storage.sync.set({ quickCartEnabled: toggleQuickCart.checked });
+  } catch (e) {}
 }
 
-altToggle.addEventListener('click', handleAltToggleClick);
 toggleUnitPriceSort.addEventListener('change', handleUnitPriceSortChange);
 toggleDiscountRateSort.addEventListener('change', handleDiscountRateSortChange);
 togglePriceSort.addEventListener('change', handlePriceSortChange);
 toggleRemoveContent.addEventListener('change', handleRemoveContentChange);
-if(toggleKeywordFilter) {
+if (toggleKeywordFilter) {
   toggleKeywordFilter.addEventListener('change', handleKeywordFilterChange);
 }
-if(toggleQuickCart) {
+if (toggleQuickCart) {
   toggleQuickCart.addEventListener('change', handleQuickCartChange);
 }
 if (forceListSizeToggle) {
@@ -828,5 +706,9 @@ function renderPresetList() {
 }
 
 renderPresetList();
-updateToggleState();
 syncRemoveNav();
+updateToggleState(() => {
+  restorePopupPage(name => {
+    if (name !== 'main') showPage(name, { skipPersist: true });
+  });
+});

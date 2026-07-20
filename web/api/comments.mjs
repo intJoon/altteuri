@@ -44,8 +44,6 @@ function setCors(req, res) {
       const url = new URL(origin);
       if (url.protocol === "chrome-extension:") {
         const allowlist = allowedExtensionOrigins();
-        // Empty allowlist keeps prior behavior for local/unpacked installs.
-        // Set EXTENSION_IDS (comma-separated) in production to lock to known extension IDs.
         allowed = allowlist.size === 0 || allowlist.has(origin);
       }
     } catch {}

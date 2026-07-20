@@ -1,0 +1,513 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1080, height=1920" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=Outfit:wght@600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js"></script>
+    <style>
+      :root {
+        --bg: #eef3ff;
+        --ink: #1a2433;
+        --text: #3a4452;
+        --muted: #545e6d;
+        --line: #d7e0f2;
+        --surface: #ffffff;
+        --blue: #2f5ff0;
+        --blue-soft: #dce6ff;
+        --blue-dark: #244fc4;
+        --success: #16803c;
+        --danger: #b42318;
+      }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body {
+        width: 1080px; height: 1920px; overflow: hidden; background: var(--bg);
+      }
+      body { font-family: "IBM Plex Sans KR", sans-serif; color: var(--ink); }
+      #root {
+        position: relative; width: 1080px; height: 1920px; overflow: hidden; background: var(--bg);
+      }
+      .bg-layer {
+        position: absolute; inset: 0; z-index: 0;
+        background:
+          radial-gradient(ellipse 90% 55% at 50% -5%, #c9d8ff 0%, transparent 58%),
+          radial-gradient(ellipse 70% 40% at 100% 70%, #d7e4ff 0%, transparent 50%),
+          radial-gradient(ellipse 55% 35% at 0% 85%, #dce8ff 0%, transparent 48%),
+          linear-gradient(180deg, #f4f7ff 0%, #e8efff 100%);
+      }
+      .orb { position: absolute; border-radius: 50%; filter: blur(2px); opacity: 0.55; }
+      .orb-a {
+        width: 420px; height: 420px; top: 180px; left: -120px;
+        background: radial-gradient(circle, #9bb6ff 0%, transparent 70%);
+      }
+      .orb-b {
+        width: 360px; height: 360px; bottom: 240px; right: -80px;
+        background: radial-gradient(circle, #b8cbff 0%, transparent 70%);
+      }
+      .ghost-word {
+        position: absolute; font-family: Outfit, "IBM Plex Sans KR", sans-serif;
+        font-weight: 800; font-size: 180px; letter-spacing: -0.04em;
+        color: #346aff; opacity: 0.05; white-space: nowrap; pointer-events: none;
+      }
+      .ghost-word.top { top: 120px; left: 40px; }
+      .ghost-word.bottom { bottom: 160px; right: 20px; font-size: 140px; }
+      .progress {
+        position: absolute; left: 72px; right: 72px; top: 56px; height: 6px;
+        border-radius: 999px; background: rgba(47, 95, 240, 0.15); z-index: 25; overflow: hidden;
+      }
+      .progress > i { display: block; height: 100%; width: 0%; background: var(--blue); border-radius: 999px; }
+      .scene {
+        position: absolute; inset: 0; padding: 120px 72px 140px;
+        display: flex; flex-direction: column;
+      }
+      .scene-inner { flex: 1; display: flex; flex-direction: column; min-height: 0; }
+      .eyebrow {
+        font-size: 28px; font-weight: 600; color: var(--blue);
+        letter-spacing: 0.04em; margin-bottom: 28px;
+      }
+      .headline {
+        font-family: Outfit, "IBM Plex Sans KR", sans-serif;
+        font-size: 78px; font-weight: 800; line-height: 1.18;
+        letter-spacing: -0.03em; color: var(--ink);
+      }
+      .headline.sm { font-size: 58px; }
+      .headline .mark { color: var(--blue); }
+      .sub {
+        margin-top: 28px; font-size: 34px; font-weight: 500;
+        line-height: 1.45; color: var(--text); max-width: 880px;
+      }
+      .caption-bar {
+        position: absolute; left: 72px; right: 72px; bottom: 120px; z-index: 20;
+        min-height: 72px; display: flex; align-items: center; justify-content: center;
+        text-align: center; font-size: 30px; font-weight: 600; color: var(--ink);
+        background: rgba(255, 255, 255, 0.88); border: 1.5px solid var(--line);
+        border-radius: 20px; padding: 18px 28px;
+        box-shadow: 0 12px 40px rgba(36, 79, 196, 0.08); opacity: 0;
+      }
+      .cap-line { position: absolute; left: 28px; right: 28px; opacity: 0; }
+      .brand-wrap, .cta-wrap {
+        flex: 1; display: flex; flex-direction: column; align-items: center;
+        justify-content: center; text-align: center; gap: 28px;
+      }
+      .brand-icon {
+        width: 168px; height: 168px; border-radius: 40px;
+        box-shadow: 0 24px 60px rgba(47, 95, 240, 0.28);
+      }
+      .brand-name {
+        font-family: Outfit, "IBM Plex Sans KR", sans-serif;
+        font-size: 108px; font-weight: 800; letter-spacing: -0.04em; line-height: 1;
+      }
+      .brand-tag { font-size: 34px; font-weight: 500; color: var(--text); }
+      .pill {
+        display: inline-flex; align-items: center; gap: 10px; margin-top: 8px;
+        padding: 14px 26px; border-radius: 999px; background: var(--blue-soft);
+        color: var(--blue-dark); font-size: 26px; font-weight: 600;
+      }
+      .popup {
+        width: 100%; max-width: 780px; margin: 40px auto 0; background: var(--surface);
+        border-radius: 28px; border: 1.5px solid var(--line);
+        box-shadow: 0 28px 70px rgba(26, 36, 51, 0.12); padding: 36px 40px 28px;
+      }
+      .popup-title { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+      .popup-title strong { font-size: 32px; font-weight: 700; }
+      .popup-title span { font-size: 22px; color: var(--muted); }
+      .popup-section { font-size: 22px; color: var(--muted); margin: 22px 0 8px; }
+      .popup-row {
+        display: flex; align-items: center; justify-content: space-between;
+        min-height: 72px; border-bottom: 1px solid #f0f0f0; font-size: 28px; font-weight: 500;
+      }
+      .popup-row:last-child { border-bottom: none; }
+      .switch {
+        width: 64px; height: 36px; border-radius: 18px; background: #d2d5da;
+        position: relative; flex: none; overflow: hidden;
+      }
+      .switch .knob {
+        position: absolute; top: 3px; left: 3px; width: 30px; height: 30px;
+        border-radius: 50%; background: #fff; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.18);
+      }
+      .cursor {
+        position: absolute; width: 48px; height: 48px; z-index: 30;
+        pointer-events: none; filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.25)); opacity: 0;
+      }
+      .panel {
+        margin-top: 36px; background: var(--surface); border-radius: 28px;
+        border: 1.5px solid var(--line); box-shadow: 0 28px 70px rgba(26, 36, 51, 0.1);
+        padding: 28px; overflow: hidden;
+      }
+      .sortbar {
+        display: flex; gap: 18px; flex-wrap: wrap; margin-bottom: 22px;
+        font-size: 24px; color: var(--muted);
+      }
+      .sortbar span { position: relative; }
+      .sort-line {
+        position: absolute; left: 0; right: 0; bottom: -8px; height: 3px;
+        background: var(--blue); border-radius: 2px; transform-origin: left center; transform: scaleX(0);
+      }
+      .item {
+        display: grid; grid-template-columns: 88px 1fr auto; gap: 18px; align-items: center;
+        padding: 18px 12px; border-radius: 18px; background: #f8faff; margin-bottom: 14px; position: relative;
+      }
+      .item:last-child { margin-bottom: 0; }
+      .thumb {
+        width: 88px; height: 88px; border-radius: 16px;
+        background: linear-gradient(145deg, #d9e4ff, #c5d4f8); position: relative;
+      }
+      .rank {
+        position: absolute; top: 8px; left: 8px; width: 28px; height: 28px; border-radius: 8px;
+        background: var(--blue); color: #fff; font-size: 16px; font-weight: 700;
+        display: flex; align-items: center; justify-content: center;
+      }
+      .rank-alt { opacity: 0; }
+      .item-title { font-size: 26px; font-weight: 600; line-height: 1.3; }
+      .item-meta { margin-top: 6px; font-size: 22px; color: var(--muted); }
+      .item-price { font-size: 28px; font-weight: 700; color: var(--ink); white-space: nowrap; }
+      .item-unit { margin-top: 4px; font-size: 20px; color: var(--blue-dark); font-weight: 600; text-align: right; }
+      .kw-row { display: flex; gap: 14px; margin-bottom: 20px; align-items: center; }
+      .kw-input {
+        flex: 1; height: 64px; border-radius: 16px; border: 1.5px solid var(--line);
+        background: #f8faff; display: flex; align-items: center; padding: 0 22px;
+        font-size: 26px; color: var(--ink);
+      }
+      .kw-input span { opacity: 0; }
+      .kw-add {
+        height: 64px; padding: 0 28px; border-radius: 16px; background: var(--blue);
+        color: #fff; font-size: 26px; font-weight: 700; display: flex; align-items: center;
+      }
+      .tag {
+        display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px;
+        border-radius: 999px; background: var(--blue-soft); color: var(--blue-dark);
+        font-size: 22px; font-weight: 600; margin-bottom: 18px; opacity: 0;
+      }
+      .hit { color: var(--danger); font-style: normal; font-weight: 700; }
+      .cart-btn {
+        position: absolute; right: 14px; bottom: 14px; width: 48px; height: 48px;
+        border-radius: 14px; background: var(--blue); color: #fff;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 24px; font-weight: 700; box-shadow: 0 8px 20px rgba(47, 95, 240, 0.35);
+      }
+      .cart-btn .plus, .cart-btn .check { position: absolute; }
+      .cart-btn .check { opacity: 0; }
+      .cart-panel {
+        margin-top: 18px; padding: 22px; border-radius: 18px; background: #f3f7ff;
+        border: 1.5px dashed var(--line); font-size: 26px; color: var(--muted);
+        min-height: 90px; display: flex; align-items: center; gap: 16px; position: relative;
+      }
+      .cart-empty { position: absolute; left: 22px; right: 22px; }
+      .cart-added {
+        display: flex; align-items: center; gap: 16px; color: var(--ink);
+        font-weight: 600; opacity: 0;
+      }
+      .cart-added .mini {
+        width: 48px; height: 48px; border-radius: 10px;
+        background: linear-gradient(145deg, #d9e4ff, #c5d4f8);
+      }
+      .cta-icon {
+        width: 120px; height: 120px; border-radius: 32px;
+        box-shadow: 0 20px 50px rgba(47, 95, 240, 0.25);
+      }
+      .cta-title {
+        font-family: Outfit, "IBM Plex Sans KR", sans-serif;
+        font-size: 72px; font-weight: 800; letter-spacing: -0.03em;
+      }
+      .cta-sub { font-size: 32px; color: var(--text); font-weight: 500; }
+      .cta-btn {
+        margin-top: 12px; padding: 26px 48px; border-radius: 999px; background: var(--blue);
+        color: #fff; font-size: 32px; font-weight: 700;
+        box-shadow: 0 16px 40px rgba(47, 95, 240, 0.35);
+      }
+      .cta-url { font-size: 28px; color: var(--blue-dark); font-weight: 600; }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="32" data-width="1080" data-height="1920">
+      <div id="bg-layer" class="bg-layer" data-track-index="0">
+        <div class="orb orb-a" id="orb-a"></div>
+        <div class="orb orb-b" id="orb-b"></div>
+        <div class="ghost-word top" id="ghost-a">알뜰</div>
+        <div class="ghost-word bottom" id="ghost-b">SHOP</div>
+      </div>
+      <div class="progress"><i id="progress-fill"></i></div>
+
+      <div id="scene-hook" class="clip scene" data-start="0" data-duration="3.2" data-track-index="1">
+        <div class="scene-inner" id="hook-inner">
+          <p class="eyebrow" id="hook-eye">쿠팡 쇼핑</p>
+          <h1 class="headline" id="hook-head">검색 결과,<br />아직도 <span class="mark">하나씩</span><br />비교하세요?</h1>
+          <p class="sub" id="hook-sub">단위가격·할인율·필터까지 — 한 번에 정리해 보세요.</p>
+        </div>
+      </div>
+
+      <div id="scene-brand" class="clip scene" data-start="3.2" data-duration="3.6" data-track-index="1">
+        <div class="scene-inner" id="brand-inner">
+          <div class="brand-wrap">
+            <img class="brand-icon" id="brand-icon" src="assets/icon128.png" width="168" height="168" alt="" />
+            <div class="brand-name" id="brand-name">알뜰이</div>
+            <div class="brand-tag" id="brand-tag">쿠팡 검색을 더 알뜰하게</div>
+            <div class="pill" id="brand-pill">쿠팡용 크롬 확장 프로그램 · 무료</div>
+          </div>
+        </div>
+      </div>
+
+      <div id="scene-toggle" class="clip scene" data-start="6.8" data-duration="5.4" data-track-index="1">
+        <div class="scene-inner" id="tog-inner">
+          <p class="eyebrow" id="tog-eye">조작 01</p>
+          <h2 class="headline sm" id="tog-head">원하는 기능만<br /><span class="mark">켜세요</span></h2>
+          <div class="popup" id="tog-popup">
+            <div class="popup-title"><strong>알뜰이</strong><span>설정</span></div>
+            <div class="popup-section">검색 편의</div>
+            <div class="popup-row"><span>정렬</span><div class="switch" id="sw-sort"><div class="knob" id="kn-sort"></div></div></div>
+            <div class="popup-row"><span>키워드 필터</span><div class="switch" id="sw-filter"><div class="knob" id="kn-filter"></div></div></div>
+            <div class="popup-row"><span>장바구니 바로 담기</span><div class="switch" id="sw-cart"><div class="knob" id="kn-cart"></div></div></div>
+          </div>
+          <svg class="cursor" id="cursor-tog" viewBox="0 0 24 24"><path d="M5.2 2.8l13.1 7.8-5.8 1.3-2.6 5.4z" fill="#1f2937" stroke="#fff" stroke-width="1.3"/></svg>
+        </div>
+      </div>
+
+      <div id="scene-sort" class="clip scene" data-start="12.2" data-duration="5.6" data-track-index="1">
+        <div class="scene-inner" id="sort-inner">
+          <p class="eyebrow" id="sort-eye">조작 02</p>
+          <h2 class="headline sm" id="sort-head"><span class="mark">단위가격</span>순으로<br />정렬</h2>
+          <div class="panel" id="sort-panel">
+            <div class="sortbar">
+              <span id="sort-a">쿠팡 랭킹순</span>
+              <span>낮은가격순</span>
+              <span id="sort-b">단위가격순<span class="sort-line" id="sort-b-line"></span></span>
+            </div>
+            <div class="item" id="si-1">
+              <div class="thumb"><span class="rank" id="r1a">1</span><span class="rank rank-alt" id="r1b">3</span></div>
+              <div><div class="item-title">액체세제 리필 1L</div><div class="item-meta">작은 용량</div></div>
+              <div><div class="item-price">7,900원</div><div class="item-unit">79원/10ml</div></div>
+            </div>
+            <div class="item" id="si-2">
+              <div class="thumb"><span class="rank" id="r2">2</span></div>
+              <div><div class="item-title">액체세제 리필 2.4L</div><div class="item-meta">중간 용량</div></div>
+              <div><div class="item-price">15,900원</div><div class="item-unit">66원/10ml</div></div>
+            </div>
+            <div class="item" id="si-3">
+              <div class="thumb"><span class="rank" id="r3a">3</span><span class="rank rank-alt" id="r3b">1</span></div>
+              <div><div class="item-title">액체세제 리필 4L</div><div class="item-meta">대용량 · 알뜰</div></div>
+              <div><div class="item-price">23,900원</div><div class="item-unit">60원/10ml</div></div>
+            </div>
+          </div>
+          <svg class="cursor" id="cursor-sort" viewBox="0 0 24 24"><path d="M5.2 2.8l13.1 7.8-5.8 1.3-2.6 5.4z" fill="#1f2937" stroke="#fff" stroke-width="1.3"/></svg>
+        </div>
+      </div>
+
+      <div id="scene-filter" class="clip scene" data-start="17.8" data-duration="5.6" data-track-index="1">
+        <div class="scene-inner" id="fil-inner">
+          <p class="eyebrow" id="fil-eye">조작 03</p>
+          <h2 class="headline sm" id="fil-head">키워드로<br /><span class="mark">숨기기</span></h2>
+          <div class="panel" id="fil-panel">
+            <div class="kw-row">
+              <div class="kw-input" id="kw-box"><span id="kw-c0">키</span><span id="kw-c1">캡</span></div>
+              <div class="kw-add">추가</div>
+            </div>
+            <div class="tag" id="kw-tag">키캡 ✕</div>
+            <div class="item" id="fi-1">
+              <div class="thumb"></div>
+              <div><div class="item-title">기계식 키보드 텐키리스</div><div class="item-meta">저소음 스위치</div></div>
+              <div class="item-price">49,800원</div>
+            </div>
+            <div class="item" id="fi-2">
+              <div class="thumb"></div>
+              <div><div class="item-title"><em class="hit">키캡</em> 세트 PBT</div><div class="item-meta">제외 대상</div></div>
+              <div class="item-price">18,900원</div>
+            </div>
+            <div class="item" id="fi-3">
+              <div class="thumb"></div>
+              <div><div class="item-title">무선 키보드 저소음</div><div class="item-meta">사무실용</div></div>
+              <div class="item-price">32,400원</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="scene-cart" class="clip scene" data-start="23.4" data-duration="4.8" data-track-index="1">
+        <div class="scene-inner" id="cart-inner">
+          <p class="eyebrow" id="cart-eye">조작 04</p>
+          <h2 class="headline sm" id="cart-head">검색에서<br /><span class="mark">바로 담기</span></h2>
+          <div class="panel" id="cart-panel-wrap" style="position:relative">
+            <div class="item" id="ci-1" style="padding-bottom:28px">
+              <div class="thumb" style="position:relative">
+                <div class="cart-btn" id="cart-btn">
+                  <span class="plus" id="cart-plus">+</span>
+                  <span class="check" id="cart-check">✓</span>
+                </div>
+              </div>
+              <div><div class="item-title">무라벨 생수 2L × 12</div><div class="item-meta">로켓배송</div></div>
+              <div class="item-price">6,980원</div>
+            </div>
+            <div class="cart-panel">
+              <span class="cart-empty" id="cart-empty">담긴 상품이 없습니다</span>
+              <div class="cart-added" id="cart-added"><span class="mini"></span><span>무라벨 생수 2L × 12</span></div>
+            </div>
+          </div>
+          <svg class="cursor" id="cursor-cart" viewBox="0 0 24 24"><path d="M5.2 2.8l13.1 7.8-5.8 1.3-2.6 5.4z" fill="#1f2937" stroke="#fff" stroke-width="1.3"/></svg>
+        </div>
+      </div>
+
+      <div id="scene-cta" class="clip scene" data-start="28.2" data-duration="3.8" data-track-index="1">
+        <div class="scene-inner" id="cta-inner">
+          <div class="cta-wrap">
+            <div class="cta-icon" id="cta-icon" style="background:url(assets/icon128.png) center/cover no-repeat"></div>
+            <div class="cta-title" id="cta-title">알뜰이</div>
+            <div class="cta-sub" id="cta-sub">더 알뜰한 쿠팡 검색</div>
+            <div class="cta-btn" id="cta-btn">GitHub에서 무료로 설치</div>
+            <div class="cta-url" id="cta-url">altteuri.vercel.app</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="caption-bar clip" id="caption" data-start="0" data-duration="32" data-track-index="2">
+        <span class="cap-line" id="cap-0">쿠팡 검색, 아직도 하나씩 비교하세요?</span>
+        <span class="cap-line" id="cap-1">알뜰이 · 쿠팡용 크롬 확장 프로그램</span>
+        <span class="cap-line" id="cap-2">팝업에서 원하는 기능만 켜기</span>
+        <span class="cap-line" id="cap-3">단위가격순으로 한 번에 정렬</span>
+        <span class="cap-line" id="cap-4">키워드로 불필요한 결과 숨기기</span>
+        <span class="cap-line" id="cap-5">검색 결과에서 바로 장바구니</span>
+        <span class="cap-line" id="cap-6">무료 · GitHub에서 설치하세요</span>
+      </div>
+    </div>
+
+    <script>
+      window.__timelines = window.__timelines || {};
+      const tl = gsap.timeline({ paused: true });
+
+      tl.fromTo("#orb-a", { scale: 0.92, x: 0 }, { scale: 1.08, x: 40, duration: 32, ease: "none" }, 0);
+      tl.fromTo("#orb-b", { scale: 1.05, y: 0 }, { scale: 0.9, y: -50, duration: 32, ease: "none" }, 0);
+      tl.fromTo("#ghost-a", { x: 0 }, { x: 60, duration: 32, ease: "none" }, 0);
+      tl.fromTo("#ghost-b", { x: 0 }, { x: -80, duration: 32, ease: "none" }, 0);
+      tl.fromTo("#progress-fill", { width: "0%" }, { width: "100%", duration: 32, ease: "none" }, 0);
+
+      const captionBeats = [
+        { id: "cap-0", t: 0.15, until: 3.2 },
+        { id: "cap-1", t: 3.2, until: 6.8 },
+        { id: "cap-2", t: 6.8, until: 12.2 },
+        { id: "cap-3", t: 12.2, until: 17.8 },
+        { id: "cap-4", t: 17.8, until: 23.4 },
+        { id: "cap-5", t: 23.4, until: 28.2 },
+        { id: "cap-6", t: 28.2, until: 32.0 },
+      ];
+      captionBeats.forEach(({ id, t, until }) => {
+        tl.set(`#${id}`, { opacity: 0 }, 0);
+        tl.fromTo(`#${id}`, { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.3, ease: "power2.out" }, t);
+        if (until < 32) tl.to(`#${id}`, { opacity: 0, duration: 0.2, ease: "power1.in" }, until - 0.15);
+      });
+      tl.set("#caption", { opacity: 1 }, 0.1);
+
+      // Hook
+      tl.set("#hook-inner", { opacity: 1 }, 0);
+      tl.from("#hook-eye", { opacity: 0, y: 24, duration: 0.45, ease: "power2.out" }, 0.15);
+      tl.from("#hook-head", { opacity: 0, y: 48, duration: 0.65, ease: "power3.out" }, 0.35);
+      tl.from("#hook-sub", { opacity: 0, y: 28, duration: 0.5, ease: "power2.out" }, 0.7);
+      tl.to("#hook-inner", { opacity: 0, y: -30, duration: 0.35, ease: "power2.in" }, 2.85);
+      tl.set("#hook-inner", { opacity: 0 }, 3.2);
+
+      // Brand
+      tl.set("#brand-inner", { opacity: 1 }, 3.2);
+      tl.from("#brand-icon", { opacity: 0, scale: 0.6, duration: 0.55, ease: "back.out(1.6)" }, 3.25);
+      tl.from("#brand-name", { opacity: 0, y: 40, duration: 0.5, ease: "power3.out" }, 3.55);
+      tl.from("#brand-tag", { opacity: 0, y: 20, duration: 0.4, ease: "power2.out" }, 3.85);
+      tl.from("#brand-pill", { opacity: 0, scale: 0.9, duration: 0.4, ease: "power2.out" }, 4.15);
+      tl.to("#brand-inner", { opacity: 0, scale: 0.96, duration: 0.35, ease: "power2.in" }, 6.45);
+      tl.set("#brand-inner", { opacity: 0 }, 6.8);
+
+      // Toggle
+      tl.set("#tog-inner", { opacity: 1 }, 6.8);
+      tl.from("#tog-eye", { opacity: 0, y: 20, duration: 0.35 }, 6.85);
+      tl.from("#tog-head", { opacity: 0, y: 36, duration: 0.5, ease: "power3.out" }, 7.0);
+      tl.from("#tog-popup", { opacity: 0, y: 50, duration: 0.55, ease: "power3.out" }, 7.25);
+      tl.set("#cursor-tog", { opacity: 1, x: 620, y: 780 }, 7.9);
+      tl.to("#cursor-tog", { x: 780, y: 920, duration: 0.45, ease: "power2.inOut" }, 7.95);
+      tl.to("#cursor-tog", { scale: 0.85, duration: 0.1 }, 8.4);
+      tl.to("#cursor-tog", { scale: 1, duration: 0.1 }, 8.5);
+      tl.to("#sw-sort", { backgroundColor: "#2f5ff0", duration: 0.2 }, 8.5);
+      tl.to("#kn-sort", { x: 28, duration: 0.2 }, 8.5);
+      tl.to("#cursor-tog", { y: 992, duration: 0.35, ease: "power2.inOut" }, 8.75);
+      tl.to("#cursor-tog", { scale: 0.85, duration: 0.1 }, 9.15);
+      tl.to("#cursor-tog", { scale: 1, duration: 0.1 }, 9.25);
+      tl.to("#sw-filter", { backgroundColor: "#2f5ff0", duration: 0.2 }, 9.25);
+      tl.to("#kn-filter", { x: 28, duration: 0.2 }, 9.25);
+      tl.to("#cursor-tog", { y: 1064, duration: 0.35, ease: "power2.inOut" }, 9.5);
+      tl.to("#cursor-tog", { scale: 0.85, duration: 0.1 }, 9.9);
+      tl.to("#cursor-tog", { scale: 1, duration: 0.1 }, 10.0);
+      tl.to("#sw-cart", { backgroundColor: "#2f5ff0", duration: 0.2 }, 10.0);
+      tl.to("#kn-cart", { x: 28, duration: 0.2 }, 10.0);
+      tl.to("#cursor-tog", { opacity: 0, duration: 0.25 }, 10.4);
+      tl.to("#tog-inner", { opacity: 0, x: -40, duration: 0.35, ease: "power2.in" }, 11.85);
+      tl.set("#tog-inner", { opacity: 0 }, 12.2);
+
+      // Sort
+      tl.set("#sort-inner", { opacity: 1 }, 12.2);
+      tl.from("#sort-eye", { opacity: 0, y: 20, duration: 0.35 }, 12.25);
+      tl.from("#sort-head", { opacity: 0, y: 36, duration: 0.5, ease: "power3.out" }, 12.4);
+      tl.from("#sort-panel", { opacity: 0, y: 50, duration: 0.55, ease: "power3.out" }, 12.65);
+      tl.set("#sort-a", { color: "#2f5ff0" }, 12.65);
+      tl.set("#sort-b", { color: "#545e6d" }, 12.65);
+      tl.set("#cursor-sort", { opacity: 1, x: 200, y: 760 }, 13.4);
+      tl.to("#cursor-sort", { x: 520, y: 760, duration: 0.5, ease: "power2.inOut" }, 13.5);
+      tl.to("#cursor-sort", { scale: 0.85, duration: 0.1 }, 14.05);
+      tl.to("#cursor-sort", { scale: 1, duration: 0.1 }, 14.15);
+      tl.to("#sort-a", { color: "#545e6d", duration: 0.2 }, 14.15);
+      tl.to("#sort-b", { color: "#2f5ff0", duration: 0.2 }, 14.15);
+      tl.fromTo("#sort-b-line", { scaleX: 0 }, { scaleX: 1, duration: 0.25, ease: "power2.out" }, 14.15);
+      tl.to("#si-3", { y: -276, duration: 0.7, ease: "power2.inOut" }, 14.4);
+      tl.to("#si-1", { y: 276, duration: 0.7, ease: "power2.inOut" }, 14.4);
+      tl.to("#r3a", { opacity: 0, duration: 0.15 }, 14.85);
+      tl.to("#r1a", { opacity: 0, duration: 0.15 }, 14.85);
+      tl.to("#r3b", { opacity: 1, duration: 0.15 }, 15.0);
+      tl.to("#r1b", { opacity: 1, duration: 0.15 }, 15.0);
+      tl.to("#cursor-sort", { opacity: 0, duration: 0.25 }, 15.3);
+      tl.to("#sort-inner", { opacity: 0, x: -40, duration: 0.35, ease: "power2.in" }, 17.45);
+      tl.set("#sort-inner", { opacity: 0 }, 17.8);
+
+      // Filter
+      tl.set("#fil-inner", { opacity: 1 }, 17.8);
+      tl.from("#fil-eye", { opacity: 0, y: 20, duration: 0.35 }, 17.85);
+      tl.from("#fil-head", { opacity: 0, y: 36, duration: 0.5, ease: "power3.out" }, 18.0);
+      tl.from("#fil-panel", { opacity: 0, y: 50, duration: 0.55, ease: "power3.out" }, 18.25);
+      tl.set("#kw-c0", { opacity: 0 }, 0);
+      tl.set("#kw-c1", { opacity: 0 }, 0);
+      tl.to("#kw-c0", { opacity: 1, duration: 0.08 }, 18.9);
+      tl.to("#kw-c1", { opacity: 1, duration: 0.08 }, 19.05);
+      tl.fromTo("#kw-tag", { opacity: 0, scale: 0.85 }, { opacity: 1, scale: 1, duration: 0.35, ease: "back.out(1.4)" }, 19.5);
+      tl.to("#fi-2", { opacity: 0, x: 80, scale: 0.96, duration: 0.45, ease: "power2.in" }, 20.0);
+      tl.to("#fi-3", { y: -118, duration: 0.5, ease: "power2.inOut" }, 20.35);
+      tl.to("#fil-inner", { opacity: 0, x: -40, duration: 0.35, ease: "power2.in" }, 23.05);
+      tl.set("#fil-inner", { opacity: 0 }, 23.4);
+
+      // Cart
+      tl.set("#cart-inner", { opacity: 1 }, 23.4);
+      tl.from("#cart-eye", { opacity: 0, y: 20, duration: 0.35 }, 23.45);
+      tl.from("#cart-head", { opacity: 0, y: 36, duration: 0.5, ease: "power3.out" }, 23.6);
+      tl.from("#cart-panel-wrap", { opacity: 0, y: 50, duration: 0.55, ease: "power3.out" }, 23.85);
+      tl.set("#cursor-cart", { opacity: 1, x: 280, y: 900 }, 24.5);
+      tl.to("#cursor-cart", { x: 220, y: 820, duration: 0.4, ease: "power2.inOut" }, 24.55);
+      tl.to("#cursor-cart", { scale: 0.85, duration: 0.1 }, 25.0);
+      tl.to("#cursor-cart", { scale: 1, duration: 0.1 }, 25.1);
+      tl.to("#cart-btn", { backgroundColor: "#16803c", duration: 0.2 }, 25.1);
+      tl.to("#cart-plus", { opacity: 0, duration: 0.15 }, 25.1);
+      tl.to("#cart-check", { opacity: 1, duration: 0.2 }, 25.15);
+      tl.to("#cart-empty", { opacity: 0, duration: 0.2 }, 25.15);
+      tl.fromTo("#cart-added", { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }, 25.2);
+      tl.to("#cursor-cart", { opacity: 0, duration: 0.25 }, 25.7);
+      tl.to("#cart-inner", { opacity: 0, y: -30, duration: 0.35, ease: "power2.in" }, 27.85);
+      tl.set("#cart-inner", { opacity: 0 }, 28.2);
+
+      // CTA
+      tl.set("#cta-inner", { opacity: 1 }, 28.2);
+      tl.from("#cta-icon", { opacity: 0, scale: 0.7, duration: 0.5, ease: "back.out(1.5)" }, 28.25);
+      tl.from("#cta-title", { opacity: 0, y: 30, duration: 0.45, ease: "power3.out" }, 28.5);
+      tl.from("#cta-sub", { opacity: 0, y: 20, duration: 0.4 }, 28.7);
+      tl.from("#cta-btn", { opacity: 0, y: 24, scale: 0.94, duration: 0.45, ease: "power2.out" }, 28.95);
+      tl.from("#cta-url", { opacity: 0, duration: 0.4 }, 29.25);
+      tl.to("#cta-btn", { scale: 1.04, duration: 0.55, ease: "power1.inOut", yoyo: true, repeat: 1 }, 29.8);
+
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>

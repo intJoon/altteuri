@@ -3,7 +3,7 @@ from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
 
-DST = Path(__file__).resolve().parents[1]
+DST = Path(__file__).resolve().parents[1] / "extension"
 FONT_PATH = Path(r"C:\Users\user\AppData\Local\Microsoft\Windows\Fonts\[KIM]WILDgag-Bold.ttf")
 
 BLUE = (52, 106, 255, 255)
