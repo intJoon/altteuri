@@ -26,24 +26,48 @@
 
 html {
   scroll-behavior: smooth;
-  background: #f7f9ff;
+  background-color: #f7f9ff;
 }
 
 body {
   margin: 0;
   min-height: 100svh;
-  padding:
-    env(safe-area-inset-top, 0px)
-    env(safe-area-inset-right, 0px)
-    env(safe-area-inset-bottom, 0px)
-    env(safe-area-inset-left, 0px);
-  background: #f7f9ff;
+  background-color: #f7f9ff;
   color: var(--text);
 }
 
-.skip-link {
+/* iOS 26 Safari ignores theme-color; it samples fixed edge background-color instead. */
+.safari-chrome-tint {
+  display: none;
   position: fixed;
-  top: 12px;
+  left: 0;
+  width: 100%;
+  height: 12px;
+  pointer-events: none;
+  z-index: 0;
+  background-color: #f7f9ff;
+}
+
+.safari-chrome-tint--top {
+  top: 0;
+}
+
+.safari-chrome-tint--bottom {
+  bottom: -8px;
+  background-color: #f7f8fa;
+}
+
+@supports (-webkit-touch-callout: none) {
+  @media (width < 768px) {
+    .safari-chrome-tint {
+      display: block;
+    }
+  }
+}
+
+.skip-link {
+  position: absolute;
+  top: -100px;
   left: 12px;
   z-index: 1000;
   padding: 10px 14px;
@@ -53,12 +77,12 @@ body {
   font-size: 14px;
   font-weight: 700;
   text-decoration: none;
-  transform: translateY(-160%);
-  transition: transform 0.15s;
 }
 
 .skip-link:focus {
-  transform: translateY(0);
+  position: fixed;
+  top: calc(12px + env(safe-area-inset-top, 0px));
+  left: 12px;
 }
 
 main:focus {
@@ -83,22 +107,13 @@ a {
 .wrap {
   width: min(1080px, calc(100% - 40px));
   margin: 0 auto;
+  padding-right: env(safe-area-inset-right, 0px);
+  padding-left: env(safe-area-inset-left, 0px);
 }
 
 .hero {
   position: relative;
   overflow: hidden;
-  /* Pull full-bleed hero (and its gradient) into the notch; body padding keeps other sections safe. */
-  margin:
-    calc(-1 * env(safe-area-inset-top, 0px))
-    calc(-1 * env(safe-area-inset-right, 0px))
-    0
-    calc(-1 * env(safe-area-inset-left, 0px));
-  padding:
-    env(safe-area-inset-top, 0px)
-    env(safe-area-inset-right, 0px)
-    0
-    env(safe-area-inset-left, 0px);
   background-color: #f7f9ff;
   background-image:
     radial-gradient(circle at 72% 16%, rgba(52, 106, 255, 0.14), transparent 34%),
@@ -121,7 +136,7 @@ a {
 .hero-inner {
   position: relative;
   z-index: 1;
-  padding: 112px 0 104px;
+  padding: calc(112px + env(safe-area-inset-top, 0px)) 0 104px;
 }
 
 .hero-icon {
@@ -1231,6 +1246,7 @@ footer {
   align-items: center;
   justify-content: space-between;
   gap: 24px;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 .footer-brand {
@@ -1347,7 +1363,7 @@ footer a:hover {
   }
 
   .hero-inner {
-    padding: 76px 0 72px;
+    padding: calc(76px + env(safe-area-inset-top, 0px)) 0 72px;
   }
 
   .hero-icon {
