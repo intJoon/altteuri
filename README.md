@@ -20,7 +20,8 @@ A Chrome extension for sorting, filtering, and simplifying [Coupang](https://www
 
 - `extension/` — unpacked Chrome extension
 - `web/` — public site and feedback API
-- `docs/` — methodology, release history, and legal sources
+- `docs/` — methodology, release history, QC, and legal sources
+- `tools/` — legal generation, inspection scripts, extension tests
 
 ## Privacy and legal
 

@@ -6,20 +6,23 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import vm from 'node:vm';
 
-const repo = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
+const repo = resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
 const extension = resolve(repo, 'extension');
 const manifest = JSON.parse(await readFile(resolve(extension, 'manifest.json'), 'utf8'));
 
-const expectedEarlyOrder = ['preset-data.js', 'content/early.js'];
+const expectedEarlyOrder = ['preset-data.js', 'content/shared-start.js', 'content/early.js'];
 const expectedIdleOrder = [
   'preset-data.js',
   'pure-logic.js',
+  'content/shared-start.js',
   'content/core.js',
   'content/keyword-filter.js',
   'content/sort.js',
   'content/list-size.js',
   'content/quick-cart.js',
   'content/element-remover.js',
+  'content/page-runtime.js',
+  'content/settings-bridge.js',
   'content/boot.js'
 ];
 
@@ -73,17 +76,20 @@ test('ordered feature scripts register only through the shared namespace', async
   }
   assert.ok(Array.isArray(context.ALT_BUILTIN_PRESET.items));
   assert.ok(context.ALT_BUILTIN_PRESET.items.length > 0);
+  assert.ok(context.AltteuriShared);
   assert.deepEqual(
     Object.keys(context.Altteuri).sort(),
-    ['core', 'keyword', 'listSize', 'pure', 'quickCart', 'remover', 'sort']
+    ['core', 'keyword', 'listSize', 'page', 'pure', 'quickCart', 'remover', 'settings', 'sort']
   );
   const requiredMethods = {
-    core: ['isSortVisibleItem'],
-    keyword: ['addFeature', 'applyFilter', 'getSearchQueryKey'],
-    listSize: ['initSync', 'setFromSettings', 'syncListSizeRadio', 'redirectOnce', 'urlMatches'],
-    quickCart: ['applyButtons', 'initSync'],
+    core: ['isSortVisibleItem', 'getProductImageBox'],
+    keyword: ['addFeature', 'applyFilter', 'getSearchQueryKey', 'handleEnabledChange'],
+    listSize: ['setFromSettings', 'syncListSizeRadio', 'redirectOnce', 'urlMatches'],
+    page: ['observeProductList', 'schedulePageApply', 'applySubFeatures', 'whenReady'],
+    quickCart: ['applyButtons'],
     remover: ['init', 'isItemHidden', 'applyHiddenElements'],
-    sort: ['addButtons', 'applySubFeatures', 'observeProductList', 'restoreAll', 'schedulePageApply']
+    settings: ['bind'],
+    sort: ['addButtons', 'restoreAll', 'handleFeatureToggle', 'runSort', 'runSortWithOrder', 'reapplySortIfNeeded']
   };
   Object.entries(requiredMethods).forEach(([moduleName, methods]) => {
     methods.forEach(method => {
@@ -96,33 +102,44 @@ test('ordered feature scripts register only through the shared namespace', async
   });
 });
 
+test('feature modules do not register their own storage.onChanged listeners', async () => {
+  const files = [
+    'content/list-size.js',
+    'content/quick-cart.js',
+    'content/element-remover.js',
+    'content/keyword-filter.js',
+    'content/sort.js',
+    'content/page-runtime.js'
+  ];
+  for (const reference of files) {
+    const source = await readFile(resolve(extension, reference), 'utf8');
+    assert.doesNotMatch(
+      source,
+      /storage\.onChanged\.addListener/,
+      `${reference} must not register storage.onChanged`
+    );
+  }
+  const bridge = await readFile(resolve(extension, 'content/settings-bridge.js'), 'utf8');
+  assert.match(bridge, /storage\.onChanged\.addListener/);
+});
+
 test('boot invokes feature initialization through the documented contract', async () => {
   const calls = [];
-  const context = vm.createContext({
-    chrome: {
-      storage: {
-        sync: {
-          get(_keys, callback) {
-            callback({ forceCoupangListSize: true });
-          }
-        }
-      }
-    }
-  });
+  const context = vm.createContext({});
+  context.globalThis = context;
   context.Altteuri = {
+    settings: {
+      bind() { calls.push('settings.bind'); }
+    },
     listSize: {
-      initSync() { calls.push('listSize.initSync'); },
       setFromSettings(callback) {
         calls.push('listSize.setFromSettings');
         callback({ redirected: false, blocked: false });
       }
     },
-    quickCart: {
-      initSync() { calls.push('quickCart.initSync'); }
-    },
     remover: { init() { calls.push('remover.init'); } },
-    sort: {
-      observeProductList() { calls.push('sort.observeProductList'); }
+    page: {
+      observeProductList() { calls.push('page.observeProductList'); }
     }
   };
 
@@ -130,36 +147,34 @@ test('boot invokes feature initialization through the documented contract', asyn
   vm.runInContext(source, context, { filename: 'content/boot.js' });
 
   assert.deepEqual(calls, [
-    'listSize.initSync',
-    'quickCart.initSync',
+    'settings.bind',
     'remover.init',
     'listSize.setFromSettings',
-    'sort.observeProductList'
+    'page.observeProductList'
   ]);
 });
 
 test('boot skips observers when listSize redirects', async () => {
   const calls = [];
   const context = vm.createContext({});
+  context.globalThis = context;
   context.Altteuri = {
+    settings: { bind() { calls.push('settings.bind'); } },
     listSize: {
-      initSync() { calls.push('listSize.initSync'); },
       setFromSettings(callback) {
         calls.push('listSize.setFromSettings');
         callback({ redirected: true, blocked: false });
       }
     },
-    quickCart: { initSync() { calls.push('quickCart.initSync'); } },
     remover: { init() { calls.push('remover.init'); } },
-    sort: { observeProductList() { calls.push('sort.observeProductList'); } }
+    page: { observeProductList() { calls.push('page.observeProductList'); } }
   };
 
   const source = await readFile(resolve(extension, 'content/boot.js'), 'utf8');
   vm.runInContext(source, context, { filename: 'content/boot.js' });
 
   assert.deepEqual(calls, [
-    'listSize.initSync',
-    'quickCart.initSync',
+    'settings.bind',
     'remover.init',
     'listSize.setFromSettings'
   ]);
@@ -194,7 +209,9 @@ test('listSize setFromSettings reports redirect via callback', async () => {
     }
   });
   context.globalThis = context;
-  context.Altteuri = {};
+  context.Altteuri = { core: { SELECTORS: { listSizeSelectedClass: 'ListSizeOption_selected__Ym5KI' } } };
+  const shared = await readFile(resolve(extension, 'content/shared-start.js'), 'utf8');
+  vm.runInContext(shared, context, { filename: 'content/shared-start.js' });
   const source = await readFile(resolve(extension, 'content/list-size.js'), 'utf8');
   vm.runInContext(source, context, { filename: 'content/list-size.js' });
 
@@ -202,6 +219,42 @@ test('listSize setFromSettings reports redirect via callback', async () => {
   context.Altteuri.listSize.setFromSettings(info => { result = info; });
   assert.equal(result.redirected, true);
   assert.equal(result.blocked, false);
+});
+
+test('shared-start redirect and hide CSS are single-sourced', async () => {
+  const context = vm.createContext({
+    location: {
+      href: 'https://www.coupang.com/np/search?q=a',
+      pathname: '/np/search',
+      replace(url) { this.href = url; }
+    },
+    URL,
+    URLSearchParams,
+    sessionStorage: {
+      store: Object.create(null),
+      getItem(k) { return this.store[k] || null; },
+      setItem(k, v) { this.store[k] = String(v); },
+      removeItem(k) { delete this.store[k]; }
+    },
+    document: {
+      getElementById() { return null; },
+      createElement() {
+        return { id: '', textContent: '' };
+      },
+      documentElement: { appendChild() {} }
+    }
+  });
+  context.globalThis = context;
+  const source = await readFile(resolve(extension, 'content/shared-start.js'), 'utf8');
+  vm.runInContext(source, context, { filename: 'content/shared-start.js' });
+  const S = context.AltteuriShared;
+  assert.equal(
+    S.buildRemoverHideCss(true, ['#a'], [{ selector: '#a' }, { selector: '#b' }]),
+    '#a{display:none!important;}'
+  );
+  assert.equal(S.buildRemoverHideCss(false, ['#a'], [{ selector: '#a' }]), '');
+  assert.equal(S.redirectListSizeOnce('72'), true);
+  assert.match(context.location.href, /listSize=72/);
 });
 
 test('shared settings cover every feature toggle', async () => {

@@ -12,9 +12,9 @@ const chromePath = 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe';
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 const IDLE_SCRIPTS = [
-  'preset-data.js', 'pure-logic.js', 'content/core.js', 'content/keyword-filter.js',
+  'preset-data.js', 'pure-logic.js', 'content/shared-start.js', 'content/core.js', 'content/keyword-filter.js',
   'content/sort.js', 'content/list-size.js', 'content/quick-cart.js',
-  'content/element-remover.js', 'content/boot.js'
+  'content/element-remover.js', 'content/page-runtime.js', 'content/settings-bridge.js', 'content/boot.js'
 ];
 
 const SETTINGS = {

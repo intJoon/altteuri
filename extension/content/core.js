@@ -10,8 +10,16 @@ const SELECTORS = {
   unitPrice: 'span.UnitPrice_unitPrice__R_ZcA',
   discountRate: 'span.PriceInfo_discountRate__EsQ8I',
   price: 'strong.Price_priceValue__A4KOr',
-  sortWrapper: '[class*="srp_sortWrapper"]'
+  sortWrapper: '[class*="srp_sortWrapper"]',
+  listSizeSelectedClass: 'ListSizeOption_selected__Ym5KI',
+  listSizeSelectedRadio: '.ListSizeOption_selected__Ym5KI input[type="radio"]',
+  productImage: 'figure, [class*="productImage"], .product-image, .main-image'
 };
+
+function getProductImageBox(item) {
+  if (!item) return null;
+  return item.querySelector(SELECTORS.productImage);
+}
 
 function getProductItems(list) {
   const productList = list || document.querySelector(SELECTORS.productList);
@@ -120,7 +128,7 @@ function updateUnitPriceBadge(item, calc) {
   badge.style.padding = '2px 6px';
   badge.style.borderRadius = '4px';
   badge.style.width = 'fit-content';
-  const imgBox = item.querySelector('figure, .ProductUnit_productImage__Mqcg1, .product-image, .main-image');
+  const imgBox = getProductImageBox(item);
   if (imgBox && imgBox.parentNode) {
     if (imgBox.nextSibling) {
       imgBox.parentNode.insertBefore(badge, imgBox.nextSibling);
@@ -150,7 +158,7 @@ function updateDiscountRateBadge(item, discountRate) {
     badge.style.padding = '2px 6px';
     badge.style.borderRadius = '4px';
     badge.style.width = 'fit-content';
-    const imgBox = item.querySelector('figure, .ProductUnit_productImage__Mqcg1, .product-image, .main-image');
+    const imgBox = getProductImageBox(item);
     if (imgBox && imgBox.parentNode) {
       if (imgBox.nextSibling) {
         imgBox.parentNode.insertBefore(badge, imgBox.nextSibling);
@@ -202,7 +210,7 @@ function applySortedProductOrder(productList, orderedItems) {
 
 function updateRankMark(item, rank, forceShow = false) {
   clearRankMark(item);
-  const imgBox = item.querySelector('figure, .ProductUnit_productImage__Mqcg1, .product-image, .main-image');
+  const imgBox = getProductImageBox(item);
   let markText = '';
   if (forceShow) {
     markText = rank;
@@ -249,6 +257,7 @@ A.core = Object.freeze({
   SELECTORS,
   getProductItems,
   getProductNameEl,
+  getProductImageBox,
   calculateUnitPrice,
   calculateDiscountRate,
   getPriceValue,

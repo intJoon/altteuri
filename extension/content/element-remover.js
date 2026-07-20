@@ -1,20 +1,8 @@
 ((A) => {
+const S = globalThis.AltteuriShared;
 let altRemoverEnabled = false;
 let altObserverStarted = false;
-let altChangeBound = false;
 let activeHideSelectors = [];
-
-const ALT_REMOVER_STYLE_ID = 'alt-element-remover-styles';
-const ALT_REMOVER_EARLY_ID = 'alt-element-remover-early';
-
-function ensureRemoverStyles() {
-  let s = document.getElementById(ALT_REMOVER_STYLE_ID);
-  if (s) return s;
-  s = document.createElement('style');
-  s.id = ALT_REMOVER_STYLE_ID;
-  (document.head || document.documentElement).appendChild(s);
-  return s;
-}
 
 function altPresetItems() {
   const p = (typeof window !== 'undefined' && window.ALT_BUILTIN_PRESET) || null;
@@ -27,8 +15,8 @@ function altGetOff(cb) {
 }
 
 function writeHideCss(enabled, off) {
-  const style = ensureRemoverStyles();
-  const early = document.getElementById(ALT_REMOVER_EARLY_ID);
+  const style = S.ensureStyleElement(S.IDLE_STYLE_ID, document.head || document.documentElement);
+  const early = document.getElementById(S.EARLY_STYLE_ID);
   if (!enabled) {
     style.textContent = '';
     if (early) early.textContent = '';
@@ -36,11 +24,12 @@ function writeHideCss(enabled, off) {
     document.querySelectorAll('.alt-force-hidden').forEach(el => el.classList.remove('alt-force-hidden'));
     return;
   }
-  const selectors = altPresetItems()
+  const items = altPresetItems();
+  const selectors = items
     .filter(it => off.has(it.selector))
     .map(it => it.selector);
   activeHideSelectors = selectors;
-  const css = selectors.length ? `${selectors.join(',')}{display:none!important;}` : '';
+  const css = S.buildRemoverHideCss(true, off, items);
   style.textContent = css;
   if (early) early.textContent = css;
 }
@@ -77,16 +66,6 @@ function altObserveForReapply() {
 
 function initElementRemover() {
   if (!window.chrome || !chrome.storage || !chrome.runtime || !chrome.runtime.id) return;
-
-  if (!altChangeBound && chrome.storage.onChanged) {
-    chrome.storage.onChanged.addListener((changes, area) => {
-      if (area !== 'sync') return;
-      if (changes.altPresetOff || changes.elementRemoverEnabled) {
-        applyHiddenElements({ reapplySort: true });
-      }
-    });
-    altChangeBound = true;
-  }
   applyHiddenElements();
   altObserveForReapply();
 }

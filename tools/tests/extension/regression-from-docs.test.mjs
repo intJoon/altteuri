@@ -6,7 +6,7 @@ import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import vm from 'node:vm';
 
-const repo = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
+const repo = resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
 const extension = resolve(repo, 'extension');
 const webPublic = resolve(repo, 'web/public');
 
@@ -52,7 +52,9 @@ test('R3: sort visibility consults remover CSS hides', async () => {
   const remover = await readExt('content/element-remover.js');
   assert.match(remover, /function isItemHidden/);
   assert.match(remover, /item\.matches\(activeHideSelectors/);
-  assert.match(remover, /display:none!important/);
+  assert.match(remover, /buildRemoverHideCss/);
+  const shared = await readExt('content/shared-start.js');
+  assert.match(shared, /display:none!important/);
 });
 
 test('R4: listSize radio sync does not dispatch change/click', async () => {
@@ -65,9 +67,11 @@ test('R4: listSize radio sync does not dispatch change/click', async () => {
 });
 
 test('R5: unchecked presets are the only hidden selectors', async () => {
+  const shared = await readExt('content/shared-start.js');
+  assert.match(shared, /off\.has\(it\.selector\)/);
+  assert.match(shared, /display:none!important/);
   const remover = await readExt('content/element-remover.js');
-  assert.match(remover, /off\.has\(it\.selector\)/);
-  assert.match(remover, /display:none!important/);
+  assert.match(remover, /buildRemoverHideCss/);
 });
 
 test('R6: marketing site is feedback read-only', async () => {

@@ -1,5 +1,4 @@
 ((A) => {
-let quickCartChangeBound = false;
 const ALT_QUICK_CART_STYLE_ID = 'alt-quick-cart-styles';
 
 function quickCartSleep(ms) {
@@ -65,7 +64,7 @@ function parseProductCartIds(item) {
 }
 
 function getProductImageBox(item) {
-  return item.querySelector('figure, [class*="productImage"], .product-image, .main-image');
+  return A.core.getProductImageBox(item);
 }
 
 function setQuickCartBtnState(btn, state) {
@@ -461,19 +460,7 @@ function applyQuickCartButtons() {
   } catch (e) {}
 }
 
-function initQuickCartSync() {
-  if (quickCartChangeBound) return;
-  if (!window.chrome || !chrome.storage || !chrome.storage.onChanged) return;
-  quickCartChangeBound = true;
-  chrome.storage.onChanged.addListener((changes, area) => {
-    if (area !== 'sync') return;
-    if (changes.quickCartEnabled) applyQuickCartButtons();
-  });
-}
-
-
 A.quickCart = Object.freeze({
-  applyButtons: applyQuickCartButtons,
-  initSync: initQuickCartSync
+  applyButtons: applyQuickCartButtons
 });
 })(globalThis.Altteuri ||= {});

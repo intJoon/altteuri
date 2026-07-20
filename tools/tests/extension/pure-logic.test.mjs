@@ -3,7 +3,7 @@ import test from 'node:test';
 import { createRequire } from 'node:module';
 
 const require = createRequire(import.meta.url);
-const logic = require('../../extension/pure-logic.js');
+const logic = require('../../../extension/pure-logic.js');
 
 test('nullable numeric comparison keeps missing values last in both directions', () => {
   assert.ok(logic.compareNullableNumbers(10, 20, 'asc') < 0);

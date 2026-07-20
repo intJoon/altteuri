@@ -1,10 +1,9 @@
 ((A) => {
-A.listSize.initSync();
-A.quickCart.initSync();
+A.settings.bind();
 A.remover.init();
 
 A.listSize.setFromSettings(({ redirected }) => {
   if (redirected) return;
-  A.sort.observeProductList();
+  A.page.observeProductList();
 });
 })(globalThis.Altteuri ||= {});

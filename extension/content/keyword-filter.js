@@ -3,7 +3,6 @@ let excludedKeywords = [];
 let keywordFilterContainer = null;
 let keywordFilterEnabled = false;
 let lastTrackedSearchQuery = null;
-let kwChangeBound = false;
 
 const KEYWORD_FILTER_STYLE_ID = 'alt-keyword-filter-styles';
 
@@ -197,8 +196,8 @@ function applyProductVisibility() {
 }
 
 function reapplyKeywordFilterSoon() {
-  if (A.sort && typeof A.sort.schedulePageApply === 'function') {
-    A.sort.schedulePageApply({});
+  if (A.page && typeof A.page.schedulePageApply === 'function') {
+    A.page.schedulePageApply({});
     return;
   }
   applyProductVisibility();
@@ -403,25 +402,13 @@ function unhideAllProducts() {
   if (productList) A.core.getProductItems(productList).forEach(it => { it.style.display = ''; });
 }
 
-function initKeywordFilterSync() {
-  if (kwChangeBound) return;
-  if (!window.chrome || !chrome.storage || !chrome.storage.onChanged) return;
-  kwChangeBound = true;
-  chrome.storage.onChanged.addListener((changes, area) => {
-    if (area !== 'sync') return;
-    if (changes.keywordFilterEnabled) {
-      
-      excludedKeywords = [];
-      saveExcludedKeywords();
-      addKeywordFilterFeature();
-    }
-  });
+function handleEnabledChange() {
+  excludedKeywords = [];
+  saveExcludedKeywords();
+  addKeywordFilterFeature();
 }
 
-
 function addKeywordFilterFeature(retryCount = 0) {
-  initKeywordFilterSync();
-
   if (!window.chrome || !chrome.storage || !chrome.runtime || !chrome.runtime.id) return;
   try {
     chrome.storage.sync.get(['keywordFilterEnabled'], result => {
@@ -458,6 +445,7 @@ A.keyword = Object.freeze({
   ensurePresent: ensureKeywordFilterPresent,
   reapplySoon: reapplyKeywordFilterSoon,
   handleSearchQueryChange,
+  handleEnabledChange,
   getSearchQueryKey,
   trackCurrentQuery() { lastTrackedSearchQuery = getSearchQueryKey(); },
   isEnabled() { return keywordFilterEnabled; }

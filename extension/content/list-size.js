@@ -1,5 +1,5 @@
 ((A) => {
-let changeBound = false;
+const S = globalThis.AltteuriShared;
 
 function searchKey() {
   try {
@@ -15,7 +15,7 @@ function syncListSizeRadio(listSize) {
   const radio = document.querySelector(`input[type="radio"][name="listSize"][value="${listSize}"]`);
   if (!radio || radio.checked) return false;
   radio.checked = true;
-  const selectedClass = 'ListSizeOption_selected__Ym5KI';
+  const selectedClass = A.core.SELECTORS.listSizeSelectedClass;
   document.querySelectorAll(`input[type="radio"][name="listSize"]`).forEach(input => {
     const li = input.closest('li');
     if (!li) return;
@@ -25,22 +25,7 @@ function syncListSizeRadio(listSize) {
 }
 
 function redirectOnce(listSize) {
-  if (!/\/np\/search/.test(location.pathname)) return false;
-  const url = new URL(location.href);
-  if (url.searchParams.get('listSize') === listSize) {
-    try { sessionStorage.removeItem('alt:ls:going'); } catch (e) {}
-    return false;
-  }
-
-  url.searchParams.set('listSize', listSize);
-  const target = url.toString();
-  try {
-    if (sessionStorage.getItem('alt:ls:going') === target) return false;
-    sessionStorage.setItem('alt:ls:going', target);
-  } catch (e) {}
-
-  location.replace(target);
-  return true;
+  return S.redirectListSizeOnce(listSize);
 }
 
 function urlMatches(listSize) {
@@ -64,7 +49,7 @@ function setFromSettings(callback) {
   try {
     chrome.storage.sync.get(['forceCoupangListSize', 'coupangListSize'], result => {
       if (!result.forceCoupangListSize) {
-        try { sessionStorage.removeItem('alt:ls:going'); } catch (e) {}
+        S.clearListSizeGoing();
         done({ redirected: false, blocked: false });
         return;
       }
@@ -74,7 +59,7 @@ function setFromSettings(callback) {
         done({ redirected, blocked: !redirected });
         return;
       }
-      try { sessionStorage.removeItem('alt:ls:going'); } catch (e) {}
+      S.clearListSizeGoing();
       syncListSizeRadio(listSize);
       done({ redirected: false, blocked: false });
     });
@@ -83,24 +68,8 @@ function setFromSettings(callback) {
   }
 }
 
-function initSync() {
-  if (changeBound || !globalThis.chrome || !chrome.storage || !chrome.storage.onChanged) return;
-  changeBound = true;
-  chrome.storage.onChanged.addListener((changes, area) => {
-    if (area !== 'sync') return;
-    if (changes.unitPriceSortEnabled) A.sort.handleFeatureToggle('unit', !!changes.unitPriceSortEnabled.newValue);
-    if (changes.discountRateSortEnabled) A.sort.handleFeatureToggle('discount', !!changes.discountRateSortEnabled.newValue);
-    if (changes.priceSortEnabled) A.sort.handleFeatureToggle('price', !!changes.priceSortEnabled.newValue);
-    if (changes.forceCoupangListSize || changes.coupangListSize) {
-      try { sessionStorage.removeItem('alt:ls:going'); } catch (e) {}
-      setFromSettings();
-    }
-  });
-}
-
 A.listSize = Object.freeze({
   setFromSettings,
-  initSync,
   syncListSizeRadio,
   redirectOnce,
   urlMatches,
