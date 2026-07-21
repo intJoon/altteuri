@@ -84,9 +84,6 @@ a {
   position: relative;
   overflow: hidden;
   background-color: #f7f9ff;
-  background-image:
-    radial-gradient(circle at 72% 16%, rgba(52, 106, 255, 0.14), transparent 34%),
-    linear-gradient(180deg, #f7f9ff 0%, #fff 100%);
   border-bottom: 1px solid var(--line);
 }
 
