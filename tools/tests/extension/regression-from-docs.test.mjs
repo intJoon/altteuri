@@ -166,7 +166,7 @@ test('R16: toolbar icon grays out when every feature is off', async () => {
 
 test('R17: custom sort teardown clears rank marks when sort is deactivated', async () => {
   const sort = await readExt('content/sort.js');
-  assert.match(sort, /function clearSort[\s\S]*sortActive\[kind\][\s\S]*clearRankMark\(item\)/);
+  assert.match(sort, /function clearSort[\s\S]*activeKind === kind[\s\S]*clearRankMark\(item\)/);
   assert.match(sort, /syncCustomSortSurface/);
-  assert.match(sort, /price:[\s\S]*clearRanks:\s*true/);
+  assert.match(sort, /function deactivateCustomSort[\s\S]*clearSort\(kind\)/);
 });

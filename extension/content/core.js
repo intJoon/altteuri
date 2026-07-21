@@ -101,12 +101,6 @@ function getPriceValue(item) {
   return isNaN(v) ? null : v;
 }
 
-function formatUnitPrice(calc, item) {
-  if (!calc) return '';
-  if (calc.coupangUnit) return `단위가: ${calc.coupangUnit}`;
-  return '';
-}
-
 const SORT_UI_STYLE_ID = 'alt-sort-ui-styles';
 
 function ensureSortUiStyles() {
@@ -147,72 +141,6 @@ function setCustomSortSurface(active) {
   document.documentElement.classList.toggle('alt-custom-sort-active', !!active);
 }
 
-function updateUnitPriceBadge(item, calc) {
-  const old = item.querySelector('.unit-price-badge');
-  if (old) old.remove();
-  let badgeText = '';
-  if (calc && calc.coupangUnit) {
-    badgeText = formatUnitPrice(calc, item);
-  } else {
-    badgeText = '단위가 미제공';
-  }
-  const badge = document.createElement('span');
-  badge.className = 'unit-price-badge';
-  badge.textContent = badgeText;
-  badge.style.display = 'block';
-  badge.style.background = '#e6f0ff';
-  badge.style.color = '#346aff';
-  badge.style.fontSize = '13px';
-  badge.style.fontWeight = 'bold';
-  badge.style.margin = '4px 0 0 0';
-  badge.style.padding = '2px 6px';
-  badge.style.borderRadius = '4px';
-  badge.style.width = 'fit-content';
-  const imgBox = getProductImageBox(item);
-  if (imgBox && imgBox.parentNode) {
-    if (imgBox.nextSibling) {
-      imgBox.parentNode.insertBefore(badge, imgBox.nextSibling);
-    } else {
-      imgBox.parentNode.appendChild(badge);
-    }
-  } else {
-    const nameEl = getProductNameEl(item);
-    if (nameEl) nameEl.parentNode.insertBefore(badge, nameEl.nextSibling);
-    else item.appendChild(badge);
-  }
-}
-
-function updateDiscountRateBadge(item, discountRate) {
-  const old = item.querySelector('.discount-rate-badge');
-  if (old) old.remove();
-  if (discountRate > 0) {
-    const badge = document.createElement('span');
-    badge.className = 'discount-rate-badge';
-    badge.textContent = `할인율: ${discountRate}%`;
-    badge.style.display = 'block';
-    badge.style.background = '#e6f0ff';
-    badge.style.color = '#346aff';
-    badge.style.fontSize = '13px';
-    badge.style.fontWeight = 'bold';
-    badge.style.margin = '4px 0 0 0';
-    badge.style.padding = '2px 6px';
-    badge.style.borderRadius = '4px';
-    badge.style.width = 'fit-content';
-    const imgBox = getProductImageBox(item);
-    if (imgBox && imgBox.parentNode) {
-      if (imgBox.nextSibling) {
-        imgBox.parentNode.insertBefore(badge, imgBox.nextSibling);
-      } else {
-        imgBox.parentNode.appendChild(badge);
-      }
-    } else {
-      const nameEl = getProductNameEl(item);
-      if (nameEl) nameEl.parentNode.insertBefore(badge, nameEl.nextSibling);
-      else item.appendChild(badge);
-    }
-  }
-}
-
 function getSortableProductItems(productList) {
   const list = productList || document.querySelector(SELECTORS.productList);
   if (!list) return [];
@@ -250,8 +178,12 @@ function applySortedProductOrder(productList, orderedItems) {
 
 function updateRankMark(item, rank, opts) {
   let forceShow = false;
+  let calc = null;
   if (typeof opts === 'boolean') forceShow = opts;
-  else if (opts && typeof opts === 'object') forceShow = !!opts.forceShow;
+  else if (opts && typeof opts === 'object') {
+    forceShow = !!opts.forceShow;
+    calc = opts.calc || null;
+  }
 
   clearRankMark(item);
   ensureSortUiStyles();
@@ -265,8 +197,8 @@ function updateRankMark(item, rank, opts) {
       missing = true;
     }
   } else {
-    const calc = calculateUnitPrice(item);
-    if (calc && calc.coupangUnit) {
+    const resolved = calc || calculateUnitPrice(item);
+    if (resolved && resolved.coupangUnit) {
       markText = String(rank);
     } else if (rank === '-') {
       markText = '!';
@@ -296,8 +228,6 @@ A.core = Object.freeze({
   calculateUnitPrice,
   calculateDiscountRate,
   getPriceValue,
-  updateUnitPriceBadge,
-  updateDiscountRateBadge,
   getSortableProductItems,
   clearRankMark,
   isSortVisibleItem,

@@ -53,9 +53,7 @@ function renderKeywordFilterTags() {
 }
 
 function reapplySortIfNeeded() {
-  if (A.sort.isActive('unit')) A.sort.reapplySortIfNeeded();
-  else if (A.sort.isActive('discount')) A.sort.reapplySortIfNeeded();
-  else if (A.sort.isActive('price')) A.sort.reapplySortIfNeeded();
+  if (A.sort.getActiveKind()) A.sort.reapplySortIfNeeded();
 }
 
 function resetExcludedKeywordsForSearchChange() {

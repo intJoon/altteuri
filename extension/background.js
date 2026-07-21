@@ -56,19 +56,16 @@ function migratePresetOffMeaning(data, fromVersion) {
   return next;
 }
 
-function isCoupangTabUrl(url) {
-  return !!url && (
-    url.startsWith('https://www.coupang.com/') ||
-    url.startsWith('https://cart.coupang.com/') ||
-    url.startsWith('https://mc.coupang.com/')
-  );
-}
 
 function reloadCoupangTabs() {
-  chrome.tabs.query({}, tabs => {
-    tabs.forEach(tab => {
-      if (isCoupangTabUrl(tab.url)) chrome.tabs.reload(tab.id);
-    });
+  chrome.tabs.query({
+    url: [
+      'https://www.coupang.com/*',
+      'https://cart.coupang.com/*',
+      'https://mc.coupang.com/*'
+    ]
+  }, tabs => {
+    tabs.forEach(tab => chrome.tabs.reload(tab.id));
   });
 }
 

@@ -5,18 +5,22 @@ const {
   getSortableProductItems, clearRankMark, isSortVisibleItem,
   applySortedProductOrder, setCustomSortSurface, updateRankMark
 } = A.core;
-const sortActive = { unit: false, discount: false, price: false };
+
+const SORT_KINDS = ['unit', 'discount', 'price'];
+const LEGACY_BADGE_SELECTORS = {
+  unit: '.unit-price-badge',
+  discount: '.discount-rate-badge'
+};
+
+let activeKind = null;
 let originalProductOrder = null;
 
 function getActiveKind() {
-  if (sortActive.unit) return 'unit';
-  if (sortActive.discount) return 'discount';
-  if (sortActive.price) return 'price';
-  return null;
+  return activeKind;
 }
 
 function syncCustomSortSurface() {
-  setCustomSortSurface(!!getActiveKind());
+  setCustomSortSurface(!!activeKind);
 }
 
 function captureOriginalProductOrder(productList) {
@@ -83,9 +87,7 @@ const SORT_CONFIGS = {
     },
     read(item) {
       const calc = calculateUnitPrice(item);
-      const value = calc && calc.coupangUnit
-        ? (typeof calc.value === 'number' ? calc.value : parseFloat(calc.coupangUnit.replace(/[^\d.]+/g, '')))
-        : null;
+      const value = calc && calc.coupangUnit && typeof calc.value === 'number' ? calc.value : null;
       return { item, calc, value };
     },
     isSortable(row) { return !!(row.calc && row.calc.coupangUnit); },
@@ -95,15 +97,13 @@ const SORT_CONFIGS = {
       sorted.forEach(row => {
         if (!isSortVisibleItem(row.item)) return clearRankMark(row.item);
         rank += 1;
-        updateRankMark(row.item, rank);
+        updateRankMark(row.item, rank, { calc: row.calc });
       });
       missing.forEach(row => {
         if (!isSortVisibleItem(row.item)) return clearRankMark(row.item);
-        updateRankMark(row.item, '-');
+        updateRankMark(row.item, '-', { calc: row.calc });
       });
-    },
-    badgeSelector: '.unit-price-badge',
-    clearRanks: true
+    }
   },
   discount: {
     kind: 'discount',
@@ -130,9 +130,7 @@ const SORT_CONFIGS = {
           clearRankMark(row.item);
         }
       });
-    },
-    badgeSelector: '.discount-rate-badge',
-    clearRanks: true
+    }
   },
   price: {
     kind: 'price',
@@ -160,45 +158,51 @@ const SORT_CONFIGS = {
         updateRankMark(row.item, rank, true);
       });
       missing.forEach(row => clearRankMark(row.item));
-    },
-    badgeSelector: null,
-    clearRanks: true
+    }
   }
 };
 
-function runSort(kind) {
+function executeSort(kind, order) {
   const config = SORT_CONFIGS[kind];
-  sortActive[kind] = true;
-  saveActiveSort(kind);
+  if (!config) return;
   const productList = document.querySelector(SELECTORS.productList);
   if (!productList) return;
   const items = getSortableProductItems(productList);
   if (items.length === 0) return;
   captureOriginalProductOrder(productList);
 
-  const execute = result => {
-    const order = config.orderKey ? (result[config.orderKey] || config.defaultOrder) : null;
-    const rows = items.map(config.read);
-    const { sorted, missing } = A.pure.partitionAndSort(
-      rows,
-      config.isSortable,
-      (a, b) => config.compare(a, b, order)
-    );
-    config.decorate(sorted, missing);
-    applySortedProductOrder(productList, [...sorted, ...missing].map(row => row.item));
-    updateSortButtonUI(kind);
-    syncCustomSortSurface();
-    A.keyword.applyFilter();
-  };
-
-  if (config.orderKey) chrome.storage.sync.get([config.orderKey], execute);
-  else execute({});
+  const resolvedOrder = config.orderKey ? (order || config.defaultOrder) : null;
+  const rows = items.map(config.read);
+  const { sorted, missing } = A.pure.partitionAndSort(
+    rows,
+    config.isSortable,
+    (a, b) => config.compare(a, b, resolvedOrder)
+  );
+  config.decorate(sorted, missing);
+  applySortedProductOrder(productList, [...sorted, ...missing].map(row => row.item));
+  updateSortButtonUI(kind);
+  syncCustomSortSurface();
+  A.keyword.applyFilter();
 }
 
-function sortByUnitPrice() { runSort('unit'); }
-function sortByDiscountRate() { runSort('discount'); }
-function sortByPrice() { runSort('price'); }
+function runSort(kind, orderOverride) {
+  const config = SORT_CONFIGS[kind];
+  if (!config) return;
+  activeKind = kind;
+  saveActiveSort(kind);
 
+  const execute = result => {
+    const order = orderOverride ?? (config.orderKey ? (result[config.orderKey] || config.defaultOrder) : null);
+    executeSort(kind, order);
+  };
+
+  if (orderOverride != null || !config.orderKey) execute({});
+  else chrome.storage.sync.get([config.orderKey], execute);
+}
+
+function runSortWithOrder(kind, order) {
+  runSort(kind, order);
+}
 
 function updateSortButtonUI(kind) {
   const config = SORT_CONFIGS[kind];
@@ -206,23 +210,25 @@ function updateSortButtonUI(kind) {
   if (!sortUl) return;
   const button = sortUl.querySelector(config.selector);
   if (!button) return;
-  button.classList.toggle('Sort_selected__SBbDW', sortActive[kind]);
+  const selected = activeKind === kind;
+  button.classList.toggle('Sort_selected__SBbDW', selected);
   const radio = button.querySelector('input[type="radio"]');
-  if (radio) radio.checked = sortActive[kind];
+  if (radio) radio.checked = selected;
 }
-
-function updateUnitPriceSortButtonUI() { updateSortButtonUI('unit'); }
-function updateDiscountRateSortButtonUI() { updateSortButtonUI('discount'); }
-function updatePriceSortButtonUI() { updateSortButtonUI('price'); }
-
 
 function updateSpecialSortSeparator() {
   const sortUl = document.querySelector(SELECTORS.sortList);
   if (!sortUl) return;
   let separator = sortUl.querySelector('.special-sort-separator');
-  const hasSpecial = !!sortUl.querySelector('.unit-price-sort-btn') || !!sortUl.querySelector('.discount-rate-sort-btn') || !!sortUl.querySelector(SELECTORS.priceSortButton);
+  const hasSpecial = !!sortUl.querySelector('.unit-price-sort-btn')
+    || !!sortUl.querySelector('.discount-rate-sort-btn')
+    || !!sortUl.querySelector(SELECTORS.priceSortButton);
   const allLis = Array.from(sortUl.children);
-  const firstSpecialIdx = allLis.findIndex(li => li.classList.contains('unit-price-sort-btn') || li.classList.contains('discount-rate-sort-btn') || li.classList.contains('price-sort-btn'));
+  const firstSpecialIdx = allLis.findIndex(li =>
+    li.classList.contains('unit-price-sort-btn')
+    || li.classList.contains('discount-rate-sort-btn')
+    || li.classList.contains('price-sort-btn')
+  );
   if (hasSpecial) {
     if (!separator) {
       separator = document.createElement('li');
@@ -238,8 +244,8 @@ function updateSpecialSortSeparator() {
         sortUl.appendChild(separator);
       }
     }
-  } else {
-    if (separator) separator.remove();
+  } else if (separator) {
+    separator.remove();
   }
 }
 
@@ -249,22 +255,30 @@ function arrowSvg(order) {
     : `<svg width="14" height="14" viewBox="0 0 14 14" style="display:block;transform:rotate(180deg);" xmlns="http://www.w3.org/2000/svg"><polygon points="7,4 11,9 3,9" fill="#888"/></svg>`;
 }
 
+function clearLegacyBadges(kind, productList) {
+  const selector = LEGACY_BADGE_SELECTORS[kind];
+  if (!selector || !productList) return;
+  productList.querySelectorAll(SELECTORS.productItem).forEach(item => {
+    item.querySelectorAll(selector).forEach(el => el.remove());
+  });
+}
+
 function clearSort(kind) {
   const config = SORT_CONFIGS[kind];
   if (!config) return;
   const productList = document.querySelector(SELECTORS.productList);
   if (!productList) return;
-  const clearingActive = !!sortActive[kind];
-  productList.querySelectorAll(SELECTORS.productItem).forEach(item => {
-    if (clearingActive) clearRankMark(item);
-    if (config.badgeSelector) item.querySelectorAll(config.badgeSelector).forEach(el => el.remove());
-  });
+  const clearingActive = activeKind === kind;
+  if (clearingActive) {
+    productList.querySelectorAll(SELECTORS.productItem).forEach(item => clearRankMark(item));
+  }
+  clearLegacyBadges(kind, productList);
   A.keyword.applyFilter();
 }
 
 function deactivateCustomSort(kind) {
   clearSort(kind);
-  sortActive[kind] = false;
+  activeKind = null;
   saveActiveSort(null);
   restoreOriginalProductOrder();
   clearOriginalProductOrder();
@@ -275,16 +289,16 @@ function deactivateCustomSort(kind) {
 }
 
 function deactivateOtherSorts(kind, sortUl) {
-  Object.values(SORT_CONFIGS).forEach(other => {
-    if (other.kind === kind) return;
+  SORT_KINDS.forEach(otherKind => {
+    if (otherKind === kind) return;
+    const other = SORT_CONFIGS[otherKind];
     const button = sortUl.querySelector(other.selector);
     if (button) {
       button.classList.remove('Sort_selected__SBbDW');
       const radio = button.querySelector('input[type="radio"]');
       if (radio) radio.checked = false;
     }
-    sortActive[other.kind] = false;
-    clearSort(other.kind);
+    clearSort(otherKind);
   });
 }
 
@@ -318,10 +332,36 @@ function createArrowButton(config, initialOrder) {
     currentOrder = currentOrder === 'asc' ? 'desc' : 'asc';
     chrome.storage.sync.set({ [config.orderKey]: currentOrder }, () => {
       render();
-      if (sortActive[config.kind]) runSort(config.kind);
+      if (activeKind === config.kind) runSort(config.kind, currentOrder);
     });
   };
   return button;
+}
+
+function isCustomSortLi(li) {
+  return li.classList.contains('unit-price-sort-btn')
+    || li.classList.contains('discount-rate-sort-btn')
+    || li.classList.contains('price-sort-btn');
+}
+
+function ensureSortOptionListener(sortUl) {
+  if (!sortUl || sortUl.dataset.altSortOptionBound) return;
+  sortUl.dataset.altSortOptionBound = '1';
+  sortUl.addEventListener('click', event => {
+    const li = event.target.closest('li');
+    if (!li || isCustomSortLi(li)) return;
+    const kind = getActiveKind();
+    if (!kind) return;
+    whenProductListReady(() => runSort(kind));
+  });
+}
+
+function whenProductListReady(fn) {
+  if (A.page && typeof A.page.whenReady === 'function') {
+    A.page.whenReady(fn);
+    return;
+  }
+  try { fn(); } catch (e) {}
 }
 
 function addSortButton(kind) {
@@ -363,7 +403,7 @@ function addSortButton(kind) {
       li.onclick = event => {
         event.preventDefault();
         deactivateOtherSorts(kind, sortUl);
-        if (sortActive[kind]) {
+        if (activeKind === kind) {
           deactivateCustomSort(kind);
         } else {
           runSort(kind);
@@ -373,63 +413,9 @@ function addSortButton(kind) {
       };
       sortUl.appendChild(li);
       updateSpecialSortSeparator();
-      addSortOptionListeners();
+      ensureSortOptionListener(sortUl);
     });
   } catch (e) {}
-}
-
-function addUnitPriceSortButton() { addSortButton('unit'); }
-function addDiscountRateSortButton() { addSortButton('discount'); }
-function addPriceSortButton() { addSortButton('price'); }
-
-
-function addSortOptionListeners() {
-  const sortUl = document.querySelector(SELECTORS.sortList);
-  if (!sortUl) return;
-  sortUl.querySelectorAll('li').forEach(li => {
-    if (li.classList.contains('unit-price-sort-btn') || li.classList.contains('discount-rate-sort-btn') || li.classList.contains('price-sort-btn')) return;
-    li.addEventListener('click', () => {
-      const kind = sortActive.unit ? 'unit'
-        : sortActive.discount ? 'discount'
-        : sortActive.price ? 'price'
-        : null;
-      if (!kind) return;
-      whenProductListReady(() => runSort(kind));
-    });
-  });
-}
-
-function whenProductListReady(fn) {
-  if (A.page && typeof A.page.whenReady === 'function') {
-    A.page.whenReady(fn);
-    return;
-  }
-  try { fn(); } catch (e) {}
-}
-
-function runSortWithOrder(kind, order) {
-  const config = SORT_CONFIGS[kind];
-  if (!config) return;
-  sortActive[kind] = true;
-  saveActiveSort(kind);
-  const productList = document.querySelector(SELECTORS.productList);
-  if (!productList) return;
-  const items = getSortableProductItems(productList);
-  if (items.length === 0) return;
-  captureOriginalProductOrder(productList);
-
-  const resolvedOrder = config.orderKey ? (order || config.defaultOrder) : null;
-  const rows = items.map(config.read);
-  const { sorted, missing } = A.pure.partitionAndSort(
-    rows,
-    config.isSortable,
-    (a, b) => config.compare(a, b, resolvedOrder)
-  );
-  config.decorate(sorted, missing);
-  applySortedProductOrder(productList, [...sorted, ...missing].map(row => row.item));
-  updateSortButtonUI(kind);
-  syncCustomSortSurface();
-  A.keyword.applyFilter();
 }
 
 function restoreSort(kind) {
@@ -438,9 +424,8 @@ function restoreSort(kind) {
   try {
     chrome.storage.sync.get([config.enabledKey], result => {
       if (!result[config.enabledKey]) return;
-      getActiveSort(active => {
-        if (active !== kind) return;
-        sortActive[kind] = true;
+      getActiveSort(storedKind => {
+        if (storedKind !== kind) return;
         const trySort = () => {
           if (A.page.isProductListFullyLoaded()) {
             updateSortButtonUI(kind);
@@ -455,31 +440,13 @@ function restoreSort(kind) {
   } catch (e) {}
 }
 
-function resetSort(kind) {
-  if (!sortActive[kind]) return;
-  sortActive[kind] = false;
-  updateSortButtonUI(kind);
-  const trySort = () => {
-    if (A.page.isProductListFullyLoaded()) runSort(kind);
-    else setTimeout(trySort, 30);
-  };
-  trySort();
-}
-
-function restoreUnitPriceSort() { restoreSort('unit'); }
-function restoreDiscountRateSort() { restoreSort('discount'); }
-function restorePriceSort() { restoreSort('price'); }
-function resetUnitPriceSort() { resetSort('unit'); }
-function resetDiscountRateSort() { resetSort('discount'); }
-function resetPriceSort() { resetSort('price'); }
-
-function handleOptionChange() {
-  A.page.applySubFeatures();
-  if (!sortActive.unit && !sortActive.discount && !sortActive.price) {
-    resetUnitPriceSort();
-    resetDiscountRateSort();
-    resetPriceSort();
-  }
+function healMissingButtons() {
+  const sortUl = document.querySelector(SELECTORS.sortList);
+  if (!sortUl) return;
+  SORT_KINDS.forEach(kind => {
+    const config = SORT_CONFIGS[kind];
+    if (!sortUl.querySelector(config.selector)) addSortButton(kind);
+  });
   updateSpecialSortSeparator();
 }
 
@@ -491,7 +458,7 @@ function handleFeatureToggle(kind, enabled) {
     updateSpecialSortSeparator();
     return;
   }
-  const wasActive = sortActive[kind];
+  const wasActive = activeKind === kind;
   const sortUl = document.querySelector(SELECTORS.sortList);
   if (sortUl) {
     const btn = sortUl.querySelector(config.selector);
@@ -500,87 +467,54 @@ function handleFeatureToggle(kind, enabled) {
   updateSpecialSortSeparator();
   if (wasActive) {
     clearSort(kind);
-    sortActive[kind] = false;
+    activeKind = null;
     saveActiveSort(null);
     restoreOriginalProductOrder();
     clearOriginalProductOrder();
   } else {
-    sortActive[kind] = false;
-    if (config.badgeSelector) clearSort(kind);
+    clearLegacyBadges(kind, document.querySelector(SELECTORS.productList));
   }
   syncCustomSortSurface();
   A.keyword.applyFilter();
 }
 
-function healMissingButtons() {
-  const sortUl = document.querySelector(SELECTORS.sortList);
-  if (!sortUl) return;
-  if (!sortUl.querySelector('.unit-price-sort-btn')) addUnitPriceSortButton();
-  if (!sortUl.querySelector('.discount-rate-sort-btn')) addDiscountRateSortButton();
-  if (!sortUl.querySelector('.price-sort-btn')) addPriceSortButton();
-  updateSpecialSortSeparator();
-}
-
 A.sort = Object.freeze({
   addButtons() {
-    addUnitPriceSortButton();
-    addDiscountRateSortButton();
-    addPriceSortButton();
+    SORT_KINDS.forEach(kind => addSortButton(kind));
   },
   restoreAll() {
-    restoreUnitPriceSort();
-    restoreDiscountRateSort();
-    restorePriceSort();
+    SORT_KINDS.forEach(kind => restoreSort(kind));
   },
   updateSeparator: updateSpecialSortSeparator,
   updateAllButtonUIs() {
-    updateUnitPriceSortButtonUI();
-    updateDiscountRateSortButtonUI();
-    updatePriceSortButtonUI();
+    SORT_KINDS.forEach(kind => updateSortButtonUI(kind));
   },
   clearActiveFlags() {
-    const kind = getActiveKind();
-    if (kind) clearSort(kind);
-    sortActive.unit = false;
-    sortActive.discount = false;
-    sortActive.price = false;
+    if (activeKind) clearSort(activeKind);
+    activeKind = null;
     syncCustomSortSurface();
   },
-  getActiveKind() {
-    if (sortActive.unit) return 'unit';
-    if (sortActive.discount) return 'discount';
-    if (sortActive.price) return 'price';
-    return null;
-  },
+  getActiveKind,
   runSort,
   runSortWithOrder,
   clearOriginalProductOrder,
   healMissingButtons,
   reapplySortIfNeeded() {
-    if (sortActive.unit) sortByUnitPrice();
-    else if (sortActive.discount) sortByDiscountRate();
-    else if (sortActive.price) sortByPrice();
+    if (activeKind) runSort(activeKind);
   },
   deactivateAll() {
-    const kind = getActiveKind();
-    if (kind) {
-      clearSort(kind);
+    if (activeKind) {
+      clearSort(activeKind);
       restoreOriginalProductOrder();
       clearOriginalProductOrder();
     }
-    sortActive.unit = false;
-    sortActive.discount = false;
-    sortActive.price = false;
+    activeKind = null;
     saveActiveSort(null);
     syncCustomSortSurface();
   },
   isActive(kind) {
-    return kind === 'unit' ? sortActive.unit
-      : kind === 'discount' ? sortActive.discount
-      : kind === 'price' ? sortActive.price
-      : false;
+    return activeKind === kind;
   },
-  handleFeatureToggle,
-  handleOptionChange
+  handleFeatureToggle
 });
 })(globalThis.Altteuri ||= {});
