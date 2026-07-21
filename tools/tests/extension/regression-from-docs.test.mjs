@@ -145,3 +145,28 @@ test('R14: all feature toggles default to false', () => {
     assert.equal(settings.DEFAULT_SETTINGS[key], false, key);
   });
 });
+
+test('R15: custom sort shows rank marks only and hides native ranks without removing them', async () => {
+  const core = await readExt('content/core.js');
+  const sort = await readExt('content/sort.js');
+  assert.match(core, /alt-sort-rank/);
+  assert.match(core, /alt-custom-sort-active[\s\S]*RankMark_rank/);
+  assert.match(core, /setCustomSortSurface/);
+  assert.doesNotMatch(core, /RankMark_rank'\]\)\.forEach\(el => el\.remove\(\)/);
+  assert.match(sort, /syncCustomSortSurface/);
+  assert.doesNotMatch(sort, /updateUnitPriceBadge\(row\.item/);
+});
+
+test('R16: toolbar icon grays out when every feature is off', async () => {
+  const background = await readExt('background.js');
+  assert.match(background, /icon16-gray\.png/);
+  assert.match(background, /isAnyFeatureEnabled/);
+  assert.match(background, /FEATURE_TOGGLE_KEYS\.some/);
+});
+
+test('R17: custom sort teardown clears rank marks when sort is deactivated', async () => {
+  const sort = await readExt('content/sort.js');
+  assert.match(sort, /function clearSort[\s\S]*sortActive\[kind\][\s\S]*clearRankMark\(item\)/);
+  assert.match(sort, /syncCustomSortSurface/);
+  assert.match(sort, /price:[\s\S]*clearRanks:\s*true/);
+});

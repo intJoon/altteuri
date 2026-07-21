@@ -2,6 +2,36 @@ importScripts('settings-defaults.js', 'preset-data.js');
 
 const { SETTINGS_VERSION, DEFAULT_SETTINGS, FEATURE_TOGGLE_KEYS } = globalThis.AltteuriSettings;
 
+const ICON_ACTIVE = Object.freeze({
+  16: 'icon16.png',
+  32: 'icon32.png',
+  48: 'icon48.png'
+});
+const ICON_INACTIVE = Object.freeze({
+  16: 'icon16-gray.png',
+  32: 'icon32-gray.png',
+  48: 'icon48-gray.png'
+});
+
+function isAnyFeatureEnabled(stored) {
+  const data = stored || {};
+  return FEATURE_TOGGLE_KEYS.some(key => !!data[key]);
+}
+
+function updateActionIcon(stored) {
+  try {
+    chrome.action.setIcon({
+      path: isAnyFeatureEnabled(stored) ? ICON_ACTIVE : ICON_INACTIVE
+    });
+  } catch (e) {}
+}
+
+function refreshActionIcon() {
+  chrome.storage.sync.get(FEATURE_TOGGLE_KEYS, stored => {
+    updateActionIcon(stored || {});
+  });
+}
+
 function mergeWithDefaults(stored) {
   return { ...DEFAULT_SETTINGS, ...stored, settingsVersion: SETTINGS_VERSION };
 }
@@ -53,7 +83,10 @@ chrome.runtime.onInstalled.addListener(details => {
       || FEATURE_TOGGLE_KEYS.some(key => data[key] !== undefined);
 
     if (!hasAnySettings) {
-      chrome.storage.sync.set(DEFAULT_SETTINGS, reloadCoupangTabs);
+      chrome.storage.sync.set(DEFAULT_SETTINGS, () => {
+        updateActionIcon(DEFAULT_SETTINGS);
+        reloadCoupangTabs();
+      });
       return;
     }
 
@@ -63,10 +96,23 @@ chrome.runtime.onInstalled.addListener(details => {
       const next = mergeWithDefaults(migrated);
       delete next.altEnabled;
       delete next.lastPreset;
-      chrome.storage.sync.set(next, reloadCoupangTabs);
+      chrome.storage.sync.set(next, () => {
+        updateActionIcon(next);
+        reloadCoupangTabs();
+      });
+      return;
     }
+
+    updateActionIcon(data);
   });
 });
+
+chrome.runtime.onStartup.addListener(refreshActionIcon);
+chrome.storage.onChanged.addListener((changes, area) => {
+  if (area !== 'sync') return;
+  if (FEATURE_TOGGLE_KEYS.some(key => changes[key])) refreshActionIcon();
+});
+refreshActionIcon();
 
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (!msg || msg.type !== 'alt-main') return;

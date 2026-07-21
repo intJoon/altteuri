@@ -7,6 +7,7 @@ DST = Path(__file__).resolve().parents[1] / "extension"
 FONT_PATH = Path(r"C:\Users\user\AppData\Local\Microsoft\Windows\Fonts\[KIM]WILDgag-Bold.ttf")
 
 BLUE = (52, 106, 255, 255)
+GRAY = (156, 160, 168, 255)
 WHITE = (255, 255, 255, 255)
 
 SS = 8
@@ -37,14 +38,18 @@ def paste_glyph(img: Image.Image, ch: str, cx: float, cy: float, target_h: float
     img.alpha_composite(layer, (round(cx - layer.width / 2), round(cy - layer.height / 2)))
 
 
-def make_icon(size: int) -> Image.Image:
+def make_icon(size: int, *, inactive: bool = False) -> Image.Image:
     s = size * SS
     img = Image.new("RGBA", (s, s), (0, 0, 0, 0))
     d = ImageDraw.Draw(img)
 
     pad = round(s * 0.02)
     radius = round(s * 0.24)
-    d.rounded_rectangle((pad, pad, s - 1 - pad, s - 1 - pad), radius=radius, fill=BLUE)
+    d.rounded_rectangle(
+        (pad, pad, s - 1 - pad, s - 1 - pad),
+        radius=radius,
+        fill=GRAY if inactive else BLUE,
+    )
 
     eye_h = s * 0.36
     eye_dx = s * 0.155
@@ -68,6 +73,11 @@ def main():
     for name, size in sizes.items():
         path = DST / name
         make_icon(size).save(path, optimize=True)
+        print(f"wrote {name} {size}x{size} ({path.stat().st_size} bytes)")
+    for size in (16, 32, 48):
+        name = f"icon{size}-gray.png"
+        path = DST / name
+        make_icon(size, inactive=True).save(path, optimize=True)
         print(f"wrote {name} {size}x{size} ({path.stat().st_size} bytes)")
 
 

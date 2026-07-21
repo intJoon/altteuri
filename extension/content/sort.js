@@ -1,12 +1,23 @@
 ((A) => {
 const {
   SELECTORS, calculateUnitPrice, calculateDiscountRate,
-  getPriceValue, updateUnitPriceBadge, updateDiscountRateBadge,
+  getPriceValue,
   getSortableProductItems, clearRankMark, isSortVisibleItem,
-  applySortedProductOrder, updateRankMark
+  applySortedProductOrder, setCustomSortSurface, updateRankMark
 } = A.core;
 const sortActive = { unit: false, discount: false, price: false };
 let originalProductOrder = null;
+
+function getActiveKind() {
+  if (sortActive.unit) return 'unit';
+  if (sortActive.discount) return 'discount';
+  if (sortActive.price) return 'price';
+  return null;
+}
+
+function syncCustomSortSurface() {
+  setCustomSortSurface(!!getActiveKind());
+}
 
 function captureOriginalProductOrder(productList) {
   if (!productList || originalProductOrder) return;
@@ -82,13 +93,11 @@ const SORT_CONFIGS = {
     decorate(sorted, missing) {
       let rank = 0;
       sorted.forEach(row => {
-        updateUnitPriceBadge(row.item, row.calc);
         if (!isSortVisibleItem(row.item)) return clearRankMark(row.item);
         rank += 1;
         updateRankMark(row.item, rank);
       });
       missing.forEach(row => {
-        updateUnitPriceBadge(row.item, null);
         if (!isSortVisibleItem(row.item)) return clearRankMark(row.item);
         updateRankMark(row.item, '-');
       });
@@ -114,7 +123,6 @@ const SORT_CONFIGS = {
     decorate(sorted) {
       let rank = 0;
       sorted.forEach(row => {
-        updateDiscountRateBadge(row.item, row.value);
         if (row.value > 0 && isSortVisibleItem(row.item)) {
           rank += 1;
           updateRankMark(row.item, rank, true);
@@ -154,7 +162,7 @@ const SORT_CONFIGS = {
       missing.forEach(row => clearRankMark(row.item));
     },
     badgeSelector: null,
-    clearRanks: false
+    clearRanks: true
   }
 };
 
@@ -179,6 +187,7 @@ function runSort(kind) {
     config.decorate(sorted, missing);
     applySortedProductOrder(productList, [...sorted, ...missing].map(row => row.item));
     updateSortButtonUI(kind);
+    syncCustomSortSurface();
     A.keyword.applyFilter();
   };
 
@@ -242,14 +251,14 @@ function arrowSvg(order) {
 
 function clearSort(kind) {
   const config = SORT_CONFIGS[kind];
+  if (!config) return;
   const productList = document.querySelector(SELECTORS.productList);
   if (!productList) return;
-  if (config.clearRanks || config.badgeSelector) {
-    productList.querySelectorAll(SELECTORS.productItem).forEach(item => {
-      if (config.clearRanks) clearRankMark(item);
-      if (config.badgeSelector) item.querySelectorAll(config.badgeSelector).forEach(el => el.remove());
-    });
-  }
+  const clearingActive = !!sortActive[kind];
+  productList.querySelectorAll(SELECTORS.productItem).forEach(item => {
+    if (clearingActive) clearRankMark(item);
+    if (config.badgeSelector) item.querySelectorAll(config.badgeSelector).forEach(el => el.remove());
+  });
   A.keyword.applyFilter();
 }
 
@@ -261,6 +270,7 @@ function deactivateCustomSort(kind) {
   clearOriginalProductOrder();
   updateSortButtonUI(kind);
   updateSpecialSortSeparator();
+  syncCustomSortSurface();
   A.keyword.applyFilter();
 }
 
@@ -418,6 +428,7 @@ function runSortWithOrder(kind, order) {
   config.decorate(sorted, missing);
   applySortedProductOrder(productList, [...sorted, ...missing].map(row => row.item));
   updateSortButtonUI(kind);
+  syncCustomSortSurface();
   A.keyword.applyFilter();
 }
 
@@ -488,11 +499,17 @@ function handleFeatureToggle(kind, enabled) {
   }
   updateSpecialSortSeparator();
   if (wasActive) {
+    clearSort(kind);
+    sortActive[kind] = false;
     saveActiveSort(null);
     restoreOriginalProductOrder();
     clearOriginalProductOrder();
-    A.keyword.applyFilter();
+  } else {
+    sortActive[kind] = false;
+    if (config.badgeSelector) clearSort(kind);
   }
+  syncCustomSortSurface();
+  A.keyword.applyFilter();
 }
 
 function healMissingButtons() {
@@ -522,9 +539,12 @@ A.sort = Object.freeze({
     updatePriceSortButtonUI();
   },
   clearActiveFlags() {
+    const kind = getActiveKind();
+    if (kind) clearSort(kind);
     sortActive.unit = false;
     sortActive.discount = false;
     sortActive.price = false;
+    syncCustomSortSurface();
   },
   getActiveKind() {
     if (sortActive.unit) return 'unit';
@@ -542,10 +562,17 @@ A.sort = Object.freeze({
     else if (sortActive.price) sortByPrice();
   },
   deactivateAll() {
+    const kind = getActiveKind();
+    if (kind) {
+      clearSort(kind);
+      restoreOriginalProductOrder();
+      clearOriginalProductOrder();
+    }
     sortActive.unit = false;
     sortActive.discount = false;
     sortActive.price = false;
     saveActiveSort(null);
+    syncCustomSortSurface();
   },
   isActive(kind) {
     return kind === 'unit' ? sortActive.unit

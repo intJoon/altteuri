@@ -107,6 +107,46 @@ function formatUnitPrice(calc, item) {
   return '';
 }
 
+const SORT_UI_STYLE_ID = 'alt-sort-ui-styles';
+
+function ensureSortUiStyles() {
+  if (document.getElementById(SORT_UI_STYLE_ID)) return;
+  const style = document.createElement('style');
+  style.id = SORT_UI_STYLE_ID;
+  style.textContent = `
+    .my-rank-mark.alt-sort-rank {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      z-index: 10;
+      background: #346aff;
+      color: #fff;
+      font-weight: bold;
+      border-radius: 50%;
+      min-width: 32px;
+      width: 32px;
+      height: 32px;
+      line-height: 32px;
+      text-align: center;
+      padding: 0;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.18);
+      display: inline-block;
+      box-sizing: border-box;
+    }
+    .my-rank-mark.alt-sort-rank--missing {
+      background: #6b7280;
+    }
+    html.alt-custom-sort-active #product-list span[class*="RankMark_rank"] {
+      display: none !important;
+    }
+  `;
+  (document.head || document.documentElement).appendChild(style);
+}
+
+function setCustomSortSurface(active) {
+  document.documentElement.classList.toggle('alt-custom-sort-active', !!active);
+}
+
 function updateUnitPriceBadge(item, calc) {
   const old = item.querySelector('.unit-price-badge');
   if (old) old.remove();
@@ -181,7 +221,7 @@ function getSortableProductItems(productList) {
 
 function clearRankMark(item) {
   if (!item) return;
-  item.querySelectorAll(".my-rank-mark, span[class^='RankMark_rank']").forEach(e => e.remove());
+  item.querySelectorAll('.my-rank-mark').forEach(el => el.remove());
 }
 
 function isSortVisibleItem(item) {
@@ -208,43 +248,38 @@ function applySortedProductOrder(productList, orderedItems) {
   others.forEach(el => productList.appendChild(el));
 }
 
-function updateRankMark(item, rank, forceShow = false) {
+function updateRankMark(item, rank, opts) {
+  let forceShow = false;
+  if (typeof opts === 'boolean') forceShow = opts;
+  else if (opts && typeof opts === 'object') forceShow = !!opts.forceShow;
+
   clearRankMark(item);
+  ensureSortUiStyles();
   const imgBox = getProductImageBox(item);
   let markText = '';
+  let missing = false;
   if (forceShow) {
-    markText = rank;
+    markText = String(rank);
+    if (rank === '-') {
+      markText = '!';
+      missing = true;
+    }
   } else {
     const calc = calculateUnitPrice(item);
     if (calc && calc.coupangUnit) {
-      markText = rank;
+      markText = String(rank);
     } else if (rank === '-') {
       markText = '!';
+      missing = true;
     } else {
       return;
     }
   }
   const mark = document.createElement('span');
-  mark.className = 'my-rank-mark';
+  mark.className = missing ? 'my-rank-mark alt-sort-rank alt-sort-rank--missing' : 'my-rank-mark alt-sort-rank';
   mark.textContent = markText;
-  mark.style.position = 'absolute';
-  mark.style.top = '8px';
-  mark.style.left = '8px';
-  mark.style.zIndex = '10';
-  mark.style.background = '#346aff';
-  mark.style.color = '#fff';
-  mark.style.fontWeight = 'bold';
-  mark.style.borderRadius = '50%';
-  mark.style.minWidth = '32px';
-  mark.style.width = '32px';
-  mark.style.height = '32px';
-  mark.style.lineHeight = '32px';
-  mark.style.textAlign = 'center';
-  mark.style.padding = '0';
-  mark.style.boxShadow = '0 1px 2px rgba(0,0,0,0.18)';
-  mark.style.display = 'inline-block';
   if (imgBox && imgBox.style) {
-    imgBox.style.position = 'relative';
+    if (getComputedStyle(imgBox).position === 'static') imgBox.style.position = 'relative';
     imgBox.appendChild(mark);
   } else {
     const nameEl = getProductNameEl(item);
@@ -267,6 +302,7 @@ A.core = Object.freeze({
   clearRankMark,
   isSortVisibleItem,
   applySortedProductOrder,
+  setCustomSortSurface,
   updateRankMark
 });
 })(globalThis.Altteuri ||= {});
