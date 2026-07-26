@@ -7,7 +7,6 @@ const sizeControl = document.getElementById('size-control');
 const sizeSeg = document.getElementById('size-seg');
 const sizeChips = sizeSeg ? Array.from(sizeSeg.querySelectorAll('.size-chip')) : [];
 const toggleKeywordFilter = document.getElementById('toggle-keyword-filter');
-const toggleQuickCart = document.getElementById('toggle-quick-cart');
 
 const API_BASE = 'https://altteuri.vercel.app';
 const FEEDBACK_PAGE_SIZE = 5;
@@ -30,7 +29,6 @@ function applyFeatureControls(result) {
   syncRemoveBody();
   syncSizeControl(!!result.forceCoupangListSize, result.coupangListSize || '72');
   if (toggleKeywordFilter) toggleKeywordFilter.checked = !!result.keywordFilterEnabled;
-  if (toggleQuickCart) toggleQuickCart.checked = !!result.quickCartEnabled;
 }
 
 function updateToggleState(done) {
@@ -42,8 +40,7 @@ function updateToggleState(done) {
       'elementRemoverEnabled',
       'forceCoupangListSize',
       'coupangListSize',
-      'keywordFilterEnabled',
-      'quickCartEnabled'
+      'keywordFilterEnabled'
     ], result => {
       applyFeatureControls(result || {});
       if (typeof done === 'function') done();
@@ -236,21 +233,12 @@ function handleKeywordFilterChange() {
   } catch (e) {}
 }
 
-function handleQuickCartChange() {
-  try {
-    chrome.storage.sync.set({ quickCartEnabled: toggleQuickCart.checked });
-  } catch (e) {}
-}
-
 toggleUnitPriceSort.addEventListener('change', handleUnitPriceSortChange);
 toggleDiscountRateSort.addEventListener('change', handleDiscountRateSortChange);
 togglePriceSort.addEventListener('change', handlePriceSortChange);
 toggleRemoveContent.addEventListener('change', handleRemoveContentChange);
 if (toggleKeywordFilter) {
   toggleKeywordFilter.addEventListener('change', handleKeywordFilterChange);
-}
-if (toggleQuickCart) {
-  toggleQuickCart.addEventListener('change', handleQuickCartChange);
 }
 if (forceListSizeToggle) {
   forceListSizeToggle.addEventListener('change', handleForceListSizeToggle);
@@ -666,6 +654,7 @@ function renderPresetList() {
       ALT_GROUPS.forEach(g => {
         const list = byGroup[g.id];
         if (!list || !list.length) return;
+        list.sort((a, b) => (a.order ?? 999) - (b.order ?? 999));
 
         
         const head = document.createElement('div');

@@ -13,7 +13,7 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 const IDLE_SCRIPTS = [
   'preset-data.js', 'pure-logic.js', 'content/shared-start.js', 'content/core.js', 'content/keyword-filter.js',
-  'content/sort.js', 'content/list-size.js', 'content/quick-cart.js',
+  'content/sort.js', 'content/list-size.js',
   'content/element-remover.js', 'content/page-runtime.js', 'content/settings-bridge.js', 'content/boot.js'
 ];
 
@@ -22,7 +22,6 @@ const SETTINGS = {
   discountRateSortEnabled: false,
   priceSortEnabled: false,
   keywordFilterEnabled: true,
-  quickCartEnabled: true,
   elementRemoverEnabled: true,
   forceCoupangListSize: false,
   coupangListSize: '36',

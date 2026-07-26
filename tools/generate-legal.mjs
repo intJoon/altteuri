@@ -1,8 +1,9 @@
 import { readFileSync, writeFileSync } from "node:fs";
-import { dirname, join } from "node:path";
+import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const root = join(dirname(fileURLToPath(import.meta.url)), "..");
+const defaultRoot = join(dirname(fileURLToPath(import.meta.url)), "..");
+const isMain = process.argv[1] && resolve(process.argv[1]) === resolve(fileURLToPath(import.meta.url));
 
 function escapeHtml(value) {
   return value
@@ -126,10 +127,11 @@ function markdownToHtml(markdown) {
   return output.join("\n");
 }
 
+export function buildLegalHtml(root = defaultRoot) {
 const privacy = readFileSync(join(root, "docs", "개인정보처리방침.md"), "utf8");
 const terms = readFileSync(join(root, "docs", "이용약관.md"), "utf8");
 
-const html = `<!DOCTYPE html>
+return `<!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
@@ -211,6 +213,14 @@ const html = `<!DOCTYPE html>
 </body>
 </html>
 `;
+}
 
-writeFileSync(join(root, "extension", "legal.html"), html, "utf8");
-writeFileSync(join(root, "web", "public", "legal.html"), html, "utf8");
+function writeLegalHtml(root = defaultRoot) {
+  const html = buildLegalHtml(root);
+  writeFileSync(join(root, "extension", "legal.html"), html, "utf8");
+  writeFileSync(join(root, "web", "public", "legal.html"), html, "utf8");
+}
+
+if (isMain) {
+  writeLegalHtml();
+}

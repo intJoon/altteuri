@@ -20,7 +20,6 @@ const IDLE_SCRIPTS = [
   'content/keyword-filter.js',
   'content/sort.js',
   'content/list-size.js',
-  'content/quick-cart.js',
   'content/element-remover.js',
   'content/page-runtime.js',
   'content/settings-bridge.js',
@@ -32,7 +31,6 @@ const DEFAULT_SETTINGS = {
   discountRateSortEnabled: true,
   priceSortEnabled: true,
   keywordFilterEnabled: true,
-  quickCartEnabled: true,
   elementRemoverEnabled: true,
   forceCoupangListSize: false,
   coupangListSize: '36',
@@ -135,7 +133,6 @@ function probeExpr() {
       discountBtn: !!document.querySelector('.discount-rate-sort-btn'),
       priceBtn: !!document.querySelector('.price-sort-btn'),
       keyword: !!document.querySelector('[data-alt-keyword-filter]'),
-      cart: !!document.querySelector('.alt-quick-cart-btn'),
       altteuri: typeof globalThis.Altteuri !== 'undefined',
       hasSchedule: !!(globalThis.Altteuri && globalThis.Altteuri.page && globalThis.Altteuri.page.schedulePageApply),
       bodyText
@@ -167,7 +164,7 @@ async function waitFor(page, pred, timeoutMs = 20000, everyMs = 120) {
 
 const hasItems = (p) => p && !p.error && p.items > 0;
 const hasCustom = (p) =>
-  p && !p.error && p.items > 0 && (p.unitBtn || p.discountBtn || p.priceBtn || p.keyword || p.cart);
+  p && !p.error && p.items > 0 && (p.unitBtn || p.discountBtn || p.priceBtn || p.keyword);
 
 async function runScenario(page, scripts, settings, name, navigateFn) {
   const t0 = Date.now();
@@ -199,7 +196,7 @@ async function watchDoubleAttach(page, ms = 4500) {
   const samples = [];
   while (Date.now() - t0 < ms) {
     const p = await probe(page);
-    const present = !!(p.unitBtn || p.keyword || p.cart);
+    const present = !!(p.unitBtn || p.keyword);
     samples.push({ t: Date.now() - t0, present, items: p.items });
     if (present) {
       if (sawGone) sawBack = true;
@@ -304,7 +301,7 @@ async function run() {
     }
     log({
       step: 'F_dwell_8s',
-      stillCustom: dwell.map((p) => !!(p.unitBtn || p.keyword || p.cart)),
+      stillCustom: dwell.map((p) => !!(p.unitBtn || p.keyword)),
       listSizes: dwell.map((p) => p.listSize),
       last: dwell[dwell.length - 1]
     });

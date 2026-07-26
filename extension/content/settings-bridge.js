@@ -27,10 +27,6 @@ function bind() {
       A.keyword.handleEnabledChange();
     }
 
-    if (changes.quickCartEnabled) {
-      A.quickCart.applyButtons();
-    }
-
     if (changes.altPresetOff || changes.elementRemoverEnabled) {
       A.remover.applyHiddenElements({ reapplySort: true });
     }

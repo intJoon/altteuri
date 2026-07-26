@@ -20,7 +20,6 @@ const IDLE_SCRIPTS = [
   'content/keyword-filter.js',
   'content/sort.js',
   'content/list-size.js',
-  'content/quick-cart.js',
   'content/element-remover.js',
   'content/page-runtime.js',
   'content/settings-bridge.js',
@@ -32,7 +31,6 @@ const SETTINGS = {
   discountRateSortEnabled: false,
   priceSortEnabled: false,
   keywordFilterEnabled: true,
-  quickCartEnabled: true,
   elementRemoverEnabled: true,
   forceCoupangListSize: false,
   coupangListSize: '36',
@@ -105,7 +103,6 @@ async function probe(page) {
       items: list ? list.children.length : 0,
       unitBtn: !!unit,
       keyword: !!document.querySelector('[data-alt-keyword-filter]'),
-      cart: !!document.querySelector('.alt-quick-cart-btn'),
       hasSortUl: !!sortUl,
       pending,
       unitOpacity,
@@ -125,7 +122,7 @@ async function timelineUntilCustom(page, maxMs = 10000) {
     const p = await probe(page);
     const t = Date.now() - t0;
     if (p.items > 0 && firstItems == null) firstItems = t;
-    if ((p.unitBtn || p.keyword || p.cart) && firstDomCustom == null) firstDomCustom = t;
+    if ((p.unitBtn || p.keyword) && firstDomCustom == null) firstDomCustom = t;
     if (p.visibleCustom && firstVisibleCustom == null) firstVisibleCustom = t;
     if (
       points.length === 0 ||
@@ -197,7 +194,7 @@ async function run() {
       const clone = sortUl.cloneNode(true);
       clone.querySelectorAll('.unit-price-sort-btn, .discount-rate-sort-btn, .price-sort-btn, .special-sort-separator').forEach((el) => el.remove());
       sortUl.replaceWith(clone);
-      document.querySelectorAll('[data-alt-keyword-filter], [data-alt-keyword-tags-wrap], .alt-quick-cart-btn').forEach((el) => el.remove());
+      document.querySelectorAll('[data-alt-keyword-filter], [data-alt-keyword-tags-wrap]').forEach((el) => el.remove());
     });
     log({ step: 'after_simulated_spa_wipe', probe: await probe(page) });
 

@@ -1,7 +1,6 @@
 ((A) => {
 const S = globalThis.AltteuriShared;
 let altRemoverEnabled = false;
-let altObserverStarted = false;
 let activeHideSelectors = [];
 
 function altPresetItems() {
@@ -59,15 +58,9 @@ function applyHiddenElements(opts) {
   });
 }
 
-function altObserveForReapply() {
-  if (altObserverStarted) return;
-  altObserverStarted = true;
-}
-
 function initElementRemover() {
   if (!window.chrome || !chrome.storage || !chrome.runtime || !chrome.runtime.id) return;
   applyHiddenElements();
-  altObserveForReapply();
 }
 
 A.remover = Object.freeze({

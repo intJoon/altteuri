@@ -176,6 +176,41 @@ function applySortedProductOrder(productList, orderedItems) {
   others.forEach(el => productList.appendChild(el));
 }
 
+function getNativeRankValue(item) {
+  if (!item) return null;
+  const mark = item.querySelector('span[class*="RankMark_rank"]');
+  if (!mark) return null;
+  const rank = parseInt((mark.textContent || '').trim(), 10);
+  return !isNaN(rank) && rank > 0 ? rank : null;
+}
+
+function restoreNativeRankOrder(productList) {
+  const list = productList || document.querySelector(SELECTORS.productList);
+  if (!list) return false;
+  const children = Array.from(list.children);
+  const ranked = children
+    .map(item => {
+      const rank = getNativeRankValue(item);
+      return rank != null ? { item, rank } : null;
+    })
+    .filter(Boolean);
+  if (ranked.length < 2) return false;
+
+  ranked.sort((a, b) => a.rank - b.rank);
+  const domOrderRanks = ranked
+    .slice()
+    .sort((a, b) => children.indexOf(a.item) - children.indexOf(b.item))
+    .map(row => row.rank);
+  const expectedRanks = ranked.map(row => row.rank);
+  const aligned = domOrderRanks.every((rank, idx) => rank === expectedRanks[idx]);
+  if (aligned) return false;
+
+  const rankedSet = new Set(ranked.map(row => row.item));
+  ranked.forEach(row => list.appendChild(row.item));
+  children.filter(el => !rankedSet.has(el)).forEach(el => list.appendChild(el));
+  return true;
+}
+
 function updateRankMark(item, rank, opts) {
   let forceShow = false;
   let calc = null;
@@ -232,6 +267,8 @@ A.core = Object.freeze({
   clearRankMark,
   isSortVisibleItem,
   applySortedProductOrder,
+  getNativeRankValue,
+  restoreNativeRankOrder,
   setCustomSortSurface,
   updateRankMark
 });

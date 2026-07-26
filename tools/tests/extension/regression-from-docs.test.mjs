@@ -25,11 +25,14 @@ test('R1: master switch keys are not defaults; migration still deletes them', as
   const settings = loadSettings();
   assert.equal('altEnabled' in settings.DEFAULT_SETTINGS, false);
   assert.equal('lastPreset' in settings.DEFAULT_SETTINGS, false);
+  assert.equal('quickCartEnabled' in settings.DEFAULT_SETTINGS, false);
   const popupHtml = await readExt('popup.html');
   assert.doesNotMatch(popupHtml, /altEnabled|알뜰이 켜기|lastPreset/);
+  assert.doesNotMatch(popupHtml, /toggle-quick-cart|장바구니 바로 담기/);
   const background = await readExt('background.js');
   assert.match(background, /delete next\.altEnabled/);
   assert.match(background, /delete next\.lastPreset/);
+  assert.match(background, /delete next\.quickCartEnabled/);
   assert.match(background, /fromVersion === 3 \|\| fromVersion === 4/);
 });
 
@@ -93,26 +96,28 @@ test('R7: feedback page size is 5 and popup date has no time-of-day fields', asy
   assert.doesNotMatch(formatBody, /getHours|getMinutes|hour|minute|toLocaleTimeString/);
 });
 
-test('R8: quick-cart success is UI/response based; timeout is failure', async () => {
-  const quickCart = await readExt('content/quick-cart.js');
-  assert.match(quickCart, /담기\\s\*완료|담기\s*완료/);
-  assert.match(quickCart, /장바구니에\\s\*담겼|장바구니에\s*담겼/);
-  assert.match(quickCart, /cart_timeout/);
-  assert.doesNotMatch(quickCart, /cartCount|headerCart|장바구니\s*수/);
-  assert.match(quickCart, /reject\(new Error\('cart_timeout'\)\)/);
+test('R8: quick-cart feature removed', async () => {
+  const manifest = JSON.parse(await readExt('manifest.json'));
+  assert.equal(existsSync(resolve(extension, 'content/quick-cart.js')), false);
+  assert.equal(existsSync(resolve(extension, 'page-cart-hook.js')), false);
+  assert.equal(manifest.permissions.includes('scripting'), false);
+  assert.doesNotMatch(JSON.stringify(manifest), /quick-cart/);
+  const settings = loadSettings();
+  assert.equal('quickCartEnabled' in settings.DEFAULT_SETTINGS, false);
+  assert.equal(settings.SETTINGS_VERSION, 11);
 });
 
-test('R9: single iframe warm path, no 3-iframe prefetch cache', async () => {
-  const quickCart = await readExt('content/quick-cart.js');
-  assert.match(quickCart, /ALT_WARM_DEBOUNCE_MS\s*=\s*160/);
-  assert.doesNotMatch(quickCart, /MAX_IFRAME|iframeCache|prefetch.*3|호버.*iframe/);
+test('R9: content scripts load without cart modules', async () => {
+  const manifest = JSON.parse(await readExt('manifest.json'));
+  const idleJs = manifest.content_scripts[1].js.join('\n');
+  assert.doesNotMatch(idleJs, /quick-cart/);
 });
 
-test('R10: MAIN-world cart hook file injection remains', async () => {
+test('R10: background has no MAIN-world cart hook injection', async () => {
   const background = await readExt('background.js');
-  assert.match(background, /world:\s*'MAIN'/);
-  assert.match(background, /page-cart-hook\.js/);
-  assert.equal(existsSync(resolve(extension, 'page-cart-hook.js')), true);
+  assert.doesNotMatch(background, /page-cart-hook/);
+  assert.doesNotMatch(background, /alt-main/);
+  assert.doesNotMatch(background, /executeScript/);
 });
 
 test('R11: sort restore keys use altActiveSort / altSortQuery', async () => {
@@ -169,4 +174,52 @@ test('R17: custom sort teardown clears rank marks when sort is deactivated', asy
   assert.match(sort, /function clearSort[\s\S]*activeKind === kind[\s\S]*clearRankMark\(item\)/);
   assert.match(sort, /syncCustomSortSurface/);
   assert.match(sort, /function deactivateCustomSort[\s\S]*clearSort\(kind\)/);
+});
+
+test('R18: custom sort restore waits for full list and realigns native top ranks', async () => {
+  const core = await readExt('content/core.js');
+  const sort = await readExt('content/sort.js');
+  assert.match(core, /function restoreNativeRankOrder/);
+  assert.match(core, /RankMark_rank/);
+  assert.match(sort, /isOriginalProductOrderValid/);
+  assert.match(sort, /isProductListFullyLoaded/);
+  assert.match(sort, /restoreNativeRankOrder\(productList\)/);
+});
+
+test('R19: search observers stay off non-search pages until navigation', async () => {
+  const runtime = await readExt('content/page-runtime.js');
+  assert.match(runtime, /function isSearchPage/);
+  assert.match(runtime, /function stopSearchObservers/);
+  assert.match(runtime, /function activateSearchObservers/);
+  assert.match(runtime, /if \(!isSearchPage\(\)\) return/);
+  assert.match(runtime, /if \(!onSearch\)[\s\S]*stopSearchObservers/);
+});
+
+test('R20: underfilled search results still allow custom sort', async () => {
+  const runtime = await readExt('content/page-runtime.js');
+  assert.match(runtime, /function isUnderfilledListStable/);
+  assert.match(runtime, /isUnderfilledListStable\(length\)/);
+  assert.match(runtime, /Coupang never pads the grid/);
+});
+
+test('R21: custom sort waits for list ready before activating', async () => {
+  const sort = await readExt('content/sort.js');
+  assert.match(sort, /function runSort[\s\S]*whenProductListReady\(\(\) => executeSort/);
+  assert.match(sort, /function executeSort[\s\S]*applySortedProductOrder[\s\S]*activeKind = kind[\s\S]*saveActiveSort\(kind\)/);
+  assert.doesNotMatch(sort, /function runSort[\s\S]*activeKind = kind[\s\S]*saveActiveSort\(kind\)/);
+});
+
+test('R22: reconcile stops perpetual interval after list load', async () => {
+  const runtime = await readExt('content/page-runtime.js');
+  assert.doesNotMatch(runtime, /setInterval\(reconcile/);
+  assert.match(runtime, /function scheduleLoadWaitReconcile/);
+  assert.match(runtime, /function scheduleDebouncedReconcile/);
+  assert.match(runtime, /stopLoadWaitReconcile\(\)/);
+});
+
+test('R23: settings-bridge has no quick-cart listener', async () => {
+  const bridge = await readExt('content/settings-bridge.js');
+  assert.doesNotMatch(bridge, /quickCartEnabled/);
+  const runtime = await readExt('content/page-runtime.js');
+  assert.doesNotMatch(runtime, /quickCart/);
 });

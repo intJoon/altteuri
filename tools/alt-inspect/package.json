@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node --check ext-boot-timing.mjs ext-samepage.mjs ext-scenarios.mjs final.mjs split.mjs verify5.mjs"
   },
   "keywords": [],
   "author": "",

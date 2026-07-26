@@ -1,13 +1,12 @@
 ((root) => {
-  const SETTINGS_VERSION = 10;
+  const SETTINGS_VERSION = 11;
   const FEATURE_TOGGLE_KEYS = Object.freeze([
     'unitPriceSortEnabled',
     'discountRateSortEnabled',
     'priceSortEnabled',
     'elementRemoverEnabled',
     'forceCoupangListSize',
-    'keywordFilterEnabled',
-    'quickCartEnabled'
+    'keywordFilterEnabled'
   ]);
   const DEFAULT_SETTINGS = Object.freeze({
     settingsVersion: SETTINGS_VERSION,
@@ -18,8 +17,7 @@
     altPresetOff: Object.freeze([]),
     forceCoupangListSize: false,
     coupangListSize: '72',
-    keywordFilterEnabled: false,
-    quickCartEnabled: false
+    keywordFilterEnabled: false
   });
 
   root.AltteuriSettings = Object.freeze({

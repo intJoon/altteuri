@@ -6,7 +6,7 @@
 
 | 파일 | 설명 |
 | --- | --- |
-| [`out/altteuri-intro.mp4`](out/altteuri-intro.mp4) | 업로드용 MP4 (1080×1920 · 30fps · 32초 · 무음) |
+| [`out/altteuri-intro.mp4`](out/altteuri-intro.mp4) | 업로드용 MP4 (1080×1920 · 30fps · 27.4초 · 무음) |
 | [`STORYBOARD.md`](STORYBOARD.md) | 비트·자막 구성 |
 | [`index.html`](index.html) | HyperFrames 소스 |
 
@@ -24,7 +24,7 @@ npx hyperframes render -f 30 -q high -o out/altteuri-intro.mp4
 ```
 쿠팡 검색, 아직도 하나씩 비교하세요?
 
-알뜰이 — 단위가격·할인율·키워드 필터·장바구니 바로 담기
+알뜰이 — 단위가격·할인율·키워드 필터·표시 항목 조정
 쿠팡용 Chrome 확장 · 무료
 
 🔗 altteuri.vercel.app

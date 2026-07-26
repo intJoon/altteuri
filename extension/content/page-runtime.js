@@ -1,14 +1,41 @@
 ((A) => {
 const { SELECTORS } = A.core;
 const RECONCILE_MS = 30;
+const RECONCILE_DEBOUNCE_MS = 50;
+const URL_WATCH_MS = 1000;
+const UNDERFILL_STABLE_MS = 120;
 
 let forcedListSize = null;
-let reconcileTimer = null;
+let reconcileDebounceTimer = null;
+let loadWaitTimer = null;
+let domObserver = null;
 let applyBusy = false;
 let pageOpts = { resetActive: false, restore: true };
 let watchedList = null;
 let watchedSort = null;
 let watchedCount = -1;
+let searchObserversActive = false;
+let underfillStableCount = -1;
+let underfillStableSince = 0;
+
+function resetListLoadState() {
+  underfillStableCount = -1;
+  underfillStableSince = 0;
+}
+
+function isUnderfilledListStable(length) {
+  const now = Date.now();
+  if (length !== underfillStableCount) {
+    underfillStableCount = length;
+    underfillStableSince = now;
+    return false;
+  }
+  return now - underfillStableSince >= UNDERFILL_STABLE_MS;
+}
+
+function isSearchPage() {
+  return /\/np\/search/.test(location.pathname);
+}
 
 function mergePageApplyOpts(prev, next) {
   const n = next || {};
@@ -84,11 +111,16 @@ function getExpectedListCount() {
 function isProductListFullyLoaded() {
   const length = productListLength();
   if (length === 0) return false;
-  return length >= getExpectedListCount();
+  if (listSizeUrlMismatch()) return false;
+  const expected = getExpectedListCount();
+  if (length >= expected) return true;
+  // Coupang never pads the grid past the last matching product.
+  return isUnderfilledListStable(length);
 }
 
 function whenReady(fn) {
   const step = () => {
+    if (!isSearchPage()) return;
     if (listSizeUrlMismatch()) {
       try { A.listSize.setFromSettings(); } catch (e) {}
       setTimeout(step, RECONCILE_MS);
@@ -117,7 +149,6 @@ function applyPageFeatures(opts, storage) {
   A.sort.updateAllButtonUIs();
 
   A.remover.applyHiddenElements({ reapplySort: true });
-  A.quickCart.applyButtons();
 
   let activeKind = null;
   if (options.restore) {
@@ -172,7 +203,6 @@ function mountCustoms(opts, done) {
 function healMissingCustoms() {
   A.sort.healMissingButtons();
   try { A.keyword.ensurePresent(); } catch (e) {}
-  try { A.quickCart.applyButtons(); } catch (e) {}
 }
 
 function remountCustoms(opts) {
@@ -185,12 +215,64 @@ function remountCustoms(opts) {
   mountCustoms(opts || pageOpts, () => { applyBusy = false; });
 }
 
+function stopLoadWaitReconcile() {
+  if (loadWaitTimer != null) {
+    clearTimeout(loadWaitTimer);
+    loadWaitTimer = null;
+  }
+}
+
+function scheduleLoadWaitReconcile() {
+  if (loadWaitTimer != null || !isSearchPage()) return;
+  const tick = () => {
+    loadWaitTimer = null;
+    if (!isSearchPage()) return;
+    reconcile();
+    if (!isProductListFullyLoaded()) {
+      loadWaitTimer = setTimeout(tick, RECONCILE_MS);
+    }
+  };
+  loadWaitTimer = setTimeout(tick, RECONCILE_MS);
+}
+
+function scheduleDebouncedReconcile() {
+  if (!isSearchPage()) return;
+  if (reconcileDebounceTimer != null) clearTimeout(reconcileDebounceTimer);
+  reconcileDebounceTimer = setTimeout(() => {
+    reconcileDebounceTimer = null;
+    reconcile();
+  }, RECONCILE_DEBOUNCE_MS);
+}
+
+function requestReconcile(opts) {
+  if (!isSearchPage()) return;
+  clearPendingReconcileStyles();
+  if (opts && opts.immediate) {
+    reconcile();
+  } else {
+    scheduleDebouncedReconcile();
+  }
+  if (!isProductListFullyLoaded()) scheduleLoadWaitReconcile();
+}
+
+function clearPendingReconcileStyles() {
+  try {
+    document.documentElement.classList.remove('alt-customs-pending');
+    const stale = document.getElementById('alt-customs-pending-style');
+    if (stale) stale.remove();
+    const loader = document.getElementById('alt-swap-loader');
+    if (loader) loader.remove();
+    const loaderStyle = document.getElementById('alt-swap-loader-style');
+    if (loaderStyle) loaderStyle.remove();
+  } catch (e) {}
+}
+
 function reconcile() {
+  if (!isSearchPage()) return;
   if (listSizeUrlMismatch()) {
     try { A.listSize.setFromSettings(); } catch (e) {}
     return;
   }
-  if (!/\/np\/search/.test(location.pathname)) return;
 
   const list = document.querySelector(SELECTORS.productList);
   const count = productListLength();
@@ -214,24 +296,65 @@ function reconcile() {
   }
 
   healMissingCustoms();
+
+  if (isProductListFullyLoaded()) stopLoadWaitReconcile();
+}
+
+function stopReconcileLoop() {
+  stopLoadWaitReconcile();
+  if (reconcileDebounceTimer != null) {
+    clearTimeout(reconcileDebounceTimer);
+    reconcileDebounceTimer = null;
+  }
+}
+
+function stopSearchObservers() {
+  stopReconcileLoop();
+  if (domObserver) {
+    domObserver.disconnect();
+    domObserver = null;
+  }
+  searchObserversActive = false;
+  watchedList = null;
+  watchedSort = null;
+  watchedCount = -1;
+  resetListLoadState();
 }
 
 function startReconcileLoop() {
-  if (reconcileTimer != null) return;
-  try {
-    document.documentElement.classList.remove('alt-customs-pending');
-    const stale = document.getElementById('alt-customs-pending-style');
-    if (stale) stale.remove();
-    const loader = document.getElementById('alt-swap-loader');
-    if (loader) loader.remove();
-    const loaderStyle = document.getElementById('alt-swap-loader-style');
-    if (loaderStyle) loaderStyle.remove();
-  } catch (e) {}
-  reconcileTimer = setInterval(reconcile, RECONCILE_MS);
-  reconcile();
+  if (!isSearchPage()) return;
+  requestReconcile({ immediate: true });
+}
+
+function onDomMutated() {
+  if (!isSearchPage()) return;
+  if (listSizeUrlMismatch()) {
+    try { A.listSize.setFromSettings(); } catch (e) {}
+    return;
+  }
+  requestReconcile({});
+}
+
+function ensureDomObserver() {
+  if (domObserver || !isSearchPage()) return;
+  domObserver = new MutationObserver(onDomMutated);
+  domObserver.observe(document.documentElement, {
+    childList: true,
+    subtree: true
+  });
+}
+
+function activateSearchObservers() {
+  if (!isSearchPage() || searchObserversActive) return;
+  searchObserversActive = true;
+  ensureDomObserver();
+  refreshForcedListSize(() => {
+    schedulePageApply({ resetActive: true, restore: true });
+  });
 }
 
 function schedulePageApply(opts) {
+  if (!isSearchPage()) return;
   refreshForcedListSize(() => {
     if (listSizeUrlMismatch()) {
       try { A.listSize.setFromSettings(); } catch (e) {}
@@ -242,10 +365,10 @@ function schedulePageApply(opts) {
       watchedList = null;
       watchedSort = null;
       watchedCount = -1;
+      resetListLoadState();
       A.sort.clearOriginalProductOrder();
     }
     startReconcileLoop();
-    reconcile();
   });
 }
 
@@ -256,12 +379,34 @@ function applySubFeatures() {
 function observePageAndListSize() {
   let lastUrl = location.href;
   let lastPageSize = getCurrentPageInfo().size;
-  A.keyword.trackCurrentQuery();
-  refreshForcedListSize();
+  let lastWasSearch = isSearchPage();
+
+  if (lastWasSearch) {
+    A.keyword.trackCurrentQuery();
+    refreshForcedListSize();
+    activateSearchObservers();
+  }
 
   setInterval(() => {
     const currentUrl = location.href;
+    const onSearch = isSearchPage();
     const currentPageSize = getCurrentPageInfo().size;
+
+    if (!onSearch) {
+      if (lastWasSearch) {
+        stopSearchObservers();
+        lastWasSearch = false;
+      }
+      lastUrl = currentUrl;
+      return;
+    }
+
+    if (!lastWasSearch) {
+      lastWasSearch = true;
+      A.keyword.trackCurrentQuery();
+      refreshForcedListSize();
+      activateSearchObservers();
+    }
 
     A.keyword.handleSearchQueryChange();
 
@@ -286,7 +431,7 @@ function observePageAndListSize() {
       lastPageSize = currentPageSize;
       schedulePageApply({ resetActive: false, restore: true, forceFull: true });
     }
-  }, 1000);
+  }, URL_WATCH_MS);
 
   const sortUl = document.querySelector(SELECTORS.sortList);
   if (sortUl) {
@@ -306,24 +451,9 @@ function observeProductList() {
   if (!observeProductList.pageWatchStarted) {
     observeProductList.pageWatchStarted = true;
     observePageAndListSize();
+    return;
   }
-
-  function onDomMutated() {
-    if (listSizeUrlMismatch()) {
-      try { A.listSize.setFromSettings(); } catch (e) {}
-      return;
-    }
-    startReconcileLoop();
-    reconcile();
-  }
-
-  new MutationObserver(onDomMutated).observe(document.documentElement, {
-    childList: true,
-    subtree: true
-  });
-  refreshForcedListSize(() => {
-    schedulePageApply({ resetActive: true, restore: true });
-  });
+  if (isSearchPage()) activateSearchObservers();
 }
 
 A.page = Object.freeze({
@@ -332,6 +462,8 @@ A.page = Object.freeze({
   applySubFeatures,
   whenReady,
   isProductListFullyLoaded,
-  getCurrentPageInfo
+  getCurrentPageInfo,
+  isSearchPage,
+  stopSearchObservers
 });
 })(globalThis.Altteuri ||= {});

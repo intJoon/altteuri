@@ -1,0 +1,10 @@
+{
+  "name": "altteuri",
+  "private": true,
+  "scripts": {
+    "test": "node --test tools/tests/**/*.test.mjs",
+    "test:extension": "node --test tools/tests/extension/*.mjs",
+    "test:web": "node --test tools/tests/web/*.test.mjs",
+    "generate:legal": "node tools/generate-legal.mjs"
+  }
+}

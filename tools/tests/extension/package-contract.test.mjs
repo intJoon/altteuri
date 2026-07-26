@@ -12,14 +12,12 @@ const manifest = JSON.parse(await readFile(resolve(extension, 'manifest.json'), 
 
 const expectedEarlyOrder = ['preset-data.js', 'content/shared-start.js', 'content/early.js'];
 const expectedIdleOrder = [
-  'preset-data.js',
   'pure-logic.js',
   'content/shared-start.js',
   'content/core.js',
   'content/keyword-filter.js',
   'content/sort.js',
   'content/list-size.js',
-  'content/quick-cart.js',
   'content/element-remover.js',
   'content/page-runtime.js',
   'content/settings-bridge.js',
@@ -32,6 +30,13 @@ test('manifest content scripts have the dependency-safe order', () => {
   assert.equal(manifest.content_scripts[1].run_at, 'document_idle');
   assert.deepEqual(manifest.content_scripts[0].js, expectedEarlyOrder);
   assert.deepEqual(manifest.content_scripts[1].js, expectedIdleOrder);
+});
+
+test('preset-data loads once at document_start only', () => {
+  const earlyCount = manifest.content_scripts[0].js.filter(file => file === 'preset-data.js').length;
+  const idleCount = manifest.content_scripts[1].js.filter(file => file === 'preset-data.js').length;
+  assert.equal(earlyCount, 1);
+  assert.equal(idleCount, 0);
 });
 
 test('all manifest package references exist', () => {
@@ -61,16 +66,14 @@ test('popup loads local CSS and shared settings before popup code', async () => 
   });
 });
 
-test('MAIN-world cart hook remains a separate injected file', async () => {
-  const background = await readFile(resolve(extension, 'background.js'), 'utf8');
-  assert.match(background, /world:\s*'MAIN'/);
-  assert.match(background, /files:\s*\['page-cart-hook\.js'\]/);
-  assert.ok(background.indexOf("settings-defaults.js") < background.indexOf("preset-data.js"));
+test('manifest permissions exclude scripting', () => {
+  assert.equal(manifest.permissions.includes('scripting'), false);
 });
 
 test('ordered feature scripts register only through the shared namespace', async () => {
   const context = vm.createContext({ console, URL, URLSearchParams, setTimeout, clearTimeout });
-  for (const reference of expectedIdleOrder.slice(0, -1)) {
+  const preload = ['preset-data.js', ...expectedIdleOrder.slice(0, -1)];
+  for (const reference of preload) {
     const source = await readFile(resolve(extension, reference), 'utf8');
     vm.runInContext(source, context, { filename: reference });
   }
@@ -79,14 +82,13 @@ test('ordered feature scripts register only through the shared namespace', async
   assert.ok(context.AltteuriShared);
   assert.deepEqual(
     Object.keys(context.Altteuri).sort(),
-    ['core', 'keyword', 'listSize', 'page', 'pure', 'quickCart', 'remover', 'settings', 'sort']
+    ['core', 'keyword', 'listSize', 'page', 'pure', 'remover', 'settings', 'sort']
   );
   const requiredMethods = {
     core: ['isSortVisibleItem', 'getProductImageBox'],
     keyword: ['addFeature', 'applyFilter', 'getSearchQueryKey', 'handleEnabledChange'],
     listSize: ['setFromSettings', 'syncListSizeRadio', 'redirectOnce', 'urlMatches'],
     page: ['observeProductList', 'schedulePageApply', 'applySubFeatures', 'whenReady'],
-    quickCart: ['applyButtons'],
     remover: ['init', 'isItemHidden', 'applyHiddenElements'],
     settings: ['bind'],
     sort: ['addButtons', 'restoreAll', 'handleFeatureToggle', 'runSort', 'runSortWithOrder', 'reapplySortIfNeeded']
@@ -105,7 +107,6 @@ test('ordered feature scripts register only through the shared namespace', async
 test('feature modules do not register their own storage.onChanged listeners', async () => {
   const files = [
     'content/list-size.js',
-    'content/quick-cart.js',
     'content/element-remover.js',
     'content/keyword-filter.js',
     'content/sort.js',
