@@ -20,3 +20,11 @@ test("onboarding scripts define dismiss storage keys", () => {
   assert.match(bannerJs, /onboardingBannerDismissed/);
   assert.match(bannerJs, /AltteuriOnboardingBanner/);
 });
+
+test("search onboarding banner aligns with Coupang contents layout", () => {
+  const bannerJs = readFileSync(join(root, "extension/content/onboarding-banner.js"), "utf8");
+  assert.match(bannerJs, /#contents/);
+  assert.match(bannerJs, /srp_filterArea/);
+  assert.match(bannerJs, /alt-onboarding-inner/);
+  assert.match(bannerJs, /readLayoutMetrics/);
+});
