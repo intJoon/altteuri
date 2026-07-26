@@ -58,7 +58,8 @@ npm run lint
 - 로드 순서에 `shared-start` · `page-runtime` · `settings-bridge`가 있음
 
 - 기능이 모두 꺼져 있으면 확장 아이콘이 회색(`icon*-gray.png`)으로 표시됨
-- 첫 실행 시 팝업·쿠팡 검색에 onboarding 안내가 표시되고, 닫으면 다시 나타나지 않음
+- 첫 실행 시 쿠팡 검색에 **우측 하단 플로팅** onboarding 토스트가 뜨고, 확인하면 다시 안 뜸
+- 팝업 onboarding 안내는 기능 전부 off일 때만 표시
 - 키워드 한도·중복·길이 초과 시 검색 페이지 필터 UI에 빨간 안내 문구가 표시됨
 
 - 커스텀 정렬 중 순번만 표시되고, 해제하면 쿠팡 네이티브 순번이 복구됨
@@ -69,7 +70,7 @@ npm run lint
 
 
 
-**2.2.6 기준:** 릴리스 직전 `npm test` (**83개**) · `npm run lint` · `npm run build:extension` 통과.
+**2.2.6 기준:** 릴리스 직전 `npm test` (**80개**) · `npm run lint` · `npm run build:extension` 통과.
 
 
 
@@ -116,7 +117,6 @@ Chrome에서 `extension/` 폴더를 **Load unpacked** 한 뒤 한다.
 | 키워드 필터 | 단어 넣으면 그 상품이 사라짐. 검색어를 바꾸면 제외 키워드가 비워짐 |
 
 | 표시 항목 | 팝업에서 뺀 광고/배너가 안 보임. 기능 끄면 쿠팡 화면이 원래대로 |
-| 첫 사용 배너 | 기능 전부 off + 검색 페이지 → `#contents` 상단 안내가 필터·목록과 같은 좌우 여백. **확인** 후 재표시 안 됨 |
 
 | 검색 개수 | 켠 개수(예: 72)로 URL이 맞춰지고, 우리 버튼·필터가 사라지지 않음 |
 

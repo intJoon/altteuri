@@ -1,7 +1,7 @@
 (() => {
 const R = globalThis.AltteuriRuntime;
-const SHELL_ID = "alt-onboarding-banner";
-const STYLE_ID = "alt-onboarding-banner-styles";
+const TOAST_ID = "alt-onboarding-toast";
+const STYLE_ID = "alt-onboarding-toast-styles";
 
 function featureKeys() {
   return globalThis.AltteuriSettings?.FEATURE_TOGGLE_KEYS || [];
@@ -20,158 +20,111 @@ function ensureStyles() {
   const style = document.createElement("style");
   style.id = STYLE_ID;
   style.textContent = `
-    #${SHELL_ID} {
-      width: 100%;
-      margin: 0;
-      padding: 0;
-      background: #f0f7ff;
-      border-bottom: 1px solid #dfe3e8;
-      font-family: "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", sans-serif;
-      box-sizing: border-box;
-    }
-    #${SHELL_ID} .alt-onboarding-inner {
+    #${TOAST_ID} {
+      position: fixed;
+      right: 20px;
+      bottom: 20px;
+      z-index: 2147483646;
+      width: min(360px, calc(100vw - 40px));
       display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      min-height: 44px;
-      margin: 0 auto;
-      padding: 10px var(--alt-onboard-pad-right, 16px) 10px var(--alt-onboard-pad-left, 16px);
-      max-width: var(--alt-onboard-max-width, none);
-      box-sizing: border-box;
-    }
-    #${SHELL_ID} .alt-onboarding-msg {
-      margin: 0;
-      flex: 1;
-      min-width: 0;
-      font-size: 14px;
-      line-height: 1.45;
-      font-weight: 400;
-      color: #333;
-      letter-spacing: -0.01em;
-    }
-    #${SHELL_ID} .alt-onboarding-msg strong {
-      font-weight: 700;
-      color: #111;
-    }
-    #${SHELL_ID} .alt-onboard-dismiss {
-      flex: none;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font: inherit;
+      flex-direction: column;
+      gap: 12px;
+      padding: 16px 18px;
+      border-radius: 14px;
+      border: 1px solid #c9d8ff;
+      background: #fff;
+      color: #212b36;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Malgun Gothic", sans-serif;
       font-size: 13px;
-      font-weight: 700;
-      line-height: 1;
-      padding: 8px 14px;
-      background: #346aff;
-      color: #fff;
+      line-height: 1.5;
+      box-shadow: 0 16px 40px rgba(36, 79, 196, 0.18), 0 4px 12px rgba(26, 36, 51, 0.08);
+      transform: translateY(16px);
+      opacity: 0;
+      animation: alt-onboard-in 0.35s ease forwards;
+      pointer-events: auto;
     }
-    #${SHELL_ID} .alt-onboard-dismiss:hover { background: #2a58d6; }
-    #${SHELL_ID} .alt-onboard-dismiss:active { background: #244fc4; }
+    @keyframes alt-onboard-in {
+      to { transform: translateY(0); opacity: 1; }
+    }
+    #${TOAST_ID}.alt-onboard-out {
+      animation: alt-onboard-out 0.25s ease forwards;
+    }
+    @keyframes alt-onboard-out {
+      to { transform: translateY(12px); opacity: 0; }
+    }
+    #${TOAST_ID} .alt-onboard-head {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 14px; font-weight: 700; color: #244fc4;
+    }
+    #${TOAST_ID} .alt-onboard-icon {
+      width: 28px; height: 28px; border-radius: 8px;
+      background: linear-gradient(145deg, #4d7dff, #346aff);
+      color: #fff; font-size: 15px; font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+      flex: none;
+    }
+    #${TOAST_ID} .alt-onboard-copy { margin: 0; color: #454b53; }
+    #${TOAST_ID} .alt-onboard-copy strong { color: #212b36; font-weight: 700; }
+    #${TOAST_ID} .alt-onboard-actions { display: flex; justify-content: flex-end; gap: 8px; }
+    #${TOAST_ID} button {
+      border: none; border-radius: 8px; cursor: pointer;
+      font: inherit; font-size: 12px; font-weight: 700; padding: 8px 14px;
+    }
+    #${TOAST_ID} .alt-onboard-dismiss { background: #346aff; color: #fff; }
+    #${TOAST_ID} .alt-onboard-dismiss:hover { background: #2a58d6; }
   `;
   document.head.appendChild(style);
 }
 
-function readLayoutMetrics() {
-  const contents = document.querySelector("#contents");
-  const filter = document.querySelector('[class*="srp_filterArea"]');
-  const productList = document.querySelector(globalThis.Altteuri?.core?.SELECTORS?.productList || "#product-list");
-
-  if (contents) {
-    const rect = contents.getBoundingClientRect();
-    const cs = getComputedStyle(contents);
-    let padLeft = parseFloat(cs.paddingLeft) || 0;
-    let padRight = parseFloat(cs.paddingRight) || 0;
-
-    if (filter && productList) {
-      const filterRect = filter.getBoundingClientRect();
-      const listRect = productList.getBoundingClientRect();
-      padLeft = Math.max(0, Math.round(filterRect.left - rect.left));
-      padRight = Math.max(0, Math.round(rect.right - listRect.right));
-    }
-
-    const maxWidth = cs.maxWidth && cs.maxWidth !== "none" ? cs.maxWidth : `${Math.round(rect.width)}px`;
-    return { maxWidth, padLeft, padRight };
+function removeToast(immediate) {
+  const el = document.getElementById(TOAST_ID);
+  if (!el) return;
+  if (immediate) {
+    el.remove();
+    return;
   }
-
-  return { maxWidth: "1024px", padLeft: 16, padRight: 16 };
+  el.classList.add("alt-onboard-out");
+  el.addEventListener("animationend", () => el.remove(), { once: true });
 }
 
-function applyLayoutMetrics(shell) {
-  const { maxWidth, padLeft, padRight } = readLayoutMetrics();
-  shell.style.setProperty("--alt-onboard-max-width", maxWidth);
-  shell.style.setProperty("--alt-onboard-pad-left", `${padLeft}px`);
-  shell.style.setProperty("--alt-onboard-pad-right", `${padRight}px`);
+function dismissToast() {
+  R.localSet({ onboardingBannerDismissed: true });
+  removeToast(false);
 }
 
-function findMountRoot() {
-  return document.querySelector("#contents");
-}
-
-function removeBanner() {
-  document.getElementById(SHELL_ID)?.remove();
-  if (removeBanner.resizeHandler) {
-    window.removeEventListener("resize", removeBanner.resizeHandler);
-    removeBanner.resizeHandler = null;
-  }
-}
-
-function mountBanner(retryCount = 0) {
-  if (document.getElementById(SHELL_ID)) return true;
-
-  const root = findMountRoot();
-  if (!root) {
-    if (retryCount < 20) {
-      setTimeout(() => mountBanner(retryCount + 1), 250);
-    }
-    return false;
-  }
-
+function mountToast() {
+  if (document.getElementById(TOAST_ID)) return;
   ensureStyles();
-  const shell = document.createElement("div");
-  shell.id = SHELL_ID;
-  shell.setAttribute("role", "status");
-  shell.innerHTML =
-    '<div class="alt-onboarding-inner">' +
-    '<p class="alt-onboarding-msg">알뜰이 기능이 모두 꺼져 있습니다. 브라우저 <strong>확장 프로그램 아이콘</strong>을 눌러 원하는 기능을 켜 보세요.</p>' +
+  const toast = document.createElement("div");
+  toast.id = TOAST_ID;
+  toast.setAttribute("role", "status");
+  toast.setAttribute("aria-live", "polite");
+  toast.innerHTML =
+    '<div class="alt-onboard-head"><span class="alt-onboard-icon" aria-hidden="true">알</span><span>알뜰이 설치됨</span></div>' +
+    '<p class="alt-onboard-copy">브라우저 <strong>확장 프로그램 아이콘</strong>을 눌러 원하는 기능을 켜 보세요.</p>' +
+    '<div class="alt-onboard-actions">' +
     '<button type="button" class="alt-onboard-dismiss">확인</button>' +
     "</div>";
-
-  shell.querySelector(".alt-onboard-dismiss").addEventListener("click", () => {
-    R.localSet({ onboardingBannerDismissed: true });
-    removeBanner();
-  });
-
-  applyLayoutMetrics(shell);
-  root.insertBefore(shell, root.firstChild);
-
-  const onResize = () => {
-    const live = document.getElementById(SHELL_ID);
-    if (live) applyLayoutMetrics(live);
-  };
-  removeBanner.resizeHandler = onResize;
-  window.addEventListener("resize", onResize, { passive: true });
-
-  return true;
+  toast.querySelector(".alt-onboard-dismiss").addEventListener("click", dismissToast);
+  document.body.appendChild(toast);
 }
 
 function evaluate() {
   if (!isSearchPage()) {
-    removeBanner();
+    removeToast(true);
     return;
   }
   R.localGet(["onboardingBannerDismissed"], (local) => {
     if (local.onboardingBannerDismissed) {
-      removeBanner();
+      removeToast(true);
       return;
     }
     R.syncGet(featureKeys(), (stored) => {
       if (anyFeatureEnabled(stored || {})) {
-        removeBanner();
+        removeToast(true);
         return;
       }
-      mountBanner();
+      mountToast();
     });
   });
 }
@@ -188,7 +141,6 @@ function init() {
 globalThis.AltteuriOnboardingBanner = Object.freeze({
   init,
   evaluate,
-  remove: removeBanner,
-  readLayoutMetrics,
+  remove: () => removeToast(true),
 });
 })();
