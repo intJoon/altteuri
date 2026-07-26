@@ -23,7 +23,14 @@ function findInsertTarget() {
   const SELECTORS = pageSelectors();
   const candidates = [
     () => document.querySelector(SELECTORS.sortWrapper),
-    () => document.querySelector(".filter-function-bar"),
+    () => {
+      const bars = document.querySelectorAll(".filter-function-bar");
+      for (const node of bars) {
+        if (node.id === BANNER_ID || node.hasAttribute("data-alt-onboarding")) continue;
+        if (node.parentNode) return node;
+      }
+      return null;
+    },
     () => document.querySelector('[class*="srp_filterArea"]'),
     () => document.querySelector('[class*="srp_relatedKeywords"]'),
     () => document.querySelector(SELECTORS.productList),
@@ -105,23 +112,38 @@ function mountBanner(retryCount = 0) {
   target.parent.insertBefore(bar, target.before);
 }
 
-function evaluate() {
+function shouldShowBanner(done) {
   if (!isSearchPage()) {
-    removeBanner();
+    done(false);
     return;
   }
   R.localGet(["onboardingBannerDismissed"], (local) => {
     if (local.onboardingBannerDismissed) {
-      removeBanner();
+      done(false);
       return;
     }
     R.syncGet(featureKeys(), (stored) => {
-      if (anyFeatureEnabled(stored || {})) {
-        removeBanner();
-        return;
-      }
-      mountBanner();
+      done(!anyFeatureEnabled(stored || {}));
     });
+  });
+}
+
+function evaluate() {
+  shouldShowBanner((show) => {
+    if (!show) {
+      removeBanner();
+      return;
+    }
+    mountBanner();
+  });
+}
+
+function ensurePresent() {
+  if (!isSearchPage()) return;
+  if (document.getElementById(BANNER_ID)) return;
+  shouldShowBanner((show) => {
+    if (!show) return;
+    mountBanner();
   });
 }
 
@@ -134,5 +156,10 @@ function init() {
   });
 }
 
-globalThis.AltteuriOnboardingBanner = Object.freeze({ init, evaluate, remove: removeBanner });
+globalThis.AltteuriOnboardingBanner = Object.freeze({
+  init,
+  evaluate,
+  ensurePresent,
+  remove: removeBanner,
+});
 })();

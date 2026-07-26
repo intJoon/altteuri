@@ -26,4 +26,5 @@ test("onboarding banner reuses Coupang filter bar structure", () => {
   assert.match(bannerJs, /filter-function-bar/);
   assert.match(bannerJs, /filter-reset-btn/);
   assert.doesNotMatch(bannerJs, /position:\s*sticky/);
+  assert.match(bannerJs, /ensurePresent/);
 });

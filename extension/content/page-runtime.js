@@ -203,6 +203,7 @@ function mountCustoms(opts, done) {
 function healMissingCustoms() {
   A.sort.healMissingButtons();
   try { A.keyword.ensurePresent(); } catch (e) {}
+  try { globalThis.AltteuriOnboardingBanner?.ensurePresent(); } catch (e) {}
 }
 
 function remountCustoms(opts) {
