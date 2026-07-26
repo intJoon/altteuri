@@ -22,6 +22,8 @@
 
 ```bash
 
+npm ci
+
 npm ci --prefix web
 
 npm test

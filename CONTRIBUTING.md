@@ -7,6 +7,7 @@ Thank you for helping improve Altteuri. This repository combines a Chrome MV3 ex
 1. Run the full test suite from the repository root:
 
 ```bash
+npm ci
 npm ci --prefix web
 npm test
 npm run lint

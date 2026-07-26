@@ -21,6 +21,7 @@ A Chrome extension for sorting, filtering, and simplifying [Coupang](https://www
 Run the full test suite from the repository root:
 
 ```bash
+npm ci
 npm ci --prefix web
 npm test
 npm run lint
