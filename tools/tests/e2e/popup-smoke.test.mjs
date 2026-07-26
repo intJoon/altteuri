@@ -20,3 +20,10 @@ test("onboarding scripts define dismiss storage keys", () => {
   assert.match(bannerJs, /onboardingBannerDismissed/);
   assert.match(bannerJs, /AltteuriOnboardingBanner/);
 });
+
+test("onboarding banner reuses Coupang filter bar structure", () => {
+  const bannerJs = readFileSync(join(root, "extension/content/onboarding-banner.js"), "utf8");
+  assert.match(bannerJs, /filter-function-bar/);
+  assert.match(bannerJs, /filter-reset-btn/);
+  assert.doesNotMatch(bannerJs, /position:\s*sticky/);
+});

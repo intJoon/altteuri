@@ -7,6 +7,10 @@ function featureKeys() {
   return globalThis.AltteuriSettings?.FEATURE_TOGGLE_KEYS || [];
 }
 
+function pageSelectors() {
+  return globalThis.Altteuri?.core?.SELECTORS || {};
+}
+
 function isSearchPage() {
   return /\/np\/search/.test(location.pathname);
 }
@@ -15,27 +19,36 @@ function anyFeatureEnabled(stored) {
   return featureKeys().some((key) => !!stored[key]);
 }
 
+function findInsertTarget() {
+  const SELECTORS = pageSelectors();
+  const candidates = [
+    () => document.querySelector(SELECTORS.sortWrapper),
+    () => document.querySelector(".filter-function-bar"),
+    () => document.querySelector('[class*="srp_filterArea"]'),
+    () => document.querySelector('[class*="srp_relatedKeywords"]'),
+    () => document.querySelector(SELECTORS.productList),
+  ];
+  for (const getNode of candidates) {
+    const node = getNode();
+    if (node?.parentNode) return { parent: node.parentNode, before: node };
+  }
+  return null;
+}
+
 function ensureStyles() {
   if (document.getElementById(STYLE_ID)) return;
   const style = document.createElement("style");
   style.id = STYLE_ID;
   style.textContent = `
-    #${BANNER_ID} {
-      position: sticky; top: 0; z-index: 2147483646;
-      display: flex; align-items: center; justify-content: space-between; gap: 12px;
-      padding: 10px 14px; margin: 0 0 8px;
-      background: #edf2ff; border-bottom: 1px solid #c9d8ff;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Malgun Gothic", sans-serif;
-      font-size: 13px; line-height: 1.45; color: #244fc4;
-      box-shadow: 0 4px 16px rgba(36, 79, 196, 0.08);
+    #${BANNER_ID} { margin-bottom: 8px; }
+    #${BANNER_ID} .alt-onboard-copy {
+      margin: 0;
+      font: inherit;
+      font-size: 13px;
+      line-height: 1.55;
+      color: #333;
     }
-    #${BANNER_ID} strong { font-weight: 700; }
-    #${BANNER_ID} .alt-onboard-actions { display: flex; gap: 8px; flex-shrink: 0; }
-    #${BANNER_ID} button {
-      border: none; border-radius: 8px; cursor: pointer; font: inherit; font-size: 12px; font-weight: 700;
-      padding: 8px 12px;
-    }
-    #${BANNER_ID} .alt-onboard-dismiss { background: #346aff; color: #fff; }
+    #${BANNER_ID} .alt-onboard-copy strong { font-weight: 700; }
   `;
   document.head.appendChild(style);
 }
@@ -44,30 +57,52 @@ function removeBanner() {
   document.getElementById(BANNER_ID)?.remove();
 }
 
-function mountBanner() {
+function mountBanner(retryCount = 0) {
   if (document.getElementById(BANNER_ID)) return;
+  const target = findInsertTarget();
+  if (!target) {
+    if (retryCount < 15) setTimeout(() => mountBanner(retryCount + 1), 400);
+    return;
+  }
+
   ensureStyles();
   const bar = document.createElement("div");
   bar.id = BANNER_ID;
+  bar.className = "filter-function-bar";
+  bar.setAttribute("data-alt-onboarding", "");
   bar.setAttribute("role", "status");
-  bar.innerHTML =
-    '<span>알뜰이가 설치되었습니다. 브라우저 <strong>확장 프로그램 아이콘</strong>을 눌러 원하는 기능을 켜 보세요.</span>' +
-    '<span class="alt-onboard-actions">' +
-    '<button type="button" class="alt-onboard-dismiss">확인</button>' +
-    "</span>";
-  bar.querySelector(".alt-onboard-dismiss").addEventListener("click", () => {
+
+  const header = document.createElement("div");
+  header.className = "filter-function-bar-header";
+  const title = document.createElement("h4");
+  title.textContent = "알뜰이";
+  const actionWrap = document.createElement("div");
+  actionWrap.className = "fw-inline";
+  const dismiss = document.createElement("button");
+  dismiss.type = "button";
+  dismiss.className = "filter-reset-btn alt-onboard-dismiss";
+  dismiss.textContent = "닫기";
+  actionWrap.appendChild(dismiss);
+  header.appendChild(title);
+  header.appendChild(actionWrap);
+
+  const body = document.createElement("div");
+  body.className = "fw-px-[10px] fw-pb-[8px] fw-pt-[10px]";
+  const copy = document.createElement("p");
+  copy.className = "alt-onboard-copy";
+  copy.innerHTML =
+    "기능이 꺼져 있습니다. 브라우저 상단 <strong>확장 프로그램 아이콘</strong>을 눌러 원하는 기능을 켜 보세요.";
+  body.appendChild(copy);
+
+  bar.appendChild(header);
+  bar.appendChild(body);
+
+  dismiss.addEventListener("click", () => {
     R.localSet({ onboardingBannerDismissed: true });
     removeBanner();
   });
-  let anchor = document.querySelector("#contents") || document.querySelector("main");
-  const productListSel = globalThis.Altteuri?.core?.SELECTORS?.productList;
-  if (!anchor && productListSel) {
-    const list = document.querySelector(productListSel);
-    if (list?.parentElement) anchor = list.parentElement;
-  }
-  if (!anchor) anchor = document.body.firstElementChild;
-  if (anchor?.parentNode) anchor.parentNode.insertBefore(bar, anchor);
-  else document.body.prepend(bar);
+
+  target.parent.insertBefore(bar, target.before);
 }
 
 function evaluate() {
