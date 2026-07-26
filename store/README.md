@@ -8,7 +8,7 @@ Open in Chrome, set window to 1280×800 (or use DevTools device mode), capture:
 
 | File | Scene |
 | --- | --- |
-| `screenshots/01-popup.html` | Extension popup — features off + onboarding |
+| `screenshots/01-popup.html` | Extension popup — features off |
 | `screenshots/02-sort.html` | Unit-price sort on search results |
 | `screenshots/03-filter.html` | Keyword filter |
 | `screenshots/04-display.html` | Display presets |

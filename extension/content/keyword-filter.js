@@ -334,9 +334,7 @@ function createKeywordFilterUI() {
       } else {
         showStatus(`키워드는 ${A.pure.MAX_KEYWORD_LENGTH}자 이하로 입력하세요.`);
       }
-      input.placeholder = status.textContent;
       input.value = '';
-      setTimeout(() => { input.placeholder = '제외할 키워드 입력'; }, 2000);
       return;
     }
     excludedKeywords.push(result.keyword);
@@ -344,8 +342,6 @@ function createKeywordFilterUI() {
       if (err) {
         excludedKeywords = excludedKeywords.filter((k) => k !== result.keyword);
         showStatus('저장 공간이 부족합니다. 키워드를 줄여 주세요.');
-        input.placeholder = status.textContent;
-        setTimeout(() => { input.placeholder = '제외할 키워드 입력'; }, 2500);
         return;
       }
       renderKeywordFilterTags();

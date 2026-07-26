@@ -23,6 +23,7 @@
   root.AltteuriSettings = Object.freeze({
     SETTINGS_VERSION,
     DEFAULT_SETTINGS,
-    FEATURE_TOGGLE_KEYS
+    FEATURE_TOGGLE_KEYS,
+    ONBOARDING_FEATURE_EVER_ENABLED: 'onboardingFeatureEverEnabled'
   });
 })(globalThis);

@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="ko">
+  <head><meta charset="UTF-8" /></head>
+  <body>
+    <template>
+      <div data-composition-id="scene-filter" data-duration="5.6" data-width="1080" data-height="1920" class="scene">
+        <div class="scene-inner" id="fil-inner">
+          <p class="eyebrow" id="fil-eye">조작 03</p>
+          <h2 class="headline sm" id="fil-head">키워드로<br /><span class="mark">숨기기</span></h2>
+          <div class="panel" id="fil-panel">
+            <div class="kw-row">
+              <div class="kw-input" id="kw-box"><span id="kw-c0">키</span><span id="kw-c1">캡</span></div>
+              <div class="kw-add">추가</div>
+            </div>
+            <div class="tag" id="kw-tag">키캡 ✕</div>
+            <div class="item" id="fi-1">
+              <div class="thumb"></div>
+              <div><div class="item-title">기계식 키보드 텐키리스</div><div class="item-meta">저소음 스위치</div></div>
+              <div class="item-price">49,800원</div>
+            </div>
+            <div class="item" id="fi-2">
+              <div class="thumb"></div>
+              <div><div class="item-title"><em class="hit">키캡</em> 세트 PBT</div><div class="item-meta">제외 대상</div></div>
+              <div class="item-price">18,900원</div>
+            </div>
+            <div class="item" id="fi-3">
+              <div class="thumb"></div>
+              <div><div class="item-title">무선 키보드 저소음</div><div class="item-meta">사무실용</div></div>
+              <div class="item-price">32,400원</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <script>
+        window.__timelines = window.__timelines || {};
+        const tl = gsap.timeline({ paused: true });
+        tl.set("#fil-inner", { opacity: 1 }, 0);
+        tl.from("#fil-eye", { opacity: 0, y: 20, duration: 0.35 }, 0.05);
+        tl.from("#fil-head", { opacity: 0, y: 36, duration: 0.5, ease: "power3.out" }, 0.2);
+        tl.from("#fil-panel", { opacity: 0, y: 50, duration: 0.55, ease: "power3.out" }, 0.45);
+        tl.set("#kw-c0", { opacity: 0 }, 0);
+        tl.set("#kw-c1", { opacity: 0 }, 0);
+        tl.to("#kw-c0", { opacity: 1, duration: 0.08 }, 1.1);
+        tl.to("#kw-c1", { opacity: 1, duration: 0.08 }, 1.25);
+        tl.fromTo("#kw-tag", { opacity: 0, scale: 0.85 }, { opacity: 1, scale: 1, duration: 0.35, ease: "back.out(1.4)" }, 1.7);
+        tl.to("#fi-2", { opacity: 0, x: 80, scale: 0.96, duration: 0.45, ease: "power2.in" }, 2.2);
+        tl.to("#fi-3", { y: -118, duration: 0.5, ease: "power2.inOut" }, 2.55);
+        tl.to("#fil-inner", { opacity: 0, x: -40, duration: 0.35, ease: "power2.in" }, 5.25);
+        tl.set("#fil-inner", { opacity: 0 }, 5.6);
+        window.__timelines["scene-filter"] = tl;
+      </script>
+    </template>
+  </body>
+</html>

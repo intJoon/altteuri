@@ -49,7 +49,8 @@ test('all manifest package references exist', () => {
     manifest.action.default_popup,
     ...Object.values(manifest.action.default_icon),
     ...Object.values(manifest.icons),
-    ...manifest.content_scripts.flatMap(entry => entry.js)
+    ...manifest.content_scripts.flatMap(entry => entry.js),
+    ...(manifest.web_accessible_resources?.flatMap((entry) => entry.resources) ?? [])
   ];
   references.forEach(reference => {
     assert.equal(existsSync(resolve(extension, reference)), true, `missing ${reference}`);

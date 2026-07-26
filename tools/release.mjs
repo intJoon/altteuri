@@ -77,6 +77,7 @@ if (manifest.version === versionArg) {
 bumpCssCache(versionArg);
 updateQc(versionArg);
 run("npm run generate:legal");
+run("node tools/sync-public-meta.mjs");
 run("npm test");
 run("npm run lint");
 run("node tools/build-extension-zip.mjs");

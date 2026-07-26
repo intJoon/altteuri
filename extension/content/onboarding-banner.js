@@ -2,6 +2,8 @@
 const R = globalThis.AltteuriRuntime;
 const TOAST_ID = "alt-onboarding-toast";
 const STYLE_ID = "alt-onboarding-toast-styles";
+const FEATURE_EVER_KEY = globalThis.AltteuriSettings?.ONBOARDING_FEATURE_EVER_ENABLED
+  || "onboardingFeatureEverEnabled";
 
 function featureKeys() {
   return globalThis.AltteuriSettings?.FEATURE_TOGGLE_KEYS || [];
@@ -58,10 +60,9 @@ function ensureStyles() {
     }
     #${TOAST_ID} .alt-onboard-icon {
       width: 28px; height: 28px; border-radius: 8px;
-      background: linear-gradient(145deg, #4d7dff, #346aff);
-      color: #fff; font-size: 15px; font-weight: 800;
-      display: flex; align-items: center; justify-content: center;
-      flex: none;
+      flex: none; display: block; object-fit: contain;
+      background: #346aff;
+      box-shadow: 0 2px 8px rgba(47, 95, 240, 0.2);
     }
     #${TOAST_ID} .alt-onboard-copy { margin: 0; color: #454b53; }
     #${TOAST_ID} .alt-onboard-copy strong { color: #212b36; font-weight: 700; }
@@ -95,12 +96,15 @@ function dismissToast() {
 function mountToast() {
   if (document.getElementById(TOAST_ID)) return;
   ensureStyles();
+  const iconUrl = chrome.runtime.getURL("icon48.png");
   const toast = document.createElement("div");
   toast.id = TOAST_ID;
   toast.setAttribute("role", "status");
   toast.setAttribute("aria-live", "polite");
   toast.innerHTML =
-    '<div class="alt-onboard-head"><span class="alt-onboard-icon" aria-hidden="true">알</span><span>알뜰이 설치됨</span></div>' +
+    '<div class="alt-onboard-head">' +
+    `<img class="alt-onboard-icon" src="${iconUrl}" width="28" height="28" alt="" decoding="async">` +
+    "<span>알뜰이가 설치되었습니다</span></div>" +
     '<p class="alt-onboard-copy">브라우저 <strong>확장 프로그램 아이콘</strong>을 눌러 원하는 기능을 켜 보세요.</p>' +
     '<div class="alt-onboard-actions">' +
     '<button type="button" class="alt-onboard-dismiss">확인</button>' +
@@ -109,18 +113,23 @@ function mountToast() {
   document.body.appendChild(toast);
 }
 
+function markOnboardingComplete() {
+  R.localSet({ [FEATURE_EVER_KEY]: true, onboardingBannerDismissed: true });
+}
+
 function evaluate() {
   if (!isSearchPage()) {
     removeToast(true);
     return;
   }
-  R.localGet(["onboardingBannerDismissed"], (local) => {
-    if (local.onboardingBannerDismissed) {
+  R.localGet(["onboardingBannerDismissed", FEATURE_EVER_KEY], (local) => {
+    if (local.onboardingBannerDismissed || local[FEATURE_EVER_KEY]) {
       removeToast(true);
       return;
     }
     R.syncGet(featureKeys(), (stored) => {
       if (anyFeatureEnabled(stored || {})) {
+        markOnboardingComplete();
         removeToast(true);
         return;
       }
@@ -134,7 +143,7 @@ function init() {
   evaluate();
   chrome.storage.onChanged.addListener((changes, area) => {
     if (area === "sync" && featureKeys().some((key) => changes[key])) evaluate();
-    if (area === "local" && changes.onboardingBannerDismissed) evaluate();
+    if (area === "local" && (changes.onboardingBannerDismissed || changes[FEATURE_EVER_KEY])) evaluate();
   });
 }
 

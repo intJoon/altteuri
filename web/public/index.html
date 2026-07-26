@@ -62,7 +62,7 @@
           <a class="secondary-link" href="#video">소개 영상</a>
           <a class="secondary-link" href="https://github.com/intJoon/altteuri">GitHub</a>
         </div>
-        <p class="hero-note">Chrome 웹 스토어 등록 준비 중 · 현재는 GitHub에서 받을 수 있습니다.</p>
+        <p class="hero-note">무료 오픈소스 · GitHub에서 설치할 수 있습니다.</p>
       </div>
     </header>
 
@@ -75,7 +75,7 @@
         </div>
         <div class="install-grid">
           <article class="install-card">
-            <h3>개발자 모드 (현재)</h3>
+            <h3>GitHub에서 설치</h3>
             <ol class="install-steps">
               <li><code>chrome://extensions</code> 를 엽니다.</li>
               <li>우측 상단 <strong>개발자 모드</strong>를 켭니다.</li>
@@ -86,8 +86,7 @@
           </article>
           <article class="install-card install-card-muted">
             <h3>Chrome 웹 스토어</h3>
-            <p>스토어 등록용 패키지와 스크린샷은 저장소 <code>store/</code> · <code>docs/CHROME_WEB_STORE.md</code> 를 참고하세요. 심사 통과 후 이 페이지에 스토어 링크가 추가됩니다.</p>
-            <p class="install-hint">로컬 빌드: <code>npm run build:extension</code></p>
+            <p>웹 스토어 등록이 완료되면 이 페이지에 설치 링크가 추가됩니다. 그때까지는 위 방법으로 설치해 주세요.</p>
           </article>
         </div>
       </section>
@@ -95,8 +94,8 @@
       <section class="section wrap video-section" id="video" aria-labelledby="video-title">
         <div class="section-heading">
           <p class="eyebrow">소개 영상</p>
-          <h2 id="video-title">30초로 보는 알뜰이</h2>
-          <p>정렬 · 필터 · 표시 항목 조정을 숏폼으로 확인하세요. (무음 — 업로드 시 BGM 추가 권장)</p>
+          <h2 id="video-title">29초로 보는 알뜰이</h2>
+          <p>정렬 · 필터 · 표시 항목 조정을 숏폼으로 확인하세요. 짧은 UI 효과음이 포함되어 있으며, 업로드 시 BGM을 추가하면 좋습니다.</p>
         </div>
         <div class="video-panel">
           <video class="intro-video" controls playsinline preload="metadata" poster="/og-image.png" width="1080" height="1920">
@@ -258,7 +257,7 @@
     <footer>
       <div class="wrap footer-inner">
         <div class="footer-brand">
-          <img src="/icon128.png" alt="" width="28" height="28">
+          <img src="/icon128.png" alt="알뜰이 아이콘" width="28" height="28">
           <span>알뜰이</span>
         </div>
         <nav aria-label="하단 링크">
@@ -266,10 +265,11 @@
           <a href="https://github.com/intJoon/altteuri/blob/master/docs/%EB%B2%84%EC%A0%84.md">변경 이력</a>
           <a href="/legal.html">법적 고지</a>
         </nav>
-        <p class="footer-version">v2.2.6 · 독립 오픈소스 · 쿠팡 비제휴</p>
+        <p class="footer-version"><span id="site-version">v…</span> · 독립 오픈소스 · 쿠팡 비제휴</p>
       </div>
     </footer>
 
+    <script src="/site-meta.js" defer></script>
     <script type="module" src="/feedback.js"></script>
   </body>
 </html>

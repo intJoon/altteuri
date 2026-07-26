@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="ko">
+  <head><meta charset="UTF-8" /></head>
+  <body>
+    <template>
+      <div data-composition-id="scene-hook" data-duration="3.2" data-width="1080" data-height="1920" class="scene">
+        <div class="scene-inner" id="hook-inner">
+          <p class="eyebrow" id="hook-eye">쿠팡 쇼핑</p>
+          <h1 class="headline" id="hook-head">검색 결과,<br />아직도 <span class="mark">하나씩</span><br />비교하세요?</h1>
+          <p class="sub" id="hook-sub">단위가격·할인율·필터까지 — 한 번에 정리해 보세요.</p>
+        </div>
+      </div>
+      <script>
+        window.__timelines = window.__timelines || {};
+        const tl = gsap.timeline({ paused: true });
+        tl.set("#hook-inner", { opacity: 1 }, 0);
+        tl.from("#hook-eye", { opacity: 0, y: 20, duration: 0.35, ease: "power2.out" }, 0.05);
+        tl.from("#hook-head", { opacity: 0, y: 56, scale: 0.94, duration: 0.5, ease: "power3.out" }, 0.12);
+        tl.fromTo("#hook-head .mark", { scale: 1.2, color: "#244fc4" }, { scale: 1, color: "#2f5ff0", duration: 0.45, ease: "back.out(2)" }, 0.35);
+        tl.from("#hook-sub", { opacity: 0, y: 24, duration: 0.42, ease: "power2.out" }, 0.55);
+        tl.to("#hook-inner", { opacity: 0, y: -30, duration: 0.35, ease: "power2.in" }, 2.85);
+        tl.set("#hook-inner", { opacity: 0 }, 3.2);
+        window.__timelines["scene-hook"] = tl;
+      </script>
+    </template>
+  </body>
+</html>

@@ -348,7 +348,6 @@ function activateSearchObservers() {
   if (!isSearchPage() || searchObserversActive) return;
   searchObserversActive = true;
   ensureDomObserver();
-  globalThis.AltteuriOnboardingBanner?.evaluate();
   refreshForcedListSize(() => {
     schedulePageApply({ resetActive: true, restore: true });
   });

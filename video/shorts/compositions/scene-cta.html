@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="ko">
+  <head><meta charset="UTF-8" /></head>
+  <body>
+    <template>
+      <div data-composition-id="scene-cta" data-duration="5.6" data-width="1080" data-height="1920" class="scene">
+        <div class="scene-inner" id="cta-inner">
+          <div class="cta-wrap">
+            <img class="cta-icon" id="cta-icon" src="assets/icon128.png" width="120" height="120" alt="" />
+            <div class="cta-title" id="cta-title">알뜰이</div>
+            <div class="cta-sub" id="cta-sub">더 알뜰한 쿠팡 검색</div>
+            <div class="cta-btn" id="cta-btn">GitHub에서 무료로 설치</div>
+            <div class="cta-url" id="cta-url">altteuri.vercel.app</div>
+          </div>
+        </div>
+      </div>
+      <script>
+        window.__timelines = window.__timelines || {};
+        const tl = gsap.timeline({ paused: true });
+        tl.set("#cta-inner", { opacity: 1 }, 0);
+        tl.from("#cta-icon", { opacity: 0, scale: 0.7, duration: 0.5, ease: "back.out(1.5)" }, 0.05);
+        tl.from("#cta-title", { opacity: 0, y: 30, duration: 0.45, ease: "power3.out" }, 0.3);
+        tl.from("#cta-sub", { opacity: 0, y: 20, duration: 0.4 }, 0.5);
+        tl.from("#cta-btn", { opacity: 0, y: 24, scale: 0.94, duration: 0.45, ease: "power2.out" }, 0.75);
+        tl.from("#cta-url", { opacity: 0, duration: 0.4 }, 1.05);
+        tl.to("#cta-btn", { scale: 1.04, duration: 0.55, ease: "power1.inOut", yoyo: true, repeat: 3 }, 1.6);
+        window.__timelines["scene-cta"] = tl;
+      </script>
+    </template>
+  </body>
+</html>

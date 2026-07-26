@@ -29,8 +29,9 @@ npm test
 |--------|-------------|
 | New setting key | `extension/settings-defaults.js`, popup UI, `settings-bridge.js`, `docs/업그레이드.md`, tests |
 | Coupang DOM selector | `extension/content/selectors.js`, `extension/content/core.js` or `extension/preset-data.js`, `docs/출처.md`, `docs/QC.md`, selector smoke test |
-| Onboarding UX | `extension/popup-onboarding.js`, `extension/content/onboarding-banner.js`, e2e smoke test |
-| Intro video | `video/shorts/index.html`, `npm run generate:sfx`, copy render to `web/public/intro.mp4` |
+| Onboarding UX | `extension/content/onboarding-banner.js` (쿠팡 검색 플로팅 토스트), e2e smoke test |
+| Intro video | `video/shorts/compositions/`, `npm run generate:sfx`, `npm run sync:intro` |
+| Public site version | `npm run sync:public-meta` after manifest bump |
 | Release | `node tools/release.mjs <semver>`, `docs/버전.md`, `docs/QC.md` |
 | Public site origin | `shared/site-config.mjs`, `extension/manifest.json` `homepage_url`, `npm run generate:legal` |
 | Feedback API contract | `web/lib/comments-service.mjs`, `tools/tests/web/`, popup feedback UI |

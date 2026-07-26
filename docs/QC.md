@@ -58,9 +58,8 @@ npm run lint
 - 로드 순서에 `shared-start` · `page-runtime` · `settings-bridge`가 있음
 
 - 기능이 모두 꺼져 있으면 확장 아이콘이 회색(`icon*-gray.png`)으로 표시됨
-- 첫 실행 시 쿠팡 검색에 **우측 하단 플로팅** onboarding 토스트가 뜨고, 확인하면 다시 안 뜸
-- 팝업 onboarding 안내는 기능 전부 off일 때만 표시
-- 키워드 한도·중복·길이 초과 시 검색 페이지 필터 UI에 빨간 안내 문구가 표시됨
+- 첫 실행 시 쿠팡 검색에 **우측 하단 플로팅** onboarding 토스트만 표시 (팝업에는 안내 없음). 확인하거나 **기능을 한 번이라도 켜면** 다시 안 뜸
+- 키워드 한도·중복·길이 초과 시 검색 페이지 필터 UI **상태 문구**(`role="status"`)에 표시됨
 
 - 커스텀 정렬 중 순번만 표시되고, 해제하면 쿠팡 네이티브 순번이 복구됨
 
@@ -70,7 +69,7 @@ npm run lint
 
 
 
-**2.2.6 기준:** 릴리스 직전 `npm test` (**80개**) · `npm run lint` · `npm run build:extension` 통과.
+**2.2.6 기준:** 릴리스 직전 `npm test` (**83개**) · `npm run lint` · `npm run build:extension` 통과.
 
 
 

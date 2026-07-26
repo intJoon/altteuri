@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 /**
  * Generate short UI click SFX as WAV files for HyperFrames composition.
+ * Uses deterministic noise (no Math.random) for reproducible output.
  */
 import { writeFileSync, mkdirSync } from "node:fs";
 import { dirname, join } from "node:path";
@@ -8,6 +9,11 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const outDir = join(__dirname, "../video/shorts/assets/sfx");
+
+function seededUnit(index, seed) {
+  const x = Math.sin(index * 12.9898 + seed * 78.233) * 43758.5453;
+  return x - Math.floor(x);
+}
 
 function writeWav(path, samples, sampleRate = 44100) {
   const numChannels = 1;
@@ -47,13 +53,14 @@ function clickTone({ freq = 880, duration = 0.06, gain = 0.22, sampleRate = 4410
   return samples;
 }
 
-function whoosh({ duration = 0.18, sampleRate = 44100 }) {
+function whoosh({ duration = 0.18, sampleRate = 44100, seed = 7 }) {
   const len = Math.floor(duration * sampleRate);
   const samples = new Float64Array(len);
   for (let i = 0; i < len; i++) {
     const t = i / len;
     const env = Math.sin(Math.PI * t) * 0.12;
-    samples[i] = (Math.random() * 2 - 1) * env * (1 - t);
+    const noise = seededUnit(i, seed) * 2 - 1;
+    samples[i] = noise * env * (1 - t);
   }
   return samples;
 }
@@ -62,5 +69,5 @@ mkdirSync(outDir, { recursive: true });
 writeWav(join(outDir, "click.wav"), clickTone({ freq: 920, duration: 0.05 }));
 writeWav(join(outDir, "toggle.wav"), clickTone({ freq: 640, duration: 0.07, gain: 0.18 }));
 writeWav(join(outDir, "sort.wav"), clickTone({ freq: 520, duration: 0.09, gain: 0.2 }));
-writeWav(join(outDir, "hide.wav"), whoosh({}));
+writeWav(join(outDir, "hide.wav"), whoosh({ seed: 7 }));
 console.log("Wrote SFX to video/shorts/assets/sfx/");

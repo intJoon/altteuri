@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="ko">
+  <head><meta charset="UTF-8" /></head>
+  <body>
+    <template>
+      <div data-composition-id="scene-brand" data-duration="3.6" data-width="1080" data-height="1920" class="scene">
+        <div class="scene-inner" id="brand-inner">
+          <div class="brand-wrap">
+            <img class="brand-icon" id="brand-icon" src="assets/icon128.png" width="168" height="168" alt="" />
+            <div class="brand-name" id="brand-name">알뜰이</div>
+            <div class="brand-tag" id="brand-tag">쿠팡 검색을 더 알뜰하게</div>
+            <div class="pill" id="brand-pill">쿠팡용 Chrome 확장 · 무료</div>
+          </div>
+        </div>
+      </div>
+      <script>
+        window.__timelines = window.__timelines || {};
+        const tl = gsap.timeline({ paused: true });
+        tl.set("#brand-inner", { opacity: 1 }, 0);
+        tl.from("#brand-icon", { opacity: 0, scale: 0.6, duration: 0.55, ease: "back.out(1.6)" }, 0.05);
+        tl.from("#brand-name", { opacity: 0, y: 40, duration: 0.5, ease: "power3.out" }, 0.35);
+        tl.from("#brand-tag", { opacity: 0, y: 20, duration: 0.4, ease: "power2.out" }, 0.65);
+        tl.from("#brand-pill", { opacity: 0, scale: 0.9, duration: 0.4, ease: "power2.out" }, 0.95);
+        tl.to("#brand-inner", { opacity: 0, scale: 0.96, duration: 0.35, ease: "power2.in" }, 3.25);
+        tl.set("#brand-inner", { opacity: 0 }, 3.6);
+        window.__timelines["scene-brand"] = tl;
+      </script>
+    </template>
+  </body>
+</html>
