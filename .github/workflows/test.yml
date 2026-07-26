@@ -20,7 +20,7 @@ jobs:
       - run: npm run generate:extension-lib
       - run: npm ci --prefix apps/web
       - run: npm test
-      - run: npm run test:e2e
+      - run: npm run test:smoke
       - run: npm run lint
       - run: npm run build:extension
 
@@ -32,6 +32,18 @@ jobs:
         with:
           node-version: "22"
       - run: node --test tools/tests/extension/selector-smoke.test.mjs
+
+  video-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+          cache-dependency-path: assets/video/shorts/package-lock.json
+      - run: npm ci --prefix assets/video/shorts
+      - run: npm run video:check
 
   alt-inspect-syntax:
     runs-on: ubuntu-latest

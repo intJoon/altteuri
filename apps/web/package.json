@@ -2,6 +2,9 @@
   "name": "altteuri-web",
   "private": true,
   "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0"
   }

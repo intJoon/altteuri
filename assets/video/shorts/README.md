@@ -10,12 +10,17 @@
 | [`STORYBOARD.md`](STORYBOARD.md) | 비트·자막 구성 |
 | [`index.html`](index.html) | HyperFrames 루트 (bg · 자막 · 호스트) |
 | [`compositions/`](compositions/) | 씬별 서브 컴포지션 |
+| [`compositions/scene-toggle.html`](compositions/scene-toggle.html) | 기능 토글 씬 |
 
 ## 다시 렌더
 
 ```bash
-cd assets/video/shorts
-npm run generate:sfx   # from repo root: npm run generate:sfx
+# repo root (폰트 동기화 포함)
+npm run video:check
+npm run video:render
+
+# 또는 이 디렉터리에서
+npm ci
 npm run check
 npm run render
 ```

@@ -1,16 +1,42 @@
 import math
+import os
 from pathlib import Path
 
 from PIL import Image, ImageDraw, ImageFont
 
 DST = Path(__file__).resolve().parents[2] / "assets" / "brand"
-FONT_PATH = Path(r"C:\Users\user\AppData\Local\Microsoft\Windows\Fonts\[KIM]WILDgag-Bold.ttf")
 
 BLUE = (52, 106, 255, 255)
 GRAY = (156, 160, 168, 255)
 WHITE = (255, 255, 255, 255)
 
 SS = 8
+
+
+def resolve_font_path() -> Path:
+    env_path = os.environ.get("ALTTEURI_ICON_FONT", "").strip()
+    if env_path:
+        candidate = Path(env_path)
+        if candidate.exists():
+            return candidate
+
+    repo_font = DST / "fonts" / "WILDgag-Bold.ttf"
+    if repo_font.exists():
+        return repo_font
+
+    windows_default = Path(
+        r"C:\Users\user\AppData\Local\Microsoft\Windows\Fonts\[KIM]WILDgag-Bold.ttf"
+    )
+    if windows_default.exists():
+        return windows_default
+
+    raise SystemExit(
+        "Icon font not found. Set ALTTEURI_ICON_FONT, add assets/brand/fonts/WILDgag-Bold.ttf, "
+        "or install [KIM]WILDgag-Bold on Windows."
+    )
+
+
+FONT_PATH = resolve_font_path()
 
 
 def render_glyph(ch: str, target_h: float) -> Image.Image:

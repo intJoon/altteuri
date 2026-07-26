@@ -1,6 +1,6 @@
+import { FEEDBACK_PAGE_SIZE } from "./site-config.js";
+
 const API = "/api/comments";
-/** Keep in sync with shared/site-config.mjs FEEDBACK_PAGE_SIZE */
-const PAGE_SIZE = 5;
 
 const feed = document.querySelector(".feedback-feed");
 const loading = document.querySelector("#feedback-loading");
@@ -138,7 +138,7 @@ function renderComments() {
 }
 
 async function fetchPage(offset = 0) {
-  const response = await fetch(`${API}?limit=${PAGE_SIZE}&offset=${offset}`, {
+  const response = await fetch(`${API}?limit=${FEEDBACK_PAGE_SIZE}&offset=${offset}`, {
     headers: { Accept: "application/json" },
     cache: "no-store",
   });

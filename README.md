@@ -16,7 +16,7 @@
 [`CONTRIBUTING.md`](CONTRIBUTING.md) 참고.
 
 ```bash
-npm ci && npm ci --prefix apps/web && npm run generate:extension-lib && npm test
+npm ci && npm ci --prefix apps/web && npm run generate:extension-lib && npm test && npm run lint && npm run build:extension
 ```
 
 ## 구조
@@ -25,7 +25,7 @@ npm ci && npm ci --prefix apps/web && npm run generate:extension-lib && npm test
 |------|------|
 | `apps/extension/` | Chrome 확장 |
 | `apps/web/` | 소개 사이트 + 의견 API (Vercel Root: `apps/web`) |
-| `assets/` | 브랜드·스토어 에셋 |
+| `assets/` | 브랜드·스토어·숏폼 에셋 |
 | `shared/` | 공유 상수·순수 로직 |
 | `docs/` | 운영 문서·법적 원본 |
 | `tools/` | 스크립트·테스트 |

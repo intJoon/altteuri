@@ -24,17 +24,13 @@ function writeJson(path, data) {
   writeFileSync(path, `${JSON.stringify(data, null, 2)}\n`, "utf8");
 }
 
-function bumpCssCache(version) {
-  const indexPath = join(root, "apps/web/public/index.html");
-  let html = readFileSync(indexPath, "utf8");
-  html = html.replace(/styles\.css\?v=[^"']+/, `styles.css?v=${version}`);
-  writeFileSync(indexPath, html, "utf8");
-}
-
 function updateQc(version) {
   const qcPath = join(root, "docs/QC.md");
   let qc = readFileSync(qcPath, "utf8");
-  qc = qc.replace(/\*\*[\d.]+\s*기준:\*\*[^\n]+/, `**${version} 기준:** 위 명령이 모두 통과하면 계약·순수 로직·API·법적 고지 동기화·manifest 경로 등은 코드로 확인된 것이다.`);
+  qc = qc.replace(
+    /\*\*[\d.]+\s*기준:\*\*[^\n]+/,
+    `**${version} 기준:** 위 명령이 모두 통과하면 계약·순수 로직·API·법적 고지·manifest 경로는 코드로 확인된 것이다.`
+  );
   writeFileSync(qcPath, qc, "utf8");
 }
 
@@ -73,7 +69,6 @@ if (manifest.version === versionArg) {
   console.log(`Bumped manifest to ${versionArg}`);
 }
 
-bumpCssCache(versionArg);
 updateQc(versionArg);
 run("npm run generate:legal");
 run("npm run sync:public-meta");

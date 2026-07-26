@@ -11,6 +11,7 @@ function read(rel) {
 }
 
 const operationalDocs = [
+  "docs/버전.md",
   "docs/업그레이드.md",
   "docs/방법론.md",
   "docs/QC.md",
@@ -35,6 +36,8 @@ const stalePathPatterns = [
   /\b`web\/public\//,
   /\bcd video\/shorts\b/,
   /\bsync:intro\b/,
+  /\btest:e2e\b/,
+  /\bintro\.mp4\b/,
 ];
 
 test("manifest version matches current docs", () => {
@@ -57,10 +60,15 @@ test("settingsVersion matches code and current docs", () => {
   assert.match(read("docs/방법론.md"), new RegExp(`settingsVersion: ${sv}`));
 });
 
+const historicalDocPatterns = [/\bsync:intro\b/, /\bintro\.mp4\b/];
+
 test("operational docs avoid stale repository paths", () => {
   for (const rel of operationalDocs) {
     const source = read(rel);
     for (const pattern of stalePathPatterns) {
+      if (rel === "docs/버전.md" && historicalDocPatterns.some((skip) => skip.source === pattern.source)) {
+        continue;
+      }
       assert.doesNotMatch(source, pattern, `${rel} still references a pre-restructure path (${pattern})`);
     }
   }
@@ -71,6 +79,29 @@ test("site install path matches repository layout", () => {
   assert.match(indexHtml, /apps\/extension\//);
   const version = JSON.parse(read("apps/extension/manifest.json")).version;
   assert.match(indexHtml, new RegExp(`styles\\.css\\?v=${version}`));
+  const notFoundHtml = read("apps/web/public/404.html");
+  assert.match(notFoundHtml, new RegExp(`styles\\.css\\?v=${version}`));
+  assert.match(notFoundHtml, /theme-color" content="#f7f9ff"/);
+});
+
+test("landing public dir has no intro video asset", () => {
+  assert.throws(
+    () => read("apps/web/public/intro.mp4"),
+    (err) => err && "code" in err && err.code === "ENOENT",
+    "intro.mp4 should not be published"
+  );
+});
+
+test("generated public site-config matches shared constants", () => {
+  const generated = read("apps/web/public/site-config.js");
+  const shared = read("shared/site-config.mjs");
+  const pageSize = shared.match(/FEEDBACK_PAGE_SIZE = (\d+)/)?.[1];
+  const maxLen = shared.match(/FEEDBACK_MAX_LEN = (\d+)/)?.[1];
+  assert.ok(pageSize, "FEEDBACK_PAGE_SIZE missing in shared/site-config.mjs");
+  assert.ok(maxLen, "FEEDBACK_MAX_LEN missing in shared/site-config.mjs");
+  assert.match(generated, new RegExp(`export const FEEDBACK_PAGE_SIZE = ${pageSize}`));
+  assert.match(generated, new RegExp(`export const FEEDBACK_MAX_LEN = ${maxLen}`));
+  assert.match(read("apps/web/public/feedback.js"), /from "\.\/site-config\.js"/);
 });
 
 test("landing site has no intro video", () => {

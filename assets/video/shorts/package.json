@@ -7,5 +7,10 @@
     "check": "npx --yes hyperframes@0.7.72 check",
     "render": "npx --yes hyperframes@0.7.72 render -f 30 -q high -o out/altteuri-intro.mp4",
     "publish": "npx --yes hyperframes@0.7.72 publish"
+  },
+  "dependencies": {
+    "@fontsource/ibm-plex-sans-kr": "^5.2.8",
+    "@fontsource/outfit": "^5.2.8",
+    "gsap": "3.14.2"
   }
 }
