@@ -12,3 +12,6 @@ profiles/
 tools/**/profile/
 .vercel
 .env*
+
+# Render / build outputs
+assets/video/shorts/out/

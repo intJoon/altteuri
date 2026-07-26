@@ -4,7 +4,7 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 const repo = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
-const handlerUrl = pathToFileURL(resolve(repo, "web/api/health.mjs")).href;
+const handlerUrl = pathToFileURL(resolve(repo, "apps/web/api/health.mjs")).href;
 
 function createRes() {
   const res = {

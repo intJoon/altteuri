@@ -4,7 +4,7 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
 const repo = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
-const handlerUrl = pathToFileURL(resolve(repo, "web/api/comments.mjs")).href;
+const handlerUrl = pathToFileURL(resolve(repo, "apps/web/api/comments.mjs")).href;
 
 function createRes() {
   const res = {
@@ -138,7 +138,7 @@ test("POST without DATABASE_URL returns 503", async () => {
 
 test("POST documents rate-limit guard when secret is missing", async () => {
   const { readFile } = await import("node:fs/promises");
-  const source = await readFile(resolve(repo, "web/lib/comments-service.mjs"), "utf8");
+  const source = await readFile(resolve(repo, "apps/web/lib/comments-service.mjs"), "utf8");
   assert.match(source, /dailyRateLimitIdentity/);
   assert.match(source, /if \(inserted === null\)/);
   assert.match(source, /rate_limit_unavailable/);

@@ -5,7 +5,7 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const repo = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
-const extension = resolve(repo, "extension");
+const extension = resolve(repo, "apps/extension");
 const manifest = JSON.parse(await readFile(resolve(extension, "manifest.json"), "utf8"));
 
 test("selectors module exposes Coupang DOM constants", async () => {
@@ -22,7 +22,7 @@ test("core selectors keep fallback patterns for Coupang CSS module drift", async
 });
 
 test("preset selectors document :has usage for ad cards", async () => {
-  const preset = await readFile(resolve(extension, "preset-data.js"), "utf8");
+  const preset = await readFile(resolve(extension, "lib/preset-data.js"), "utf8");
   assert.match(preset, /:has\(button\[aria-label='Ad information'\]\)/);
 });
 
@@ -31,6 +31,6 @@ test("manifest minimum Chrome version covers :has selector support", () => {
 });
 
 test("alt-inspect idle script order matches manifest", async () => {
-  const { IDLE_SCRIPTS } = await import("../../alt-inspect/chrome-path.mjs");
+  const { IDLE_SCRIPTS } = await import("../../inspect/alt-inspect/chrome-path.mjs");
   assert.deepEqual(IDLE_SCRIPTS, manifest.content_scripts[1].js);
 });

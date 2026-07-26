@@ -7,14 +7,19 @@ import { fileURLToPath } from 'node:url';
 import vm from 'node:vm';
 
 const repo = resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
-const extension = resolve(repo, 'extension');
+const extension = resolve(repo, 'apps/extension');
 const manifest = JSON.parse(await readFile(resolve(extension, 'manifest.json'), 'utf8'));
 
-const expectedEarlyOrder = ['preset-data.js', 'runtime-utils.js', 'content/shared-start.js', 'content/early.js'];
+const expectedEarlyOrder = [
+  'lib/preset-data.js',
+  'lib/runtime-utils.js',
+  'content/shared-start.js',
+  'content/early.js'
+];
 const expectedIdleOrder = [
-  'pure-logic.js',
-  'settings-defaults.js',
-  'runtime-utils.js',
+  'lib/pure-logic.js',
+  'lib/settings-defaults.js',
+  'lib/runtime-utils.js',
   'content/shared-start.js',
   'content/selectors.js',
   'content/core.js',
@@ -37,8 +42,8 @@ test('manifest content scripts have the dependency-safe order', () => {
 });
 
 test('preset-data loads once at document_start only', () => {
-  const earlyCount = manifest.content_scripts[0].js.filter(file => file === 'preset-data.js').length;
-  const idleCount = manifest.content_scripts[1].js.filter(file => file === 'preset-data.js').length;
+  const earlyCount = manifest.content_scripts[0].js.filter(file => file === 'lib/preset-data.js').length;
+  const idleCount = manifest.content_scripts[1].js.filter(file => file === 'lib/preset-data.js').length;
   assert.equal(earlyCount, 1);
   assert.equal(idleCount, 0);
 });
@@ -58,10 +63,10 @@ test('all manifest package references exist', () => {
 });
 
 test('popup loads shared modules before popup entrypoint', async () => {
-  const html = await readFile(resolve(extension, 'popup.html'), 'utf8');
+  const html = await readFile(resolve(extension, 'popup/popup.html'), 'utf8');
   assert.match(html, /href="popup\.css"/);
-  assert.ok(html.indexOf('settings-defaults.js') < html.indexOf('popup.js'));
-  assert.ok(html.indexOf('runtime-utils.js') < html.indexOf('popup.js'));
+  assert.ok(html.indexOf('../lib/settings-defaults.js') < html.indexOf('popup.js'));
+  assert.ok(html.indexOf('../lib/runtime-utils.js') < html.indexOf('popup.js'));
   assert.ok(html.indexOf('popup-nav.js') < html.indexOf('popup.js'));
   assert.doesNotMatch(html, /<style(?:\s|>)/);
   const localAssets = [
@@ -69,7 +74,10 @@ test('popup loads shared modules before popup entrypoint', async () => {
     ...html.matchAll(/<link[^>]+href="([^"]+)"/g)
   ].map(match => match[1]).filter(reference => !reference.includes('://'));
   localAssets.forEach(reference => {
-    assert.equal(existsSync(resolve(extension, reference)), true, `missing popup asset ${reference}`);
+    const resolved = reference.startsWith("../")
+      ? resolve(extension, reference.replace(/^\.\.\//, ""))
+      : resolve(extension, "popup", reference);
+    assert.equal(existsSync(resolved), true, `missing popup asset ${reference}`);
   });
 });
 
@@ -77,7 +85,7 @@ test('manifest homepage_url matches shared site config', async () => {
   const { SITE_ORIGIN } = await import('../../../shared/site-config.mjs');
   assert.equal(manifest.homepage_url.replace(/\/$/, ''), SITE_ORIGIN);
   assert.equal(manifest.minimum_chrome_version, '105');
-  assert.equal(manifest.action.default_icon['128'], 'icon128.png');
+  assert.equal(manifest.action.default_icon['128'], 'assets/icons/icon128.png');
 });
 
 test('manifest permissions exclude scripting', () => {
@@ -86,7 +94,7 @@ test('manifest permissions exclude scripting', () => {
 
 test('ordered feature scripts register only through the shared namespace', async () => {
   const context = vm.createContext({ console, URL, URLSearchParams, setTimeout, clearTimeout });
-  const preload = ['preset-data.js', ...expectedIdleOrder.slice(0, -1)];
+  const preload = ['lib/preset-data.js', ...expectedIdleOrder.slice(0, -1)];
   for (const reference of preload) {
     const source = await readFile(resolve(extension, reference), 'utf8');
     vm.runInContext(source, context, { filename: reference });
@@ -274,8 +282,8 @@ test('shared-start redirect and hide CSS are single-sourced', async () => {
 
 test('shared settings cover every feature toggle', async () => {
   const context = vm.createContext({});
-  const source = await readFile(resolve(extension, 'settings-defaults.js'), 'utf8');
-  vm.runInContext(source, context, { filename: 'settings-defaults.js' });
+  const source = await readFile(resolve(extension, 'lib/settings-defaults.js'), 'utf8');
+  vm.runInContext(source, context, { filename: 'lib/settings-defaults.js' });
   const settings = context.AltteuriSettings;
 
   assert.equal(settings.DEFAULT_SETTINGS.settingsVersion, settings.SETTINGS_VERSION);

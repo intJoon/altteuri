@@ -21,7 +21,7 @@ test("extension site-config mirrors shared feedback and keyword limits", async (
   const { dirname, resolve } = await import("node:path");
   const { fileURLToPath } = await import("node:url");
   const repo = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
-  const source = await readFile(resolve(repo, "extension/site-config.js"), "utf8");
+  const source = await readFile(resolve(repo, "apps/extension/lib/site-config.js"), "utf8");
   assert.match(source, new RegExp(`FEEDBACK_PAGE_SIZE:\\s*${FEEDBACK_PAGE_SIZE}`));
   assert.match(source, new RegExp(`MAX_EXCLUDED_KEYWORDS:\\s*${MAX_EXCLUDED_KEYWORDS}`));
   assert.match(source, new RegExp(`MAX_KEYWORD_LENGTH:\\s*${MAX_KEYWORD_LENGTH}`));

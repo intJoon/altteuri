@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 import vm from "node:vm";
 
 const repo = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
-const source = await readFile(resolve(repo, "extension/hangul-search.js"), "utf8");
+const source = await readFile(resolve(repo, "apps/extension/lib/hangul-search.js"), "utf8");
 
 function loadHangulSearch() {
   const context = vm.createContext({});

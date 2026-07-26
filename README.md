@@ -2,104 +2,46 @@
 
 A Chrome extension for sorting, filtering, and simplifying [Coupang](https://www.coupang.com) search results. Every feature is opt-in.
 
-## Features
-
-- Sort results by unit price, discount rate, or price.
-- Hide unwanted results and distracting page elements (uncheck a display preset to hide it).
-- Choose how many results appear per search.
-- Optionally submit feedback and view recent public feedback.
-
 ## Install
 
-**Website:** [altteuri.vercel.app](https://altteuri.vercel.app/) — install guide, intro video, changelog.
+**Website:** [altteuri.vercel.app](https://altteuri.vercel.app/)
 
-### Load unpacked (current)
+1. Open `chrome://extensions` and enable **Developer mode**.
+2. Click **Load unpacked** and select `apps/extension/` in this repository.
 
-1. Open `chrome://extensions`.
-2. Enable **Developer mode**.
-3. Click **Load unpacked**.
-4. Select the `extension/` directory in this repository.
-
-### Chrome Web Store
-
-Store listing copy, screenshots, and upload zip: [`docs/CHROME_WEB_STORE.md`](docs/CHROME_WEB_STORE.md). Build zip with `npm run build:extension`.
+Store listing: [`docs/CHROME_WEB_STORE.md`](docs/CHROME_WEB_STORE.md). Build zip: `npm run build:extension`.
 
 ## Development
 
-Run the full test suite from the repository root:
-
 ```bash
 npm ci
-npm ci --prefix web
+npm ci --prefix apps/web
+npm run generate:extension-lib
 npm test
 npm run lint
 npm run build:extension
-npm run release:check
 ```
 
-Individual suites:
+See [`CONTRIBUTING.md`](CONTRIBUTING.md). Legal markdown changes: `npm run generate:legal && npm test`. Shared logic changes: `npm run generate:extension-lib && npm test`.
 
-```bash
-npm run test:extension
-npm run test:web
-npm run generate:legal
-```
+## Layout
 
-See [`CONTRIBUTING.md`](CONTRIBUTING.md) for change checklists. The project is released under the [MIT License](LICENSE).
+| Folder | Purpose |
+|--------|---------|
+| `apps/extension/` | Chrome extension (Load unpacked) |
+| `apps/web/` | Site + feedback API (Vercel root: `apps/web`) |
+| `assets/` | Brand icons, store screenshots, intro video |
+| `shared/` | Cross-app constants and pure logic |
+| `docs/` | Korean ops docs, QC, legal sources |
+| `tools/scripts/` | Generate, sync, release, build |
+| `tools/tests/` | Automated tests |
 
-After editing `docs/개인정보처리방침.md` or `docs/이용약관.md`, regenerate HTML and verify sync:
+## Privacy
 
-```bash
-npm run generate:legal
-npm test
-```
+Settings stay in the browser. Feedback is optional; submitted text may appear publicly. [Privacy policy (KO)](docs/개인정보처리방침.md) · [Terms (KO)](docs/이용약관.md)
 
-## Directory map
+Not affiliated with Coupang. [MIT License](LICENSE).
 
-- `extension/` — unpacked Chrome extension
-- `web/` — public site and feedback API
-- `docs/` — methodology, release history, QC, and legal sources
-- `tools/` — legal generation, release/build scripts, automated tests
-- `video/shorts/` — HyperFrames intro video for Reels/Shorts
-- `store/` — Chrome Web Store screenshot templates and promo tile
+## Deploy
 
-## Privacy and legal
-
-Settings stay in the browser. Optional feedback and the extension version are sent only when the user submits feedback; submitted text may appear in the public feedback list.
-
-- Privacy policy: [`docs/개인정보처리방침.md`](docs/개인정보처리방침.md)
-- Terms and disclaimer: [`docs/이용약관.md`](docs/이용약관.md)
-- Generated HTML: `npm run generate:legal` → `extension/legal.html`, `web/public/legal.html`
-
-Altteuri is an independent open-source project and is not affiliated with Coupang.
-
-## Web API (production)
-
-Deploy `web/` to Vercel. Required environment variables:
-
-| Variable | Purpose |
-|----------|---------|
-| `DATABASE_URL` | Neon PostgreSQL connection string |
-| `RATE_LIMIT_SECRET` | Derives daily, non-reversible rate-limit identifiers for feedback POST |
-| `EXTENSION_IDS` | Optional comma-separated Chrome extension IDs allowed to POST feedback. Leave empty for unpacked/local installs; set in production |
-| `CRON_SECRET` | Optional bearer token for `/api/purge-comments` daily retention cleanup (defaults to `RATE_LIMIT_SECRET` when unset) |
-
-Without `DATABASE_URL`, feedback list/submit returns HTTP 503. Without `RATE_LIMIT_SECRET`, feedback POST returns HTTP 503 even when the database is configured. `/api/health` reports whether the database is configured.
-
-See [`web/README.md`](web/README.md) for deployment details.
-
-## Chrome Web Store
-
-`extension/manifest.json` includes `homepage_url` (`https://altteuri.vercel.app/`). Privacy policy and terms are linked from the extension popup and install-time legal page.
-
-Permission justification for store review:
-
-| Permission / host | Why |
-|-------------------|-----|
-| `storage` | Save per-feature opt-in settings in the browser |
-| `tabs` | Reload Coupang tabs after settings migration; open legal/feedback links from the popup |
-| `https://www.coupang.com/*` | Run content scripts on search and related pages |
-| `https://cart.coupang.com/*`, `https://mc.coupang.com/*` | Apply display presets on cart and order-list pages |
-| `https://altteuri.vercel.app/*` | Submit and list optional public feedback |
-
-Distribution today is **Load unpacked** from this repository. Store listing assets and submission are documented in [`docs/CHROME_WEB_STORE.md`](docs/CHROME_WEB_STORE.md); run `npm run build:extension` for the upload zip.
+Web API env vars and deployment: [`apps/web/README.md`](apps/web/README.md).

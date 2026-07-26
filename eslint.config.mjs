@@ -3,11 +3,17 @@ import globals from "globals";
 
 export default [
   {
-    ignores: ["**/node_modules/**", "video/**", "tools/alt-inspect/**", "tools/cdp/**"],
+    ignores: [
+      "**/node_modules/**",
+      "assets/video/**",
+      "tools/inspect/**",
+      "apps/extension/lib/site-config.js",
+      "apps/extension/lib/pure-logic.js",
+    ],
   },
   js.configs.recommended,
   {
-    files: ["extension/**/*.js"],
+    files: ["apps/extension/**/*.js"],
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: "script",
@@ -25,7 +31,7 @@ export default [
     },
   },
   {
-    files: ["web/**/*.mjs", "tools/**/*.mjs", "shared/**/*.mjs"],
+    files: ["apps/web/**/*.mjs", "tools/**/*.mjs", "shared/**/*.mjs"],
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: "module",

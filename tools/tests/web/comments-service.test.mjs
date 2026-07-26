@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { handleCommentsRequest, insertFeedback } from "../../../web/lib/comments-service.mjs";
+import { handleCommentsRequest, insertFeedback } from "../../../apps/web/lib/comments-service.mjs";
 
 function createRes() {
   return {

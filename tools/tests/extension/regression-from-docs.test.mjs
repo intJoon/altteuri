@@ -7,8 +7,8 @@ import { fileURLToPath } from 'node:url';
 import vm from 'node:vm';
 
 const repo = resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
-const extension = resolve(repo, 'extension');
-const webPublic = resolve(repo, 'web/public');
+const extension = resolve(repo, 'apps/extension');
+const webPublic = resolve(repo, 'apps/web/public');
 
 async function readExt(rel) {
   return readFile(resolve(extension, rel), 'utf8');
@@ -17,7 +17,7 @@ async function readExt(rel) {
 function loadSettings() {
   const context = { console };
   vm.createContext(context);
-  vm.runInContext(readFileSync(resolve(extension, 'settings-defaults.js'), 'utf8'), context);
+  vm.runInContext(readFileSync(resolve(extension, 'lib/settings-defaults.js'), 'utf8'), context);
   return context.AltteuriSettings;
 }
 
@@ -26,7 +26,7 @@ test('R1: master switch keys are not defaults; migration still deletes them', as
   assert.equal('altEnabled' in settings.DEFAULT_SETTINGS, false);
   assert.equal('lastPreset' in settings.DEFAULT_SETTINGS, false);
   assert.equal('quickCartEnabled' in settings.DEFAULT_SETTINGS, false);
-  const popupHtml = await readExt('popup.html');
+  const popupHtml = await readExt('popup/popup.html');
   assert.doesNotMatch(popupHtml, /altEnabled|알뜰이 켜기|lastPreset/);
   assert.doesNotMatch(popupHtml, /toggle-quick-cart|장바구니 바로 담기/);
   const background = await readExt('background.js');
@@ -41,7 +41,7 @@ test('R2: legacy A.schedule helper is gone', async () => {
     readExt('content/sort.js'),
     readExt('content/core.js'),
     readExt('content/boot.js'),
-    readExt('pure-logic.js')
+    readExt('lib/pure-logic.js')
   ]);
   sources.forEach(source => {
     assert.doesNotMatch(source, /\bA\.schedule\b/);
@@ -88,8 +88,8 @@ test('R6: marketing site is feedback read-only', async () => {
 });
 
 test('R7: feedback page size is 5 and popup date has no time-of-day fields', async () => {
-  const siteConfig = await readExt('site-config.js');
-  const feedback = await readExt('popup-feedback.js');
+  const siteConfig = await readExt('lib/site-config.js');
+  const feedback = await readExt('popup/popup-feedback.js');
   assert.match(siteConfig, /FEEDBACK_PAGE_SIZE:\s*5/);
   const formatStart = feedback.indexOf('function formatFeedbackDate');
   const formatEnd = feedback.indexOf('\nfunction ', formatStart + 1);
@@ -141,7 +141,7 @@ test('R13: picker permissions and APIs stay removed', async () => {
   const manifest = JSON.parse(await readExt('manifest.json'));
   assert.equal(manifest.permissions.includes('activeTab'), false);
   assert.doesNotMatch(JSON.stringify(manifest), /captureVisibleTab/);
-  const popupHtml = await readExt('popup.html');
+  const popupHtml = await readExt('popup/popup.html');
   assert.doesNotMatch(popupHtml, /피커|드래그 선택|실행취소/);
 });
 
@@ -165,7 +165,7 @@ test('R15: custom sort shows rank marks only and hides native ranks without remo
 
 test('R16: toolbar icon grays out when every feature is off', async () => {
   const background = await readExt('background.js');
-  assert.match(background, /icon16-gray\.png/);
+  assert.match(background, /assets\/icons\/icon16-gray\.png/);
   assert.match(background, /isAnyFeatureEnabled/);
   assert.match(background, /FEATURE_TOGGLE_KEYS\.some/);
 });

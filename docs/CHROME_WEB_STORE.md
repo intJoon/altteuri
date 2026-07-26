@@ -1,6 +1,6 @@
 # Chrome Web Store listing — 알뜰이
 
-Store submission checklist and copy. Keep in sync with `extension/manifest.json` and [`README.md`](../README.md).
+Store submission checklist and copy. Keep in sync with `apps/extension/manifest.json` and [`README.md`](../README.md).
 
 ## Build upload package
 
@@ -14,12 +14,12 @@ Output: `dist/altteuri-extension-v{version}.zip` (manifest at zip root).
 
 | Asset | Size | File / source |
 | --- | --- | --- |
-| Icon | 128×128 | `extension/icon128.png` |
-| Screenshots | 1280×800 (min 1, max 5) | Capture from `store/screenshots/*.html` or live extension |
-| Promo tile (optional) | 440×280 | `store/promo-tile.svg` → export PNG |
+| Icon | 128×128 | `apps/extension/assets/icons/icon128.png` (source: `assets/brand/`) |
+| Screenshots | 1280×800 (min 1, max 5) | Capture from `assets/store/screenshots/*.html` or live extension |
+| Promo tile (optional) | 440×280 | `assets/store/promo-tile.svg` → export PNG |
 | Small promo (optional) | 440×280 | Same as promo tile |
 
-Open each HTML under `store/screenshots/` in Chrome at 100% zoom, DevTools → capture full size screenshot, or use OS screenshot at 1280×800.
+Open each HTML under `assets/store/screenshots/` in Chrome at 100% zoom, DevTools → capture full size screenshot, or use OS screenshot at 1280×800.
 
 ## Listing copy (Korean — primary)
 
@@ -92,6 +92,6 @@ Provide optional shopping-assist tools (sort, filter, display presets) on Coupan
 
 ## After publish
 
-- Update `web/public/index.html` install CTA with Chrome Web Store URL.
+- Update `apps/web/public/index.html` install CTA with Chrome Web Store URL.
 - Update `README.md` Install section with store link.
 - Tag release on GitHub matching manifest version.
