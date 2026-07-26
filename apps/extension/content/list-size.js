@@ -1,5 +1,6 @@
 ((A) => {
 const S = globalThis.AltteuriShared;
+const R = globalThis.AltteuriRuntime;
 
 function searchKey() {
   try {
@@ -38,7 +39,7 @@ function urlMatches(listSize) {
 
 function setFromSettings(callback) {
   const done = typeof callback === 'function' ? callback : () => {};
-  if (!globalThis.chrome || !chrome.storage || !chrome.runtime || !chrome.runtime.id) {
+  if (!R?.isContextValid()) {
     done({ redirected: false, blocked: false });
     return;
   }
@@ -46,26 +47,22 @@ function setFromSettings(callback) {
     done({ redirected: false, blocked: false });
     return;
   }
-  try {
-    chrome.storage.sync.get(['forceCoupangListSize', 'coupangListSize'], result => {
-      if (!result.forceCoupangListSize) {
-        S.clearListSizeGoing();
-        done({ redirected: false, blocked: false });
-        return;
-      }
-      const listSize = String(result.coupangListSize || '72');
-      if (!urlMatches(listSize)) {
-        const redirected = redirectOnce(listSize);
-        done({ redirected, blocked: !redirected });
-        return;
-      }
+  R.syncGet(['forceCoupangListSize', 'coupangListSize'], result => {
+    if (!result.forceCoupangListSize) {
       S.clearListSizeGoing();
-      syncListSizeRadio(listSize);
       done({ redirected: false, blocked: false });
-    });
-  } catch (e) {
+      return;
+    }
+    const listSize = String(result.coupangListSize || '72');
+    if (!urlMatches(listSize)) {
+      const redirected = redirectOnce(listSize);
+      done({ redirected, blocked: !redirected });
+      return;
+    }
+    S.clearListSizeGoing();
+    syncListSizeRadio(listSize);
     done({ redirected: false, blocked: false });
-  }
+  });
 }
 
 A.listSize = Object.freeze({

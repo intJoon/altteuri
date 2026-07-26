@@ -5,6 +5,7 @@ const {
   getSortableProductItems, clearRankMark, isSortVisibleItem,
   applySortedProductOrder, restoreNativeRankOrder, setCustomSortSurface, updateRankMark
 } = A.core;
+const R = globalThis.AltteuriRuntime;
 
 const SORT_KINDS = ['unit', 'discount', 'price'];
 const LEGACY_BADGE_SELECTORS = {
@@ -74,29 +75,23 @@ function clearOriginalProductOrder() {
 }
 
 function saveActiveSort(kind) {
-  try {
-    if (!window.chrome || !chrome.storage || !chrome.storage.local || !chrome.runtime || !chrome.runtime.id) return;
-    chrome.storage.local.set({
-      altActiveSort: kind || null,
-      altSortQuery: kind ? (A.keyword.getSearchQueryKey() || '') : null
-    });
-  } catch (e) {}
+  if (!R?.isContextValid()) return;
+  R.localSet({
+    altActiveSort: kind || null,
+    altSortQuery: kind ? (A.keyword.getSearchQueryKey() || '') : null
+  });
 }
 
 function getActiveSort(callback) {
-  try {
-    if (!window.chrome || !chrome.storage || !chrome.storage.local || !chrome.runtime || !chrome.runtime.id) {
-      callback(null);
-      return;
-    }
-    chrome.storage.local.get(['altActiveSort', 'altSortQuery'], r => {
-      if (!r.altActiveSort) { callback(null); return; }
-      if ((r.altSortQuery || '') !== (A.keyword.getSearchQueryKey() || '')) { callback(null); return; }
-      callback(r.altActiveSort);
-    });
-  } catch (e) {
+  if (!R?.isContextValid()) {
     callback(null);
+    return;
   }
+  R.localGet(['altActiveSort', 'altSortQuery'], r => {
+    if (!r.altActiveSort) { callback(null); return; }
+    if ((r.altSortQuery || '') !== (A.keyword.getSearchQueryKey() || '')) { callback(null); return; }
+    callback(r.altActiveSort);
+  });
 }
 
 const SORT_CONFIGS = {
@@ -230,7 +225,8 @@ function runSort(kind, orderOverride) {
   };
 
   if (orderOverride != null || !config.orderKey) execute({});
-  else chrome.storage.sync.get([config.orderKey], execute);
+  else if (R?.isContextValid()) R.syncGet([config.orderKey], execute);
+  else execute({});
 }
 
 function runSortWithOrder(kind, order) {
@@ -347,7 +343,7 @@ function createArrowButton(config, initialOrder) {
   button.onclick = event => {
     event.stopPropagation();
     currentOrder = currentOrder === 'asc' ? 'desc' : 'asc';
-    chrome.storage.sync.set({ [config.orderKey]: currentOrder }, () => {
+    R.syncSet({ [config.orderKey]: currentOrder }, () => {
       render();
       if (activeKind === config.kind) runSort(config.kind, currentOrder);
     });
@@ -383,77 +379,73 @@ function whenProductListReady(fn) {
 
 function addSortButton(kind) {
   const config = SORT_CONFIGS[kind];
-  if (!window.chrome || !chrome.storage || !chrome.runtime || !chrome.runtime.id) return;
+  if (!R?.isContextValid()) return;
   ensureSortStyles();
   const keys = config.orderKey ? [config.enabledKey, config.orderKey] : [config.enabledKey];
-  try {
-    chrome.storage.sync.get(keys, result => {
-      if (!result[config.enabledKey]) return;
-      const productList = document.querySelector(SELECTORS.productList);
-      if (!productList || productList.querySelectorAll(SELECTORS.productItem).length === 0) return;
-      const sortUl = document.querySelector(SELECTORS.sortList);
-      if (!sortUl || sortUl.querySelector(config.selector)) return;
+  R.syncGet(keys, result => {
+    if (!result[config.enabledKey]) return;
+    const productList = document.querySelector(SELECTORS.productList);
+    if (!productList || productList.querySelectorAll(SELECTORS.productItem).length === 0) return;
+    const sortUl = document.querySelector(SELECTORS.sortList);
+    if (!sortUl || sortUl.querySelector(config.selector)) return;
 
-      const li = document.createElement('li');
-      li.className = config.className;
-      li.style.cursor = '';
-      li.style.display = config.display;
-      li.style.alignItems = config.display === 'flex' ? 'center' : '';
-      const input = document.createElement('input');
-      input.type = 'radio';
-      input.readOnly = true;
-      input.name = 'customSortGroup';
-      input.id = config.inputId;
-      input.value = config.inputValue;
-      input.style.display = 'none';
-      const label = document.createElement('label');
-      label.setAttribute('for', config.inputId);
-      label.textContent = config.label;
-      label.style.fontWeight = '';
-      label.style.fontSize = '';
-      label.style.padding = '';
-      label.style.color = '';
-      label.style.cursor = '';
-      li.append(input, label);
-      if (config.orderKey) {
-        li.appendChild(createArrowButton(config, result[config.orderKey] || config.defaultOrder));
+    const li = document.createElement('li');
+    li.className = config.className;
+    li.style.cursor = '';
+    li.style.display = config.display;
+    li.style.alignItems = config.display === 'flex' ? 'center' : '';
+    const input = document.createElement('input');
+    input.type = 'radio';
+    input.readOnly = true;
+    input.name = 'customSortGroup';
+    input.id = config.inputId;
+    input.value = config.inputValue;
+    input.style.display = 'none';
+    const label = document.createElement('label');
+    label.setAttribute('for', config.inputId);
+    label.textContent = config.label;
+    label.style.fontWeight = '';
+    label.style.fontSize = '';
+    label.style.padding = '';
+    label.style.color = '';
+    label.style.cursor = '';
+    li.append(input, label);
+    if (config.orderKey) {
+      li.appendChild(createArrowButton(config, result[config.orderKey] || config.defaultOrder));
+    }
+    li.onclick = event => {
+      event.preventDefault();
+      deactivateOtherSorts(kind, sortUl);
+      if (activeKind === kind) {
+        deactivateCustomSort(kind);
+      } else {
+        runSort(kind);
       }
-      li.onclick = event => {
-        event.preventDefault();
-        deactivateOtherSorts(kind, sortUl);
-        if (activeKind === kind) {
-          deactivateCustomSort(kind);
-        } else {
-          runSort(kind);
-        }
-      };
-      sortUl.appendChild(li);
-      updateSpecialSortSeparator();
-      ensureSortOptionListener(sortUl);
-    });
-  } catch (e) {}
+    };
+    sortUl.appendChild(li);
+    updateSpecialSortSeparator();
+    ensureSortOptionListener(sortUl);
+  });
 }
 
 function restoreSort(kind) {
   const config = SORT_CONFIGS[kind];
-  if (!window.chrome || !chrome.storage || !chrome.runtime || !chrome.runtime.id) return;
-  try {
-    chrome.storage.sync.get([config.enabledKey], result => {
-      if (!result[config.enabledKey]) return;
-      getActiveSort(storedKind => {
-        if (storedKind !== kind) return;
-        const trySort = () => {
-          if (A.page.isProductListFullyLoaded()) {
-            updateSortButtonUI(kind);
-            runSort(kind);
-          } else {
-            setTimeout(trySort, 30);
-          }
-        };
-        trySort();
-      });
+  if (!R?.isContextValid()) return;
+  R.syncGet([config.enabledKey], result => {
+    if (!result[config.enabledKey]) return;
+    getActiveSort(storedKind => {
+      if (storedKind !== kind) return;
+      const trySort = () => {
+        if (A.page.isProductListFullyLoaded()) {
+          updateSortButtonUI(kind);
+          runSort(kind);
+        } else {
+          setTimeout(trySort, 30);
+        }
+      };
+      trySort();
     });
-  } catch (e) {}
+  });
 }
 
 function healMissingButtons() {

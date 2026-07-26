@@ -1,6 +1,7 @@
 (() => {
   const S = globalThis.AltteuriShared;
-  if (!S) return;
+  const R = globalThis.AltteuriRuntime;
+  if (!S || !R?.isContextValid()) return;
 
   function applyRemoverCss(enabled, offList) {
     const style = S.ensureStyleElement(S.EARLY_STYLE_ID);
@@ -9,16 +10,13 @@
     style.textContent = S.buildRemoverHideCss(enabled, offList, items);
   }
 
-  if (!globalThis.chrome || !chrome.storage || !chrome.runtime || !chrome.runtime.id) return;
-  try {
-    chrome.storage.sync.get(
-      ['elementRemoverEnabled', 'altPresetOff', 'forceCoupangListSize', 'coupangListSize'],
-      result => {
-        applyRemoverCss(!!result.elementRemoverEnabled, result.altPresetOff || []);
-        if (result.forceCoupangListSize) {
-          S.redirectListSizeOnce(String(result.coupangListSize || '72'));
-        }
+  R.syncGet(
+    ['elementRemoverEnabled', 'altPresetOff', 'forceCoupangListSize', 'coupangListSize'],
+    result => {
+      applyRemoverCss(!!result.elementRemoverEnabled, result.altPresetOff || []);
+      if (result.forceCoupangListSize) {
+        S.redirectListSizeOnce(String(result.coupangListSize || '72'));
       }
-    );
-  } catch (e) {}
+    }
+  );
 })();

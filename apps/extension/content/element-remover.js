@@ -1,5 +1,6 @@
 ((A) => {
 const S = globalThis.AltteuriShared;
+const R = globalThis.AltteuriRuntime;
 let altRemoverEnabled = false;
 let activeHideSelectors = [];
 
@@ -9,8 +10,11 @@ function altPresetItems() {
 }
 
 function altGetOff(cb) {
-  try { chrome.storage.sync.get(['altPresetOff'], r => cb(new Set(r.altPresetOff || []))); }
-  catch { cb(new Set()); }
+  if (!R?.isContextValid()) {
+    cb(new Set());
+    return;
+  }
+  R.syncGet(['altPresetOff'], r => cb(new Set(r.altPresetOff || [])));
 }
 
 function writeHideCss(enabled, off) {
@@ -45,11 +49,11 @@ function isItemHidden(item) {
 
 function applyHiddenElements(opts) {
   const reapplySort = !!(opts && opts.reapplySort);
-  if (!window.chrome || !chrome.storage || !chrome.runtime || !chrome.runtime.id) {
+  if (!R?.isContextValid()) {
     if (reapplySort) A.sort.reapplySortIfNeeded();
     return;
   }
-  chrome.storage.sync.get(['elementRemoverEnabled'], result => {
+  R.syncGet(['elementRemoverEnabled'], result => {
     altRemoverEnabled = !!result.elementRemoverEnabled;
     altGetOff(off => {
       writeHideCss(altRemoverEnabled, off);
@@ -59,7 +63,7 @@ function applyHiddenElements(opts) {
 }
 
 function initElementRemover() {
-  if (!window.chrome || !chrome.storage || !chrome.runtime || !chrome.runtime.id) return;
+  if (!R?.isContextValid()) return;
   applyHiddenElements();
 }
 

@@ -1,5 +1,6 @@
 ((A) => {
 const { SELECTORS } = A.core;
+const R = globalThis.AltteuriRuntime;
 const RECONCILE_MS = 30;
 const RECONCILE_DEBOUNCE_MS = 50;
 const URL_WATCH_MS = 1000;
@@ -73,22 +74,17 @@ function productListLength() {
 }
 
 function refreshForcedListSize(done) {
-  if (!window.chrome || !chrome.storage || !chrome.runtime || !chrome.runtime.id) {
+  if (!R?.isContextValid()) {
     forcedListSize = null;
     if (typeof done === 'function') done();
     return;
   }
-  try {
-    chrome.storage.sync.get(['forceCoupangListSize', 'coupangListSize'], result => {
-      forcedListSize = result.forceCoupangListSize
-        ? String(result.coupangListSize || '72')
-        : null;
-      if (typeof done === 'function') done();
-    });
-  } catch (e) {
-    forcedListSize = null;
+  R.syncGet(['forceCoupangListSize', 'coupangListSize'], result => {
+    forcedListSize = result.forceCoupangListSize
+      ? String(result.coupangListSize || '72')
+      : null;
     if (typeof done === 'function') done();
-  }
+  });
 }
 
 function listSizeUrlMismatch() {
@@ -174,30 +170,22 @@ function applyPageFeatures(opts, storage) {
 function mountCustoms(opts, done) {
   const finish = () => { if (typeof done === 'function') done(); };
   const options = opts || {};
-  if (!window.chrome || !chrome.storage || !chrome.runtime || !chrome.runtime.id) {
+  if (!R?.isContextValid()) {
     applyPageFeatures(options, {});
     finish();
     return;
   }
-  try {
-    chrome.storage.sync.get(
-      ['unitPriceSortOrder', 'priceSortOrder'],
-      syncResult => {
-        chrome.storage.local.get(['altActiveSort', 'altSortQuery'], localResult => {
-          applyPageFeatures(options, Object.assign({}, syncResult, localResult));
-          pageOpts = {
-            resetActive: false,
-            restore: !!options.restore,
-            forceFull: false
-          };
-          finish();
-        });
-      }
-    );
-  } catch (e) {
-    applyPageFeatures(options, {});
-    finish();
-  }
+  R.syncGet(['unitPriceSortOrder', 'priceSortOrder'], syncResult => {
+    R.localGet(['altActiveSort', 'altSortQuery'], localResult => {
+      applyPageFeatures(options, Object.assign({}, syncResult, localResult));
+      pageOpts = {
+        resetActive: false,
+        restore: !!options.restore,
+        forceFull: false
+      };
+      finish();
+    });
+  });
 }
 
 function healMissingCustoms() {

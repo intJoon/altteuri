@@ -235,6 +235,8 @@ test('listSize setFromSettings reports redirect via callback', async () => {
   context.Altteuri = { core: { SELECTORS: { listSizeSelectedClass: 'ListSizeOption_selected__Ym5KI' } } };
   const shared = await readFile(resolve(extension, 'content/shared-start.js'), 'utf8');
   vm.runInContext(shared, context, { filename: 'content/shared-start.js' });
+  const runtimeUtils = await readFile(resolve(extension, 'lib/runtime-utils.js'), 'utf8');
+  vm.runInContext(runtimeUtils, context, { filename: 'lib/runtime-utils.js' });
   const source = await readFile(resolve(extension, 'content/list-size.js'), 'utf8');
   vm.runInContext(source, context, { filename: 'content/list-size.js' });
 

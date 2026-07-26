@@ -1,4 +1,5 @@
 ((A) => {
+const R = globalThis.AltteuriRuntime;
 let excludedKeywords = [];
 let keywordFilterContainer = null;
 let keywordFilterEnabled = false;
@@ -182,18 +183,16 @@ function shouldHideByKeyword(item) {
 }
 
 function applyProductVisibility() {
-  if (!window.chrome || !chrome.storage || !chrome.runtime || !chrome.runtime.id) return;
-  try {
-    chrome.storage.sync.get(['keywordFilterEnabled'], result => {
-      keywordFilterEnabled = !!result.keywordFilterEnabled;
-      const productList = document.querySelector(A.core.SELECTORS.productList);
-      if (!productList) return;
-      A.core.getProductItems(productList).forEach(item => {
-        const hideKeyword = keywordFilterEnabled && shouldHideByKeyword(item);
-        item.style.display = hideKeyword ? 'none' : '';
-      });
+  if (!R?.isContextValid()) return;
+  R.syncGet(['keywordFilterEnabled'], result => {
+    keywordFilterEnabled = !!result.keywordFilterEnabled;
+    const productList = document.querySelector(A.core.SELECTORS.productList);
+    if (!productList) return;
+    A.core.getProductItems(productList).forEach(item => {
+      const hideKeyword = keywordFilterEnabled && shouldHideByKeyword(item);
+      item.style.display = hideKeyword ? 'none' : '';
     });
-  } catch (e) {}
+  });
 }
 
 function reapplyKeywordFilterSoon() {
@@ -205,48 +204,35 @@ function reapplyKeywordFilterSoon() {
 }
 
 function loadExcludedKeywords() {
-  if (!window.chrome || !chrome.storage || !chrome.runtime || !chrome.runtime.id) return;
-  try {
-    chrome.storage.sync.get(['excludedKeywords', 'excludedKeywordsForQuery', 'excludedKeywordsSessionKey'], result => {
-      const currentQuery = getSearchQueryKey();
-      const storedQuery = normalizeStoredSearchQuery(
-        result.excludedKeywordsForQuery ?? result.excludedKeywordsSessionKey ?? null
-      );
-      if (currentQuery !== null && storedQuery !== null && storedQuery !== currentQuery) {
-        excludedKeywords = [];
-        chrome.storage.sync.set({
-          excludedKeywords: [],
-          excludedKeywordsForQuery: currentQuery
-        });
-      } else {
-        excludedKeywords = result.excludedKeywords || [];
-      }
-      lastTrackedSearchQuery = currentQuery;
-      renderKeywordFilterTags();
-      applyProductVisibility();
-    });
-  } catch (e) {
-    excludedKeywords = [];
-  }
+  if (!R?.isContextValid()) return;
+  R.syncGet(['excludedKeywords', 'excludedKeywordsForQuery', 'excludedKeywordsSessionKey'], result => {
+    const currentQuery = getSearchQueryKey();
+    const storedQuery = normalizeStoredSearchQuery(
+      result.excludedKeywordsForQuery ?? result.excludedKeywordsSessionKey ?? null
+    );
+    if (currentQuery !== null && storedQuery !== null && storedQuery !== currentQuery) {
+      excludedKeywords = [];
+      R.syncSet({
+        excludedKeywords: [],
+        excludedKeywordsForQuery: currentQuery
+      });
+    } else {
+      excludedKeywords = result.excludedKeywords || [];
+    }
+    lastTrackedSearchQuery = currentQuery;
+    renderKeywordFilterTags();
+    applyProductVisibility();
+  });
 }
 
 function saveExcludedKeywords(callback) {
-  if (!window.chrome || !chrome.storage || !chrome.runtime || !chrome.runtime.id) return;
-  const R = globalThis.AltteuriRuntime;
-  const persist = () => {
-    chrome.storage.sync.set({
-      excludedKeywords: excludedKeywords,
-      excludedKeywordsForQuery: getSearchQueryKey() ?? ''
-    }, () => {
-      const err = chrome.runtime.lastError;
-      if (R && err) R.logWarn('keyword.save', err);
-      if (typeof callback === 'function') callback(err || null);
-    });
-  };
-  if (R) R.runSafe('keyword.save', persist);
-  else {
-    try { persist(); } catch (e) {}
-  }
+  if (!R?.isContextValid()) return;
+  R.syncSet({
+    excludedKeywords: excludedKeywords,
+    excludedKeywordsForQuery: getSearchQueryKey() ?? ''
+  }, (err) => {
+    if (typeof callback === 'function') callback(err || null);
+  });
 }
 
 function applyKeywordFilter() {
@@ -441,33 +427,31 @@ function handleEnabledChange() {
 }
 
 function addKeywordFilterFeature(retryCount = 0) {
-  if (!window.chrome || !chrome.storage || !chrome.runtime || !chrome.runtime.id) return;
-  try {
-    chrome.storage.sync.get(['keywordFilterEnabled'], result => {
-      keywordFilterEnabled = !!result.keywordFilterEnabled;
-      if (!keywordFilterEnabled) {
-        
-        removeKeywordFilterUI();
-        unhideAllProducts();
-        return;
-      }
+  if (!R?.isContextValid()) return;
+  R.syncGet(['keywordFilterEnabled'], result => {
+    keywordFilterEnabled = !!result.keywordFilterEnabled;
+    if (!keywordFilterEnabled) {
+      
+      removeKeywordFilterUI();
+      unhideAllProducts();
+      return;
+    }
 
-      if (document.querySelector('[data-alt-keyword-filter]')) {
-        ensureKeywordFilterPresent();
-        observeSearchResubmit();
-        loadExcludedKeywords();
-        return;
-      }
-
-      const created = createKeywordFilterUI();
-      if (!created && retryCount < 15) {
-        setTimeout(() => addKeywordFilterFeature(retryCount + 1), 400);
-        return;
-      }
+    if (document.querySelector('[data-alt-keyword-filter]')) {
+      ensureKeywordFilterPresent();
       observeSearchResubmit();
       loadExcludedKeywords();
-    });
-  } catch (e) {}
+      return;
+    }
+
+    const created = createKeywordFilterUI();
+    if (!created && retryCount < 15) {
+      setTimeout(() => addKeywordFilterFeature(retryCount + 1), 400);
+      return;
+    }
+    observeSearchResubmit();
+    loadExcludedKeywords();
+  });
 }
 
 A.keyword = Object.freeze({

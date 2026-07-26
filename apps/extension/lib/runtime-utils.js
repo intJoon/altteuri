@@ -128,8 +128,17 @@
     }
   }
 
+  function isContextValid() {
+    try {
+      return !!(globalThis.chrome?.runtime?.id);
+    } catch {
+      return false;
+    }
+  }
+
   globalThis.AltteuriRuntime = Object.freeze({
     isDevBuild,
+    isContextValid,
     logWarn,
     runSafe,
     syncGet,
