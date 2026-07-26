@@ -1,12 +1,12 @@
-# HyperFrames Plan — 알뜰이 Shorts
+# HyperFrames 계획 — 알뜰이 Shorts
 
-- **Output:** `out/altteuri-intro.mp4`
-- **Size:** 1080×1920 · 30fps · **29s**
-- **Composition:** monolithic `index.html` (`data-composition-id="main"`)
-- **Audio:** silent (platform BGM)
-- **Brand:** `#346aff` / `#eef3ff` / IBM Plex Sans KR + Outfit
+- **산출물:** `out/altteuri-intro.mp4`
+- **크기:** 1080×1920 · 30fps · **29초**
+- **구성:** 단일 `index.html` (`data-composition-id="main"`)
+- **오디오:** 무음 (플랫폼 BGM 사용)
+- **브랜드:** `#346aff` / `#eef3ff` / IBM Plex Sans KR + Outfit
 
-## Render
+## 렌더
 
 ```bash
 cd assets/video/shorts

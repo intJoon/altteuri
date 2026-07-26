@@ -81,6 +81,7 @@ test('R5: unchecked presets are the only hidden selectors', async () => {
 test('R6: marketing site is feedback read-only', async () => {
   const html = await readFile(resolve(webPublic, 'index.html'), 'utf8');
   assert.doesNotMatch(html, /id="feedback-submit"|id="btn-feedback-submit"|<textarea/);
+  assert.doesNotMatch(html, /id="video"|intro\.mp4|소개 영상/);
   assert.match(html, /id="feedback-list"/);
   const feedbackJs = await readFile(resolve(webPublic, 'feedback.js'), 'utf8');
   assert.doesNotMatch(feedbackJs, /method:\s*['"]POST['"]/);

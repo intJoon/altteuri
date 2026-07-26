@@ -19,6 +19,7 @@ const operationalDocs = [
   "README.md",
   "CONTRIBUTING.md",
   "apps/web/README.md",
+  "assets/store/README.md",
 ];
 
 const stalePathPatterns = [
@@ -33,6 +34,7 @@ const stalePathPatterns = [
   /\b`extension\/legal\.html`/,
   /\b`web\/public\//,
   /\bcd video\/shorts\b/,
+  /\bsync:intro\b/,
 ];
 
 test("manifest version matches current docs", () => {
@@ -64,11 +66,16 @@ test("operational docs avoid stale repository paths", () => {
   }
 });
 
-test("intro site install path matches repository layout", () => {
+test("site install path matches repository layout", () => {
   const indexHtml = read("apps/web/public/index.html");
   assert.match(indexHtml, /apps\/extension\//);
   const version = JSON.parse(read("apps/extension/manifest.json")).version;
   assert.match(indexHtml, new RegExp(`styles\\.css\\?v=${version}`));
+});
+
+test("landing site has no intro video", () => {
+  const indexHtml = read("apps/web/public/index.html");
+  assert.doesNotMatch(indexHtml, /id="video"|intro\.mp4|소개 영상/);
 });
 
 test("version.json matches manifest", () => {

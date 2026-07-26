@@ -1,34 +1,34 @@
-# Chrome Web Store listing — 알뜰이
+# Chrome 웹 스토어 등록 — 알뜰이
 
-Store submission checklist and copy. Keep in sync with `apps/extension/manifest.json` and [`README.md`](../README.md).
+스토어 제출 체크리스트와 등록 문구. `apps/extension/manifest.json`, [`README.md`](../README.md)와 맞춥니다.
 
-## Build upload package
+## 업로드 패키지 빌드
 
 ```bash
 npm run build:extension
 ```
 
-Output: `dist/altteuri-extension-v{version}.zip` (manifest at zip root).
+산출물: `dist/altteuri-extension-v{version}.zip` (manifest가 zip 루트).
 
-## Required assets
+## 필수 에셋
 
-| Asset | Size | File / source |
+| 에셋 | 크기 | 파일 / 출처 |
 | --- | --- | --- |
-| Icon | 128×128 | `apps/extension/assets/icons/icon128.png` (source: `assets/brand/`) |
-| Screenshots | 1280×800 (min 1, max 5) | Capture from `assets/store/screenshots/*.html` or live extension |
-| Promo tile (optional) | 440×280 | `assets/store/promo-tile.svg` → export PNG |
-| Small promo (optional) | 440×280 | Same as promo tile |
+| 아이콘 | 128×128 | `apps/extension/assets/icons/icon128.png` (원본: `assets/brand/`) |
+| 스크린샷 | 1280×800 (최소 1, 최대 5) | `assets/store/screenshots/*.html` 또는 실제 확장 캡처 |
+| 프로모 타일(선택) | 440×280 | `assets/store/promo-tile.svg` → PNG 내보내기 |
+| 소형 프로모(선택) | 440×280 | 프로모 타일과 동일 |
 
-Open each HTML under `assets/store/screenshots/` in Chrome at 100% zoom, DevTools → capture full size screenshot, or use OS screenshot at 1280×800.
+`assets/store/screenshots/` 아래 HTML을 Chrome 100% 줌으로 연 뒤 DevTools → 전체 크기 스크린샷, 또는 OS 스크린샷 1280×800.
 
-## Listing copy (Korean — primary)
+## 등록 문구 (한국어)
 
-**Name:** 알뜰이
+**이름:** 알뜰이
 
-**Summary (132 chars max):**  
+**요약(132자 이내):**  
 쿠팡 검색에서 단위가격·할인율·가격 정렬, 키워드 필터, 표시 항목 조정. 모든 기능은 꺼진 채로 시작하며 사용자가 켭니다.
 
-**Description:**
+**설명:**
 
 ```
 쿠팡 검색 결과를 더 알뜰하게 비교하는 Chrome 확장입니다.
@@ -56,42 +56,42 @@ Open each HTML under `assets/store/screenshots/` in Chrome at 100% zoom, DevTool
 홈페이지: https://altteuri.vercel.app/
 ```
 
-**Category:** Shopping
+**카테고리:** Shopping
 
-**Language:** Korean
+**언어:** Korean
 
-**Privacy policy URL:** https://altteuri.vercel.app/legal.html#privacy
+**개인정보처리방침 URL:** https://altteuri.vercel.app/legal.html#privacy
 
-**Homepage URL:** https://altteuri.vercel.app/ (also in manifest)
+**홈페이지 URL:** https://altteuri.vercel.app/ (manifest에도 동일)
 
-## Permission justification (review)
+## 권한·호스트 사유 (심사용)
 
-| Permission / host | User-facing reason |
+| 권한 / 호스트 | 사용자 대면 사유 |
 | --- | --- |
-| `storage` | Save per-feature settings locally |
-| `tabs` | Reload Coupang tabs after settings migration; open legal/feedback links |
-| `https://www.coupang.com/*` | Run on Coupang search and related pages |
-| `https://cart.coupang.com/*`, `https://mc.coupang.com/*` | Apply display presets on cart and order pages |
-| `https://altteuri.vercel.app/*` | Submit and list optional public feedback |
+| `storage` | 기능별 설정을 로컬에 저장 |
+| `tabs` | 설정 마이그레이션 후 쿠팡 탭 새로고침, 법적·의견 링크 열기 |
+| `https://www.coupang.com/*` | 쿠팡 검색·관련 페이지에서 동작 |
+| `https://cart.coupang.com/*`, `https://mc.coupang.com/*` | 장바구니·주문 페이지 표시 프리셋 |
+| `https://altteuri.vercel.app/*` | 선택적 공개 의견 제출·목록 |
 
-## Single purpose
+## 단일 목적
 
-Provide optional shopping-assist tools (sort, filter, display presets) on Coupang pages the user already visits. No unrelated browsing modification.
+사용자가 이미 방문하는 쿠팡 페이지에서 정렬·필터·표시 프리셋 등 선택적 쇼핑 보조. 무관한 브라우징 변경 없음.
 
-## Data use
+## 데이터 사용
 
-- Settings: `chrome.storage.sync` only, not sent to servers.
-- Feedback (optional): text + extension version to Vercel API; may appear in public list. See privacy policy.
+- 설정: `chrome.storage.sync`만 사용, 서버로 전송하지 않음.
+- 의견(선택): 텍스트 + 확장 버전을 Vercel API로 전송, 공개 목록에 표시될 수 있음. 개인정보처리방침 참고.
 
-## Pre-submit QA
+## 제출 전 QA
 
-1. `npm run build:extension` — zip loads in `chrome://extensions` → Load unpacked equivalent test via zip install if available, or verify zip structure.
-2. Run [`docs/QC.md`](QC.md) manual checklist on the zipped build.
-3. Confirm `minimum_chrome_version` is **105** (`:has()` presets).
-4. Confirm gray icon when all features off, colored when any on.
+1. `npm run build:extension` — zip을 `chrome://extensions`에서 로드 가능한지 확인.
+2. [`docs/QC.md`](QC.md) 수동 체크리스트를 빌드에 실행.
+3. `minimum_chrome_version` **105** 확인 (`:has()` 프리셋).
+4. 기능 전부 꺼짐 → 회색 아이콘, 하나라도 켜짐 → 컬러 아이콘.
 
-## After publish
+## 게시 후
 
-- Update `apps/web/public/index.html` install CTA with Chrome Web Store URL.
-- Update `README.md` Install section with store link.
-- Tag release on GitHub matching manifest version.
+- `apps/web/public/index.html` 설치 CTA에 Chrome 웹 스토어 URL 추가.
+- `README.md` 설치 섹션에 스토어 링크 추가.
+- manifest 버전과 맞는 GitHub 릴리스 태그.

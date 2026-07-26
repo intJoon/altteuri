@@ -15,7 +15,6 @@
     "generate": "npm run generate:extension-lib && npm run generate:legal",
     "sync:assets": "node tools/scripts/sync-assets.mjs",
     "sync:public-meta": "node tools/scripts/sync-public-meta.mjs",
-    "sync:intro": "node tools/scripts/sync-intro-video.mjs",
     "build:extension": "node tools/scripts/build-extension-zip.mjs",
     "release:check": "node tools/scripts/release.mjs --check",
     "lint": "eslint apps/extension apps/web/api apps/web/lib tools --max-warnings=0"

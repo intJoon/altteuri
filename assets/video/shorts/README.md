@@ -20,11 +20,7 @@ npm run check
 npm run render
 ```
 
-렌더 후 `out/altteuri-intro.mp4`를 `apps/web/public/intro.mp4`로 복사하면 소개 사이트에 반영됩니다.
-
-```bash
-npm run sync:intro   # repo root
-```
+렌더 산출물 `out/altteuri-intro.mp4`는 SNS·스토어 등에 직접 업로드합니다.
 
 미리보기: `npx hyperframes preview`
 

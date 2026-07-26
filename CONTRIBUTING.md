@@ -1,6 +1,6 @@
-# Contributing to Altteuri
+# 기여 가이드
 
-## Before you open a PR
+## PR 전 확인
 
 ```bash
 npm ci
@@ -11,29 +11,19 @@ npm run lint
 npm run build:extension
 ```
 
-Legal markdown changes: `npm run generate:legal && npm test`
+- 법적 문서: `npm run generate:legal && npm test`
+- 공유 로직: `npm run generate:extension-lib && npm test`
 
-Shared logic changes: `npm run generate:extension-lib && npm test`
+## 함께 수정할 항목
 
-User-facing docs: Korean unless the file is English by convention (README, commits, PRs).
+| 변경 | 함께 확인 |
+|------|-----------|
+| 설정 키 | `apps/extension/lib/settings-defaults.js`, 팝업 UI, `settings-bridge.js`, `docs/업그레이드.md`, 테스트 |
+| 쿠팡 DOM | `content/selectors.js`, `lib/preset-data.js`, `docs/출처.md`, `docs/QC.md`, 셀렉터 스모크 |
+| 온보딩 | `content/onboarding-banner.js`, e2e 스모크 |
+| 브랜드 아이콘 | `assets/brand/`, `npm run sync:assets` |
+| 릴리스 | `node tools/scripts/release.mjs <semver>`, `docs/버전.md` |
+| 공개 origin | `shared/site-config.mjs`, manifest `homepage_url`, `npm run generate:legal` |
+| 확장 버전 | manifest, `docs/버전.md`, `npm run sync:public-meta` |
 
-## What to update together
-
-| Change | Also review |
-|--------|-------------|
-| New setting key | `apps/extension/lib/settings-defaults.js`, popup UI, `settings-bridge.js`, `docs/업그레이드.md`, tests |
-| Coupang DOM selector | `content/selectors.js`, `lib/preset-data.js`, `docs/출처.md`, `docs/QC.md`, selector smoke test |
-| Onboarding UX | `content/onboarding-banner.js`, e2e smoke test |
-| Intro video | `assets/video/shorts/compositions/`, `npm run sync:intro` |
-| Brand icons | `assets/brand/`, `npm run sync:assets` |
-| Release | `node tools/scripts/release.mjs <semver>`, `docs/버전.md`, `docs/QC.md` |
-| Public site origin | `shared/site-config.mjs`, manifest `homepage_url`, `npm run generate:legal` |
-| Extension version | manifest, `docs/버전.md`, `npm run sync:public-meta` |
-
-## Architecture
-
-- Content scripts: `document_start` (early hide) → `document_idle` (features).
-- `chrome.storage.onChanged` only in `content/settings-bridge.js`.
-- Pure logic: `shared/pure-logic.mjs` → `npm run generate:extension-lib`.
-
-Optional Coupang DOM inspection: `tools/inspect/alt-inspect/` (`CHROME_PATH` if needed).
+구조·검증 원칙: [`docs/방법론.md`](docs/방법론.md)
