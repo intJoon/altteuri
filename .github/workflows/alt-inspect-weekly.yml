@@ -15,7 +15,7 @@ jobs:
         with:
           node-version: "22"
       - run: npm ci --prefix tools/inspect/alt-inspect
-      - uses: browser-actions/setup-chrome@v1
+      - uses: browser-actions/setup-chrome@v2
         id: chrome
       - name: Run Coupang scenario probe
         env:
