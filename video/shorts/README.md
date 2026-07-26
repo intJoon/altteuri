@@ -6,7 +6,7 @@
 
 | 파일 | 설명 |
 | --- | --- |
-| [`out/altteuri-intro.mp4`](out/altteuri-intro.mp4) | 업로드용 MP4 (1080×1920 · 30fps · 27.4초 · 무음) |
+| [`out/altteuri-intro.mp4`](out/altteuri-intro.mp4) | 업로드용 MP4 (1080×1920 · 30fps · 29초 · UI SFX) |
 | [`STORYBOARD.md`](STORYBOARD.md) | 비트·자막 구성 |
 | [`index.html`](index.html) | HyperFrames 소스 |
 
@@ -14,8 +14,12 @@
 
 ```bash
 cd video/shorts
-npx hyperframes render -f 30 -q high -o out/altteuri-intro.mp4
+npm run generate:sfx   # from repo root: npm run generate:sfx
+npm run check
+npm run render
 ```
+
+렌더 후 `out/altteuri-intro.mp4`를 `web/public/intro.mp4`로 복사하면 소개 사이트에 반영됩니다.
 
 미리보기: `npx hyperframes preview`
 

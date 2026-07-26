@@ -5,6 +5,7 @@ desktop.ini
 
 # Dependencies
 node_modules/
+dist/
 
 # Local Chromium/Chrome --user-data-dir (cookies, cache; large)
 profiles/

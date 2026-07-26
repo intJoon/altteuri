@@ -1,7 +1,7 @@
 # HyperFrames Plan — 알뜰이 Shorts
 
 - **Output:** `out/altteuri-intro.mp4`
-- **Size:** 1080×1920 · 30fps · 32s
+- **Size:** 1080×1920 · 30fps · **29s**
 - **Composition:** monolithic `index.html` (`data-composition-id="main"`)
 - **Audio:** silent (platform BGM)
 - **Brand:** `#346aff` / `#eef3ff` / IBM Plex Sans KR + Outfit

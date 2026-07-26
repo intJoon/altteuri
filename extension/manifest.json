@@ -18,8 +18,10 @@
       "matches": ["https://www.coupang.com/*", "https://cart.coupang.com/*", "https://mc.coupang.com/*"],
       "js": [
         "pure-logic.js",
+        "settings-defaults.js",
         "runtime-utils.js",
         "content/shared-start.js",
+        "content/selectors.js",
         "content/core.js",
         "content/keyword-filter.js",
         "content/sort.js",
@@ -27,6 +29,7 @@
         "content/element-remover.js",
         "content/page-runtime.js",
         "content/settings-bridge.js",
+        "content/onboarding-banner.js",
         "content/boot.js"
       ],
       "run_at": "document_idle"

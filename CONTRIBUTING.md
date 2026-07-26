@@ -11,6 +11,7 @@ npm ci
 npm ci --prefix web
 npm test
 npm run lint
+npm run build:extension
 ```
 
 2. If you change legal markdown under `docs/`, regenerate HTML:
@@ -27,7 +28,10 @@ npm test
 | Change | Also review |
 |--------|-------------|
 | New setting key | `extension/settings-defaults.js`, popup UI, `settings-bridge.js`, `docs/업그레이드.md`, tests |
-| Coupang DOM selector | `extension/core.js` or `extension/preset-data.js`, `docs/출처.md`, `docs/QC.md`, selector smoke test |
+| Coupang DOM selector | `extension/content/selectors.js`, `extension/content/core.js` or `extension/preset-data.js`, `docs/출처.md`, `docs/QC.md`, selector smoke test |
+| Onboarding UX | `extension/popup-onboarding.js`, `extension/content/onboarding-banner.js`, e2e smoke test |
+| Intro video | `video/shorts/index.html`, `npm run generate:sfx`, copy render to `web/public/intro.mp4` |
+| Release | `node tools/release.mjs <semver>`, `docs/버전.md`, `docs/QC.md` |
 | Public site origin | `shared/site-config.mjs`, `extension/manifest.json` `homepage_url`, `npm run generate:legal` |
 | Feedback API contract | `web/lib/comments-service.mjs`, `tools/tests/web/`, popup feedback UI |
 | Extension version | `extension/manifest.json`, `docs/버전.md`, cache-bust query on `web/public/index.html` |

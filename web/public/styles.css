@@ -145,10 +145,113 @@ h1 {
 
 .hero-copy {
   max-width: 36em;
-  margin: 18px 0 32px;
+  margin: 18px 0 24px;
   color: var(--text);
   font-size: clamp(18px, 2.2vw, 22px);
   line-height: 1.65;
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
+.hero-note {
+  margin: 16px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.secondary-link {
+  display: inline-flex;
+  min-height: 46px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 20px;
+  border: 1.5px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.secondary-link:hover {
+  border-color: #c9d8ff;
+  background: var(--blue-soft);
+}
+
+.install-section {
+  padding-top: 72px;
+}
+
+.install-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.install-card {
+  padding: 28px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.install-card h3 {
+  margin: 0 0 12px;
+  color: var(--ink);
+  font-size: 20px;
+}
+
+.install-card-muted {
+  background: #fafbff;
+}
+
+.install-steps {
+  margin: 0 0 20px;
+  padding-left: 1.2em;
+  color: var(--text);
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+.install-steps code {
+  font-size: 0.92em;
+}
+
+.install-hint {
+  margin: 12px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.video-section {
+  padding-top: 72px;
+}
+
+.video-panel {
+  display: flex;
+  justify-content: center;
+}
+
+.intro-video {
+  width: min(360px, 100%);
+  height: auto;
+  border-radius: 24px;
+  border: 1px solid var(--line);
+  box-shadow: 0 24px 60px rgba(36, 79, 196, 0.12);
+  background: #000;
+}
+
+.footer-version {
+  margin: 12px 0 0;
+  color: var(--muted);
+  font-size: 13px;
 }
 
 .primary-link,
@@ -1154,7 +1257,8 @@ footer a:hover {
   }
 
   .feature-grid,
-  .notice-grid {
+  .notice-grid,
+  .install-grid {
     grid-template-columns: 1fr;
   }
 

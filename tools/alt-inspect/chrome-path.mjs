@@ -49,8 +49,10 @@ export const START_SCRIPTS = ["preset-data.js", "runtime-utils.js", "content/sha
 /** Matches extension/manifest.json document_idle content_scripts[1].js order. */
 export const IDLE_SCRIPTS = [
   "pure-logic.js",
+  "settings-defaults.js",
   "runtime-utils.js",
   "content/shared-start.js",
+  "content/selectors.js",
   "content/core.js",
   "content/keyword-filter.js",
   "content/sort.js",
@@ -58,6 +60,7 @@ export const IDLE_SCRIPTS = [
   "content/element-remover.js",
   "content/page-runtime.js",
   "content/settings-bridge.js",
+  "content/onboarding-banner.js",
   "content/boot.js",
 ];
 

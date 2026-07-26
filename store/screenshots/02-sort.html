@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Store screenshot — sort</title>
+    <style>
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      html, body { width: 1280px; height: 800px; overflow: hidden; font-family: -apple-system, "Malgun Gothic", sans-serif; background: #f7f8fa; }
+      .wrap { padding: 48px 56px; }
+      h1 { font-size: 36px; color: #212b36; margin-bottom: 8px; }
+      .sub { color: #68717c; font-size: 18px; margin-bottom: 28px; }
+      .panel { background: #fff; border-radius: 16px; border: 1px solid #f0f0f0; padding: 24px; max-width: 900px; }
+      .bar { display: flex; gap: 24px; margin-bottom: 20px; font-size: 15px; color: #888; }
+      .bar .on { color: #346aff; font-weight: 700; border-bottom: 3px solid #346aff; padding-bottom: 6px; }
+      .item {
+        display: grid; grid-template-columns: 72px 1fr auto; gap: 16px; align-items: center;
+        padding: 14px; background: #f8faff; border-radius: 12px; margin-bottom: 12px;
+      }
+      .thumb { width: 72px; height: 72px; border-radius: 12px; background: linear-gradient(145deg, #d9e4ff, #c5d4f8); position: relative; }
+      .rank {
+        position: absolute; top: 6px; left: 6px; width: 24px; height: 24px; border-radius: 6px;
+        background: #346aff; color: #fff; font-size: 13px; font-weight: 700;
+        display: flex; align-items: center; justify-content: center;
+      }
+      .name { font-size: 17px; font-weight: 600; color: #333; }
+      .meta { font-size: 14px; color: #888; margin-top: 4px; }
+      .price { font-size: 18px; font-weight: 700; text-align: right; }
+      .unit { font-size: 14px; color: #2a58d6; font-weight: 600; text-align: right; margin-top: 4px; }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <h1>단위가격순 정렬</h1>
+      <p class="sub">같은 검색어로 새로고침해도 정렬이 유지됩니다.</p>
+      <div class="panel">
+        <div class="bar">
+          <span>쿠팡 랭킹순</span>
+          <span>낮은가격순</span>
+          <span class="on">단위가격순</span>
+        </div>
+        <div class="item">
+          <div class="thumb"><span class="rank">1</span></div>
+          <div><div class="name">액체세제 리필 4L</div><div class="meta">대용량 · 알뜰</div></div>
+          <div><div class="price">23,900원</div><div class="unit">60원/10ml</div></div>
+        </div>
+        <div class="item">
+          <div class="thumb"><span class="rank">2</span></div>
+          <div><div class="name">액체세제 리필 2.4L</div><div class="meta">중간 용량</div></div>
+          <div><div class="price">15,900원</div><div class="unit">66원/10ml</div></div>
+        </div>
+        <div class="item">
+          <div class="thumb"><span class="rank">3</span></div>
+          <div><div class="name">액체세제 리필 1L</div><div class="meta">작은 용량</div></div>
+          <div><div class="price">7,900원</div><div class="unit">79원/10ml</div></div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

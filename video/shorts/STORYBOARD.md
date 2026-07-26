@@ -3,7 +3,7 @@
 | Field | Value |
 | --- | --- |
 | Format | 1080×1920 (9:16) |
-| Duration | 27.4s |
+| Duration | 29s |
 | Platforms | Instagram Reels, YouTube Shorts, Threads |
 | Tone | 밝고 또렷한 쇼핑 도우미 · 실제 조작감 |
 
@@ -16,7 +16,7 @@
 | 3 | 6.8–12.2s | 조작 ① | 팝업에서 원하는 기능만 켜기 | 토글 클릭·ON, 체크리스트가 차례로 켜짐 |
 | 4 | 12.2–17.8s | 조작 ② | 단위가격순으로 정렬 | 커서 탭 → 상품 카드가 단위가 기준으로 재정렬 |
 | 5 | 17.8–23.4s | 조작 ③ | 키워드로 불필요한 결과 숨기기 | 태그 추가 → 해당 카드가 사라지며 나머지 올라옴 |
-| 6 | 23.4–27.4s | CTA | 무료 · GitHub에서 설치 · altteuri.vercel.app | 브랜드 재등장, URL·CTA 고정 |
+| 6 | 23.4–29s | CTA | 무료 · GitHub에서 설치 · altteuri.vercel.app | 브랜드 재등장, URL·CTA 고정, 버튼 펄스 |
 
 ## Captions (burned-in)
 
@@ -24,4 +24,4 @@
 
 ## Audio
 
-무음 렌더 (플랫폼 BGM 업로드용). 필요 시 이후 트랙 추가.
+짧은 UI SFX(토글·정렬·숨김) 포함. BGM은 플랫폼 업로드 시 추가 권장.

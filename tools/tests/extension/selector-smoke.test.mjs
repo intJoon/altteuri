@@ -8,6 +8,12 @@ const repo = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
 const extension = resolve(repo, "extension");
 const manifest = JSON.parse(await readFile(resolve(extension, "manifest.json"), "utf8"));
 
+test("selectors module exposes Coupang DOM constants", async () => {
+  const source = await readFile(resolve(extension, "content/selectors.js"), "utf8");
+  assert.match(source, /productList/);
+  assert.match(source, /productItem/);
+});
+
 test("core selectors keep fallback patterns for Coupang CSS module drift", async () => {
   const core = await readFile(resolve(extension, "content/core.js"), "utf8");
   assert.match(core, /getProductNameEl/);

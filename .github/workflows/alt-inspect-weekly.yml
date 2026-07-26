@@ -1,0 +1,23 @@
+name: alt-inspect-weekly
+
+on:
+  schedule:
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+jobs:
+  alt-inspect-scenarios:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: npm ci --prefix tools/alt-inspect
+      - uses: browser-actions/setup-chrome@v1
+        id: chrome
+      - name: Run Coupang scenario probe
+        env:
+          CHROME_PATH: ${{ steps.chrome.outputs.chrome-path }}
+        run: node tools/alt-inspect/ext-scenarios.mjs

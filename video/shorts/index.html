@@ -202,8 +202,8 @@
     </style>
   </head>
   <body>
-    <div id="root" data-composition-id="main" data-start="0" data-duration="27.4" data-width="1080" data-height="1920">
-      <div id="bg-layer" class="bg-layer" data-track-index="0">
+    <div id="root" data-composition-id="main" data-start="0" data-duration="29" data-width="1080" data-height="1920">
+      <div id="bg-layer" class="bg-layer" data-layout-allow-overflow data-track-index="0">
         <div class="orb orb-a" id="orb-a"></div>
         <div class="orb orb-b" id="orb-b"></div>
         <div class="ghost-word top" id="ghost-a">알뜰</div>
@@ -236,9 +236,11 @@
           <h2 class="headline sm" id="tog-head">원하는 기능만<br /><span class="mark">켜세요</span></h2>
           <div class="popup" id="tog-popup">
             <div class="popup-title"><strong>알뜰이</strong><span>설정</span></div>
-            <div class="popup-section">검색 편의</div>
-            <div class="popup-row"><span>정렬</span><div class="switch" id="sw-sort"><div class="knob" id="kn-sort"></div></div></div>
-            <div class="popup-row"><span>키워드 필터</span><div class="switch" id="sw-filter"><div class="knob" id="kn-filter"></div></div></div>
+            <div class="popup-section">정렬</div>
+            <div class="popup-row"><span>단위가격순</span><div class="switch" id="sw-sort"><div class="knob" id="kn-sort"></div></div></div>
+            <div class="popup-row"><span>할인율순</span><div class="switch" id="sw-disc"><div class="knob" id="kn-disc"></div></div></div>
+            <div class="popup-section">필터</div>
+            <div class="popup-row"><span>키워드 필터링</span><div class="switch" id="sw-filter"><div class="knob" id="kn-filter"></div></div></div>
           </div>
           <svg class="cursor" id="cursor-tog" viewBox="0 0 24 24"><path d="M5.2 2.8l13.1 7.8-5.8 1.3-2.6 5.4z" fill="#1f2937" stroke="#fff" stroke-width="1.3"/></svg>
         </div>
@@ -303,7 +305,7 @@
         </div>
       </div>
 
-      <div id="scene-cta" class="clip scene" data-start="23.4" data-duration="4.0" data-track-index="1">
+      <div id="scene-cta" class="clip scene" data-start="23.4" data-duration="5.6" data-track-index="1">
         <div class="scene-inner" id="cta-inner">
           <div class="cta-wrap">
             <div class="cta-icon" id="cta-icon" style="background:url(assets/icon128.png) center/cover no-repeat"></div>
@@ -315,7 +317,7 @@
         </div>
       </div>
 
-      <div class="caption-bar clip" id="caption" data-start="0" data-duration="27.4" data-track-index="2">
+      <div class="caption-bar clip" id="caption" data-start="0" data-duration="29" data-track-index="2">
         <span class="cap-line" id="cap-0">쿠팡 검색, 아직도 하나씩 비교하세요?</span>
         <span class="cap-line" id="cap-1">알뜰이 · 쿠팡용 Chrome 확장</span>
         <span class="cap-line" id="cap-2">팝업에서 원하는 기능만 켜기</span>
@@ -323,17 +325,22 @@
         <span class="cap-line" id="cap-4">키워드로 불필요한 결과 숨기기</span>
         <span class="cap-line" id="cap-5">무료 · GitHub에서 설치하세요</span>
       </div>
+
+      <audio class="clip" id="sfx-toggle-a" data-start="8.45" data-duration="0.15" data-track-index="3" src="assets/sfx/toggle.wav"></audio>
+      <audio class="clip" id="sfx-toggle-b" data-start="9.2" data-duration="0.15" data-track-index="3" src="assets/sfx/toggle.wav"></audio>
+      <audio class="clip" id="sfx-sort" data-start="14.1" data-duration="0.2" data-track-index="3" src="assets/sfx/sort.wav"></audio>
+      <audio class="clip" id="sfx-hide" data-start="20.0" data-duration="0.25" data-track-index="3" src="assets/sfx/hide.wav"></audio>
     </div>
 
     <script>
       window.__timelines = window.__timelines || {};
       const tl = gsap.timeline({ paused: true });
 
-      tl.fromTo("#orb-a", { scale: 0.92, x: 0 }, { scale: 1.08, x: 40, duration: 27.4, ease: "none" }, 0);
-      tl.fromTo("#orb-b", { scale: 1.05, y: 0 }, { scale: 0.9, y: -50, duration: 27.4, ease: "none" }, 0);
-      tl.fromTo("#ghost-a", { x: 0 }, { x: 60, duration: 27.4, ease: "none" }, 0);
-      tl.fromTo("#ghost-b", { x: 0 }, { x: -80, duration: 27.4, ease: "none" }, 0);
-      tl.fromTo("#progress-fill", { width: "0%" }, { width: "100%", duration: 27.4, ease: "none" }, 0);
+      tl.fromTo("#orb-a", { scale: 0.92, x: 0 }, { scale: 1.08, x: 40, duration: 29, ease: "none" }, 0);
+      tl.fromTo("#orb-b", { scale: 1.05, y: 0 }, { scale: 0.9, y: -50, duration: 29, ease: "none" }, 0);
+      tl.fromTo("#ghost-a", { x: 0 }, { x: 60, duration: 29, ease: "none" }, 0);
+      tl.fromTo("#ghost-b", { x: 0 }, { x: -80, duration: 29, ease: "none" }, 0);
+      tl.fromTo("#progress-fill", { width: "0%" }, { width: "100%", duration: 29, ease: "none" }, 0);
 
       const captionBeats = [
         { id: "cap-0", t: 0.15, until: 3.2 },
@@ -341,20 +348,21 @@
         { id: "cap-2", t: 6.8, until: 12.2 },
         { id: "cap-3", t: 12.2, until: 17.8 },
         { id: "cap-4", t: 17.8, until: 23.4 },
-        { id: "cap-5", t: 23.4, until: 27.4 },
+        { id: "cap-5", t: 23.4, until: 29 },
       ];
       captionBeats.forEach(({ id, t, until }) => {
         tl.set(`#${id}`, { opacity: 0 }, 0);
         tl.fromTo(`#${id}`, { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.3, ease: "power2.out" }, t);
-        if (until < 27.4) tl.to(`#${id}`, { opacity: 0, duration: 0.2, ease: "power1.in" }, until - 0.15);
+        if (until < 29) tl.to(`#${id}`, { opacity: 0, duration: 0.2, ease: "power1.in" }, until - 0.15);
       });
       tl.set("#caption", { opacity: 1 }, 0.1);
 
-      // Hook
+      // Hook — faster punch-in for short-form retention
       tl.set("#hook-inner", { opacity: 1 }, 0);
-      tl.from("#hook-eye", { opacity: 0, y: 24, duration: 0.45, ease: "power2.out" }, 0.15);
-      tl.from("#hook-head", { opacity: 0, y: 48, duration: 0.65, ease: "power3.out" }, 0.35);
-      tl.from("#hook-sub", { opacity: 0, y: 28, duration: 0.5, ease: "power2.out" }, 0.7);
+      tl.from("#hook-eye", { opacity: 0, y: 20, duration: 0.35, ease: "power2.out" }, 0.05);
+      tl.from("#hook-head", { opacity: 0, y: 56, scale: 0.94, duration: 0.5, ease: "power3.out" }, 0.12);
+      tl.fromTo("#hook-head .mark", { scale: 1.2, color: "#244fc4" }, { scale: 1, color: "#2f5ff0", duration: 0.45, ease: "back.out(2)" }, 0.35);
+      tl.from("#hook-sub", { opacity: 0, y: 24, duration: 0.42, ease: "power2.out" }, 0.55);
       tl.to("#hook-inner", { opacity: 0, y: -30, duration: 0.35, ease: "power2.in" }, 2.85);
       tl.set("#hook-inner", { opacity: 0 }, 3.2);
 
@@ -433,7 +441,7 @@
       tl.from("#cta-sub", { opacity: 0, y: 20, duration: 0.4 }, 23.9);
       tl.from("#cta-btn", { opacity: 0, y: 24, scale: 0.94, duration: 0.45, ease: "power2.out" }, 24.15);
       tl.from("#cta-url", { opacity: 0, duration: 0.4 }, 24.45);
-      tl.to("#cta-btn", { scale: 1.04, duration: 0.55, ease: "power1.inOut", yoyo: true, repeat: 1 }, 25.0);
+      tl.to("#cta-btn", { scale: 1.04, duration: 0.55, ease: "power1.inOut", yoyo: true, repeat: 3 }, 25.0);
 
       window.__timelines["main"] = tl;
     </script>

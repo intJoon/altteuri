@@ -13,8 +13,10 @@ const manifest = JSON.parse(await readFile(resolve(extension, 'manifest.json'), 
 const expectedEarlyOrder = ['preset-data.js', 'runtime-utils.js', 'content/shared-start.js', 'content/early.js'];
 const expectedIdleOrder = [
   'pure-logic.js',
+  'settings-defaults.js',
   'runtime-utils.js',
   'content/shared-start.js',
+  'content/selectors.js',
   'content/core.js',
   'content/keyword-filter.js',
   'content/sort.js',
@@ -22,6 +24,7 @@ const expectedIdleOrder = [
   'content/element-remover.js',
   'content/page-runtime.js',
   'content/settings-bridge.js',
+  'content/onboarding-banner.js',
   'content/boot.js'
 ];
 

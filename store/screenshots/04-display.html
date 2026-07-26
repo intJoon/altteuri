@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Store screenshot — display presets</title>
+    <style>
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      html, body { width: 1280px; height: 800px; overflow: hidden; font-family: -apple-system, "Malgun Gothic", sans-serif; background: #f7f8fa; }
+      .wrap { padding: 48px 56px; }
+      h1 { font-size: 36px; color: #212b36; margin-bottom: 8px; }
+      .sub { color: #68717c; font-size: 18px; margin-bottom: 28px; }
+      .grid { display: grid; grid-template-columns: 320px 1fr; gap: 24px; }
+      .panel { background: #fff; border-radius: 16px; border: 1px solid #f0f0f0; padding: 20px; }
+      .row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #f0f0f0; font-size: 15px; }
+      .cbox { width: 22px; height: 22px; border-radius: 6px; background: #346aff; color: #fff; display: flex; align-items: center; justify-content: center; font-size: 14px; }
+      .cbox.off { background: #fff; border: 2px solid #ddd; color: transparent; }
+      .banner { background: #fff7ed; border: 1px dashed #fdba74; border-radius: 12px; padding: 16px; margin-bottom: 16px; color: #9a3412; font-size: 14px; }
+      .item { display: grid; grid-template-columns: 64px 1fr auto; gap: 12px; padding: 12px; background: #f8faff; border-radius: 10px; margin-bottom: 10px; align-items: center; }
+      .thumb { width: 64px; height: 64px; border-radius: 10px; background: #e8ecf4; }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <h1>페이지 표시 항목 조정</h1>
+      <p class="sub">체크 해제한 항목만 숨깁니다.</p>
+      <div class="grid">
+        <div class="panel">
+          <div class="row"><span>검색결과 상단 배너</span><span class="cbox off"></span></div>
+          <div class="row"><span>추천 상품 영역</span><span class="cbox">✓</span></div>
+          <div class="row"><span>필터 사이드바</span><span class="cbox">✓</span></div>
+        </div>
+        <div class="panel">
+          <div class="banner" style="opacity:0.35;text-decoration:line-through">AD · 오늘만 이 가격!</div>
+          <div class="item"><div class="thumb"></div><div>캡형 물티슈 100매 x 10</div><div>15,930원</div></div>
+          <div class="item"><div class="thumb"></div><div>저자극 물티슈 80매 x 10</div><div>12,480원</div></div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

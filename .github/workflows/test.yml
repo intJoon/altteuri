@@ -19,7 +19,9 @@ jobs:
       - run: npm ci
       - run: npm ci --prefix web
       - run: npm test
+      - run: npm run test:e2e
       - run: npm run lint
+      - run: npm run build:extension
 
   selector-smoke:
     runs-on: ubuntu-latest

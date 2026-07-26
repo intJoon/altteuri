@@ -11,10 +11,18 @@ A Chrome extension for sorting, filtering, and simplifying [Coupang](https://www
 
 ## Install
 
+**Website:** [altteuri.vercel.app](https://altteuri.vercel.app/) — install guide, intro video, changelog.
+
+### Load unpacked (current)
+
 1. Open `chrome://extensions`.
 2. Enable **Developer mode**.
 3. Click **Load unpacked**.
 4. Select the `extension/` directory in this repository.
+
+### Chrome Web Store
+
+Store listing copy, screenshots, and upload zip: [`docs/CHROME_WEB_STORE.md`](docs/CHROME_WEB_STORE.md). Build zip with `npm run build:extension`.
 
 ## Development
 
@@ -25,6 +33,8 @@ npm ci
 npm ci --prefix web
 npm test
 npm run lint
+npm run build:extension
+npm run release:check
 ```
 
 Individual suites:
@@ -49,7 +59,9 @@ npm test
 - `extension/` — unpacked Chrome extension
 - `web/` — public site and feedback API
 - `docs/` — methodology, release history, QC, and legal sources
-- `tools/` — legal generation, inspection scripts, automated tests
+- `tools/` — legal generation, release/build scripts, automated tests
+- `video/shorts/` — HyperFrames intro video for Reels/Shorts
+- `store/` — Chrome Web Store screenshot templates and promo tile
 
 ## Privacy and legal
 
@@ -90,4 +102,4 @@ Permission justification for store review:
 | `https://cart.coupang.com/*`, `https://mc.coupang.com/*` | Apply display presets on cart and order-list pages |
 | `https://altteuri.vercel.app/*` | Submit and list optional public feedback |
 
-Distribution today is **Load unpacked** from this repository. Store listing assets and submission are not automated in CI.
+Distribution today is **Load unpacked** from this repository. Store listing assets and submission are documented in [`docs/CHROME_WEB_STORE.md`](docs/CHROME_WEB_STORE.md); run `npm run build:extension` for the upload zip.

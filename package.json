@@ -8,7 +8,11 @@
     "test": "node --test tools/tests/**/*.test.mjs",
     "test:extension": "node --test tools/tests/extension/*.mjs",
     "test:web": "node --test tools/tests/web/*.test.mjs",
+    "test:e2e": "node --test tools/tests/e2e/*.test.mjs",
     "generate:legal": "node tools/generate-legal.mjs",
+    "generate:sfx": "node tools/generate-sfx.mjs",
+    "build:extension": "node tools/build-extension-zip.mjs",
+    "release:check": "node tools/release.mjs --check",
     "lint": "eslint extension web/api web/lib tools --max-warnings=0"
   },
   "devDependencies": {

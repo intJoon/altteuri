@@ -20,5 +20,6 @@ settings.updateToggleState(() => {
   nav.restorePopupPage((name) => {
     if (name !== "main") nav.showPage(name, { skipPersist: true });
   });
+  globalThis.AltteuriPopupOnboarding?.bind();
 });
 })();

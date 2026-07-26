@@ -8,4 +8,5 @@ A.listSize.setFromSettings(({ redirected }) => {
   if (redirected) return;
   A.page.observeProductList();
 });
+globalThis.AltteuriOnboardingBanner?.init();
 })(globalThis.Altteuri ||= {});
