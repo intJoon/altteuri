@@ -69,7 +69,7 @@ npm run lint
 
 
 
-**2.2.6 기준:** 릴리스 직전 `npm test` (**81개**) · `npm run lint` · `npm run build:extension` 통과.
+**2.2.6 기준:** 릴리스 직전 `npm test` (**83개**) · `npm run lint` · `npm run build:extension` 통과.
 
 
 

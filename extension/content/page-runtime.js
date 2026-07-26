@@ -328,7 +328,6 @@ function startReconcileLoop() {
 
 function onDomMutated() {
   if (!isSearchPage()) return;
-  globalThis.AltteuriOnboardingBanner?.ensureBannerVisible?.();
   if (listSizeUrlMismatch()) {
     try { A.listSize.setFromSettings(); } catch (e) {}
     return;

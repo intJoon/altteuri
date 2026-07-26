@@ -8,47 +8,48 @@ import { fileURLToPath } from "node:url";
 const repo = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
 const extension = resolve(repo, "extension");
 
-test("onboarding banner targets search-results heading, not full-page sticky bar", async () => {
+test("onboarding banner uses Coupang contents shell, not sticky full-viewport bar", async () => {
   const source = await readFile(resolve(extension, "content/onboarding-banner.js"), "utf8");
   assert.doesNotMatch(source, /position:\s*sticky/);
-  assert.match(source, /HEADING_RE.*검색/);
-  assert.match(source, /findMainResultsScope/);
-  assert.match(source, /MutationObserver/);
-  assert.match(source, /ensureBannerVisible/);
-  assert.doesNotMatch(source, /querySelectorAll\('\[class\*="title"\]'/);
+  assert.match(source, /#contents/);
+  assert.match(source, /alt-onboarding-inner/);
+  assert.match(source, /srp_filterArea/);
+  assert.match(source, /readLayoutMetrics/);
 });
 
-test("findSearchResultsHeading locates Coupang-style title in results column", async () => {
-  const heading = { textContent: "'사과'에 대한 검색결과", isConnected: true };
-  const scope = {
-    querySelectorAll(sel) {
-      return sel === "h1, h2, h3" ? [heading] : [];
-    },
-    contains() { return true; },
+test("readLayoutMetrics derives padding from filter column and product list", () => {
+  const contents = {
+    getBoundingClientRect: () => ({ left: 100, right: 1124, width: 1024 }),
   };
-  const list = {
-    closest() { return scope; },
-    parentElement: { parentElement: scope },
-  };
+  const filter = { getBoundingClientRect: () => ({ left: 116 }) };
+  const list = { getBoundingClientRect: () => ({ right: 1100 }) };
+
   const context = vm.createContext({
     document: {
       querySelector(sel) {
-        if (sel.includes("product-list")) return list;
+        if (sel === "#contents") return contents;
+        if (String(sel).includes("srp_filterArea")) return filter;
+        if (sel === "ul#product-list") return list;
         return null;
       },
-      querySelectorAll() { return []; },
+    },
+    getComputedStyle(el) {
+      if (el === contents) {
+        return { maxWidth: "1024px", paddingLeft: "0px", paddingRight: "0px" };
+      }
+      return {};
     },
     Altteuri: { core: { SELECTORS: { productList: "ul#product-list" } } },
   });
   context.globalThis = context;
 
-  const settings = await readFile(resolve(extension, "settings-defaults.js"), "utf8");
-  const runtime = await readFile(resolve(extension, "runtime-utils.js"), "utf8");
-  const banner = await readFile(resolve(extension, "content/onboarding-banner.js"), "utf8");
-  vm.runInContext(settings, context);
-  vm.runInContext(runtime, context);
-  vm.runInContext(banner, context);
+  const banner = readFile(resolve(extension, "content/onboarding-banner.js"), "utf8").then((source) => {
+    vm.runInContext(source, context);
+    const metrics = context.AltteuriOnboardingBanner.readLayoutMetrics();
+    assert.equal(metrics.padLeft, 16);
+    assert.equal(metrics.padRight, 24);
+    assert.equal(metrics.maxWidth, "1024px");
+  });
 
-  const found = context.AltteuriOnboardingBanner.findSearchResultsHeading();
-  assert.equal(found, heading);
+  return banner;
 });
