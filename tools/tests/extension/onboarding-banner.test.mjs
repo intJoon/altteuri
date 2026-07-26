@@ -11,22 +11,34 @@ const extension = resolve(repo, "extension");
 test("onboarding banner targets search-results heading, not full-page sticky bar", async () => {
   const source = await readFile(resolve(extension, "content/onboarding-banner.js"), "utf8");
   assert.doesNotMatch(source, /position:\s*sticky/);
-  assert.match(source, /에\s*대한\s*검색\s*결과/);
-  assert.match(source, /insertBefore/);
-  assert.match(source, /findSearchResultsHeading/);
+  assert.match(source, /HEADING_RE.*검색/);
+  assert.match(source, /findMainResultsScope/);
+  assert.match(source, /MutationObserver/);
+  assert.match(source, /ensureBannerVisible/);
+  assert.doesNotMatch(source, /querySelectorAll\('\[class\*="title"\]'/);
 });
 
-test("findSearchResultsHeading locates Coupang-style title", async () => {
+test("findSearchResultsHeading locates Coupang-style title in results column", async () => {
+  const heading = { textContent: "'사과'에 대한 검색결과", isConnected: true };
+  const scope = {
+    querySelectorAll(sel) {
+      return sel === "h1, h2, h3" ? [heading] : [];
+    },
+    contains() { return true; },
+  };
+  const list = {
+    closest() { return scope; },
+    parentElement: { parentElement: scope },
+  };
   const context = vm.createContext({
     document: {
-      querySelector() { return null; },
-      querySelectorAll(sel) {
-        if (sel.includes("h1")) {
-          return [{ textContent: "'사과'에 대한 검색결과" }];
-        }
-        return [];
+      querySelector(sel) {
+        if (sel.includes("product-list")) return list;
+        return null;
       },
+      querySelectorAll() { return []; },
     },
+    Altteuri: { core: { SELECTORS: { productList: "ul#product-list" } } },
   });
   context.globalThis = context;
 
@@ -37,6 +49,6 @@ test("findSearchResultsHeading locates Coupang-style title", async () => {
   vm.runInContext(runtime, context);
   vm.runInContext(banner, context);
 
-  const heading = context.AltteuriOnboardingBanner.findSearchResultsHeading();
-  assert.match(heading.textContent, /사과/);
+  const found = context.AltteuriOnboardingBanner.findSearchResultsHeading();
+  assert.equal(found, heading);
 });

@@ -3,8 +3,14 @@ const R = globalThis.AltteuriRuntime;
 const BANNER_ID = "alt-onboarding-banner";
 const STYLE_ID = "alt-onboarding-banner-styles";
 const HEADING_RE = /에\s*대한\s*검색\s*결과/;
-const MAX_MOUNT_RETRIES = 24;
-const MOUNT_RETRY_MS = 400;
+const MAX_MOUNT_RETRIES = 30;
+const MOUNT_RETRY_MS = 350;
+const ENSURE_DEBOUNCE_MS = 120;
+
+let shouldShowBanner = false;
+let domObserver = null;
+let ensureTimer = null;
+let retryTimer = null;
 
 function featureKeys() {
   return globalThis.AltteuriSettings?.FEATURE_TOGGLE_KEYS || [];
@@ -15,7 +21,9 @@ function isSearchPage() {
 }
 
 function anyFeatureEnabled(stored) {
-  return featureKeys().some((key) => !!stored[key]);
+  const keys = featureKeys();
+  if (!keys.length) return false;
+  return keys.some((key) => !!stored[key]);
 }
 
 function headingText(el) {
@@ -23,39 +31,48 @@ function headingText(el) {
 }
 
 function isSearchResultsHeading(el) {
-  return !!el && HEADING_RE.test(headingText(el));
+  return !!el && el.isConnected && HEADING_RE.test(headingText(el));
 }
 
-/** Prefer the main-column title (e.g. '사과'에 대한 검색결과). */
-function findSearchResultsHeading() {
-  const explicit = document.querySelector('[class*="searchResult"] h1, [class*="SearchResult"] h1, [class*="searchResult"] h2, [class*="SearchResult"] h2');
-  if (explicit && isSearchResultsHeading(explicit)) return explicit;
+function getProductList() {
+  const sel = globalThis.Altteuri?.core?.SELECTORS?.productList || "ul#product-list";
+  return document.querySelector(sel);
+}
 
-  for (const el of document.querySelectorAll("h1, h2, h3")) {
-    if (isSearchResultsHeading(el)) return el;
-  }
-
-  for (const el of document.querySelectorAll('[class*="headline"], [class*="Headline"], [class*="title"], [class*="Title"]')) {
-    if (isSearchResultsHeading(el)) return el;
-  }
-
-  const productListSel = globalThis.Altteuri?.core?.SELECTORS?.productList;
-  const list = productListSel ? document.querySelector(productListSel) : document.querySelector("ul#product-list");
+/** Main results column — never the left filter sidebar. */
+function findMainResultsScope() {
+  const list = getProductList();
   if (!list) return null;
+  return (
+    list.closest('[class*="srp_search"]') ||
+    list.closest('[class*="searchResult"]') ||
+    list.closest('[class*="SearchResult"]') ||
+    list.closest("main") ||
+    list.parentElement?.parentElement ||
+    list.parentElement
+  );
+}
 
-  let scope = list.parentElement;
-  for (let depth = 0; depth < 10 && scope; depth += 1) {
-    const local = scope.querySelector("h1, h2, h3");
-    if (local && isSearchResultsHeading(local)) return local;
-    scope = scope.parentElement;
+function findSearchResultsHeading() {
+  const scope = findMainResultsScope();
+  if (!scope) return null;
+  for (const el of scope.querySelectorAll("h1, h2, h3")) {
+    if (isSearchResultsHeading(el)) return el;
   }
   return null;
 }
 
 function findBannerAnchor() {
+  const list = getProductList();
   const heading = findSearchResultsHeading();
-  if (heading?.parentNode) return { parent: heading.parentNode, before: heading };
-  return null;
+  if (!list || !heading?.parentNode) return null;
+  const scope = findMainResultsScope();
+  if (scope && !scope.contains(heading)) return null;
+  return { parent: heading.parentNode, before: heading };
+}
+
+function isBannerPlaced(bar, anchor) {
+  return !!bar?.isConnected && bar.parentNode === anchor.parent && bar.nextElementSibling === anchor.before;
 }
 
 function ensureStyles() {
@@ -87,7 +104,22 @@ function ensureStyles() {
   document.head.appendChild(style);
 }
 
+function clearRetryTimer() {
+  if (retryTimer != null) {
+    clearTimeout(retryTimer);
+    retryTimer = null;
+  }
+}
+
+function clearEnsureTimer() {
+  if (ensureTimer != null) {
+    clearTimeout(ensureTimer);
+    ensureTimer = null;
+  }
+}
+
 function removeBanner() {
+  clearRetryTimer();
   document.getElementById(BANNER_ID)?.remove();
 }
 
@@ -103,6 +135,8 @@ function createBannerElement() {
     "</span>";
   bar.querySelector(".alt-onboard-dismiss").addEventListener("click", () => {
     R.localSet({ onboardingBannerDismissed: true });
+    stopDomWatch();
+    shouldShowBanner = false;
     removeBanner();
   });
   return bar;
@@ -110,42 +144,96 @@ function createBannerElement() {
 
 function placeBanner(bar, anchor) {
   if (!bar || !anchor?.parent || !anchor.before) return false;
-  if (bar.parentNode !== anchor.parent || bar.nextElementSibling !== anchor.before) {
+  if (!isBannerPlaced(bar, anchor)) {
     anchor.parent.insertBefore(bar, anchor.before);
   }
   return true;
 }
 
+function ensureBannerVisible() {
+  if (!shouldShowBanner || !isSearchPage()) return;
+
+  const anchor = findBannerAnchor();
+  if (!anchor) {
+    mountBanner(0);
+    return;
+  }
+
+  let bar = document.getElementById(BANNER_ID);
+  if (!bar || !bar.isConnected) bar = createBannerElement();
+  placeBanner(bar, anchor);
+}
+
+function scheduleEnsureBanner() {
+  if (!shouldShowBanner) return;
+  clearEnsureTimer();
+  ensureTimer = setTimeout(ensureBannerVisible, ENSURE_DEBOUNCE_MS);
+}
+
+function startDomWatch() {
+  if (domObserver) return;
+  domObserver = new MutationObserver(() => scheduleEnsureBanner());
+  domObserver.observe(document.documentElement, { childList: true, subtree: true });
+}
+
+function stopDomWatch() {
+  domObserver?.disconnect();
+  domObserver = null;
+  clearEnsureTimer();
+}
+
 function mountBanner(retryCount = 0) {
+  if (!shouldShowBanner || !isSearchPage()) return false;
+
   const anchor = findBannerAnchor();
   if (!anchor) {
     if (retryCount < MAX_MOUNT_RETRIES) {
-      setTimeout(() => mountBanner(retryCount + 1), MOUNT_RETRY_MS);
+      clearRetryTimer();
+      retryTimer = setTimeout(() => mountBanner(retryCount + 1), MOUNT_RETRY_MS);
     }
     return false;
   }
 
+  clearRetryTimer();
   let bar = document.getElementById(BANNER_ID);
-  if (!bar) bar = createBannerElement();
+  if (!bar || !bar.isConnected) bar = createBannerElement();
   return placeBanner(bar, anchor);
 }
 
 function evaluate() {
   if (!isSearchPage()) {
+    shouldShowBanner = false;
+    stopDomWatch();
     removeBanner();
     return;
   }
+
   R.localGet(["onboardingBannerDismissed"], (local) => {
     if (local.onboardingBannerDismissed) {
+      shouldShowBanner = false;
+      stopDomWatch();
       removeBanner();
       return;
     }
-    R.syncGet(featureKeys(), (stored) => {
+
+    const keys = featureKeys();
+    if (!keys.length) {
+      shouldShowBanner = true;
+      startDomWatch();
+      mountBanner(0);
+      return;
+    }
+
+    R.syncGet(keys, (stored) => {
       if (anyFeatureEnabled(stored || {})) {
+        shouldShowBanner = false;
+        stopDomWatch();
         removeBanner();
         return;
       }
-      mountBanner();
+      shouldShowBanner = true;
+      startDomWatch();
+      mountBanner(0);
     });
   });
 }
@@ -163,8 +251,10 @@ globalThis.AltteuriOnboardingBanner = Object.freeze({
   init,
   evaluate,
   remove: removeBanner,
+  ensureBannerVisible,
   findSearchResultsHeading,
   findBannerAnchor,
+  findMainResultsScope,
   HEADING_RE,
 });
 })();
