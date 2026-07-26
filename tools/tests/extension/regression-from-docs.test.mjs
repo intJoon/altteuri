@@ -88,11 +88,12 @@ test('R6: marketing site is feedback read-only', async () => {
 });
 
 test('R7: feedback page size is 5 and popup date has no time-of-day fields', async () => {
-  const popup = await readExt('popup.js');
-  assert.match(popup, /FEEDBACK_PAGE_SIZE\s*=\s*5/);
-  const formatStart = popup.indexOf('function formatFeedbackDate');
-  const formatEnd = popup.indexOf('\nfunction ', formatStart + 1);
-  const formatBody = popup.slice(formatStart, formatEnd === -1 ? undefined : formatEnd);
+  const siteConfig = await readExt('site-config.js');
+  const feedback = await readExt('popup-feedback.js');
+  assert.match(siteConfig, /FEEDBACK_PAGE_SIZE:\s*5/);
+  const formatStart = feedback.indexOf('function formatFeedbackDate');
+  const formatEnd = feedback.indexOf('\nfunction ', formatStart + 1);
+  const formatBody = feedback.slice(formatStart, formatEnd === -1 ? undefined : formatEnd);
   assert.doesNotMatch(formatBody, /getHours|getMinutes|hour|minute|toLocaleTimeString/);
 });
 

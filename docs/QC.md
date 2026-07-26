@@ -22,7 +22,11 @@
 
 ```bash
 
+npm ci --prefix web
+
 npm test
+
+npm run lint
 
 ```
 
@@ -32,7 +36,8 @@ npm test
 
 
 
-- 설치만 하면 기능이 전부 꺼져 있음
+- `:has()` 셀렉터를 쓰는 프리셋은 Chrome 105+가 필요하다(`manifest.json` `minimum_chrome_version`).
+- 쿠팡 DOM 셀렉터를 바꿀 때는 `extension/content/core.js`, `extension/preset-data.js`, [`출처.md`](출처.md), `tools/tests/extension/selector-smoke.test.mjs`를 함께 확인한다.
 
 - 「알뜰이 켜기/끄기」 같은 전역 스위치가 없음
 

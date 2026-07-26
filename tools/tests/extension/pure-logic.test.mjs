@@ -68,6 +68,16 @@ test('keyword matching is case-insensitive substring matching', () => {
   assert.equal(logic.matchesExcludedKeyword('', ['apple']), false);
 });
 
+test('keyword validation enforces length, duplicate, and count limits', () => {
+  assert.equal(logic.canAddExcludedKeyword([], '  ').ok, false);
+  assert.equal(logic.canAddExcludedKeyword([], 'a'.repeat(logic.MAX_KEYWORD_LENGTH + 1)).reason, 'invalid');
+  assert.equal(logic.canAddExcludedKeyword(['Mouse'], 'mouse').reason, 'duplicate');
+  const full = Array.from({ length: logic.MAX_EXCLUDED_KEYWORDS }, (_, i) => `kw${i}`);
+  assert.equal(logic.canAddExcludedKeyword(full, 'new').reason, 'limit');
+  assert.deepEqual(logic.canAddExcludedKeyword(full, 'new'), { ok: false, reason: 'limit' });
+  assert.equal(logic.canAddExcludedKeyword([], '  mouse  ').keyword, 'mouse');
+});
+
 test('stored search query normalization preserves current migration semantics', () => {
   assert.equal(logic.normalizeStoredSearchQuery(null), null);
   assert.equal(logic.normalizeStoredSearchQuery('사과'), '사과');

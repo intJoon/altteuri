@@ -21,7 +21,9 @@ A Chrome extension for sorting, filtering, and simplifying [Coupang](https://www
 Run the full test suite from the repository root:
 
 ```bash
+npm ci --prefix web
 npm test
+npm run lint
 ```
 
 Individual suites:
@@ -31,6 +33,8 @@ npm run test:extension
 npm run test:web
 npm run generate:legal
 ```
+
+See [`CONTRIBUTING.md`](CONTRIBUTING.md) for change checklists. The project is released under the [MIT License](LICENSE).
 
 After editing `docs/개인정보처리방침.md` or `docs/이용약관.md`, regenerate HTML and verify sync:
 
@@ -65,8 +69,9 @@ Deploy `web/` to Vercel. Required environment variables:
 | `DATABASE_URL` | Neon PostgreSQL connection string |
 | `RATE_LIMIT_SECRET` | Derives daily, non-reversible rate-limit identifiers for feedback POST |
 | `EXTENSION_IDS` | Optional comma-separated Chrome extension IDs allowed to POST feedback. Leave empty for unpacked/local installs; set in production |
+| `CRON_SECRET` | Optional bearer token for `/api/purge-comments` daily retention cleanup (defaults to `RATE_LIMIT_SECRET` when unset) |
 
-Without `DATABASE_URL`, feedback list/submit returns HTTP 503. Without `RATE_LIMIT_SECRET`, feedback POST returns HTTP 503 even when the database is configured.
+Without `DATABASE_URL`, feedback list/submit returns HTTP 503. Without `RATE_LIMIT_SECRET`, feedback POST returns HTTP 503 even when the database is configured. `/api/health` reports whether the database is configured.
 
 See [`web/README.md`](web/README.md) for deployment details.
 

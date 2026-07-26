@@ -5,17 +5,11 @@ import puppeteer from 'puppeteer-core';
 import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { IDLE_SCRIPTS, START_SCRIPTS, resolveChromeExecutable } from './chrome-path.mjs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const extensionPath = resolve(__dirname, '../../extension');
-const chromePath = 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe';
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-
-const IDLE_SCRIPTS = [
-  'preset-data.js', 'pure-logic.js', 'content/shared-start.js', 'content/core.js', 'content/keyword-filter.js',
-  'content/sort.js', 'content/list-size.js',
-  'content/element-remover.js', 'content/page-runtime.js', 'content/settings-bridge.js', 'content/boot.js'
-];
 
 const SETTINGS = {
   unitPriceSortEnabled: true,
@@ -29,7 +23,7 @@ const SETTINGS = {
 };
 
 function loadScripts() {
-  return IDLE_SCRIPTS.map((rel) => ({
+  return [...START_SCRIPTS, ...IDLE_SCRIPTS].map((rel) => ({
     source: readFileSync(resolve(extensionPath, rel), 'utf8')
   }));
 }
@@ -68,7 +62,7 @@ function chromeMock(settings) {
 async function run() {
   const scripts = loadScripts();
   const browser = await puppeteer.launch({
-    executablePath: chromePath,
+    executablePath: resolveChromeExecutable(),
     headless: false,
     defaultViewport: { width: 1280, height: 900 },
     args: ['--no-first-run', '--no-default-browser-check', '--lang=ko-KR']

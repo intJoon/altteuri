@@ -19,7 +19,9 @@ function bind() {
     }
 
     if (changes.forceCoupangListSize || changes.coupangListSize) {
-      try { globalThis.AltteuriShared.clearListSizeGoing(); } catch (e) {}
+      globalThis.AltteuriRuntime?.runSafe('settings.listSize', () => {
+        globalThis.AltteuriShared.clearListSizeGoing();
+      });
       A.listSize.setFromSettings();
     }
 

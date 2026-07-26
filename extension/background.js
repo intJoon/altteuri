@@ -1,4 +1,6 @@
-importScripts('settings-defaults.js', 'preset-data.js');
+importScripts('runtime-utils.js', 'settings-defaults.js', 'preset-data.js');
+
+const R = globalThis.AltteuriRuntime;
 
 const { SETTINGS_VERSION, DEFAULT_SETTINGS, FEATURE_TOGGLE_KEYS } = globalThis.AltteuriSettings;
 
@@ -19,11 +21,11 @@ function isAnyFeatureEnabled(stored) {
 }
 
 function updateActionIcon(stored) {
-  try {
+  R.runSafe('action.setIcon', () => {
     chrome.action.setIcon({
       path: isAnyFeatureEnabled(stored) ? ICON_ACTIVE : ICON_INACTIVE
     });
-  } catch (e) {}
+  });
 }
 
 function refreshActionIcon() {
@@ -71,7 +73,9 @@ function reloadCoupangTabs() {
 
 chrome.runtime.onInstalled.addListener(details => {
   if (details.reason === 'install') {
-    try { chrome.tabs.create({ url: chrome.runtime.getURL('legal.html') }); } catch (e) {}
+    R.runSafe('legal.open', () => {
+      chrome.tabs.create({ url: chrome.runtime.getURL('legal.html') });
+    });
   }
 
   chrome.storage.sync.get(null, stored => {

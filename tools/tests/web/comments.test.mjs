@@ -138,7 +138,7 @@ test("POST without DATABASE_URL returns 503", async () => {
 
 test("POST documents rate-limit guard when secret is missing", async () => {
   const { readFile } = await import("node:fs/promises");
-  const source = await readFile(resolve(repo, "web/api/comments.mjs"), "utf8");
+  const source = await readFile(resolve(repo, "web/lib/comments-service.mjs"), "utf8");
   assert.match(source, /dailyRateLimitIdentity/);
   assert.match(source, /if \(inserted === null\)/);
   assert.match(source, /rate_limit_unavailable/);

@@ -37,6 +37,26 @@
     return amount / baseAmount;
   }
 
+  const MAX_EXCLUDED_KEYWORDS = 50;
+  const MAX_KEYWORD_LENGTH = 50;
+
+  function normalizeExcludedKeyword(raw) {
+    const keyword = String(raw || '').trim();
+    if (!keyword || keyword.length > MAX_KEYWORD_LENGTH) return null;
+    return keyword;
+  }
+
+  function canAddExcludedKeyword(keywords, raw) {
+    const list = Array.isArray(keywords) ? keywords : [];
+    const keyword = normalizeExcludedKeyword(raw);
+    if (!keyword) return { ok: false, reason: 'invalid' };
+    if (list.some((entry) => String(entry).toLowerCase() === keyword.toLowerCase())) {
+      return { ok: false, reason: 'duplicate' };
+    }
+    if (list.length >= MAX_EXCLUDED_KEYWORDS) return { ok: false, reason: 'limit' };
+    return { ok: true, keyword };
+  }
+
   function matchesExcludedKeyword(productName, keywords) {
     if (!Array.isArray(keywords) || keywords.length === 0) return false;
     const normalizedName = String(productName || '').toLowerCase();
@@ -55,10 +75,14 @@
   }
 
   return {
+    MAX_EXCLUDED_KEYWORDS,
+    MAX_KEYWORD_LENGTH,
     compareNullableNumbers,
     compareDiscountRates,
     partitionAndSort,
     normalizedUnitPrice,
+    normalizeExcludedKeyword,
+    canAddExcludedKeyword,
     matchesExcludedKeyword,
     normalizeStoredSearchQuery
   };

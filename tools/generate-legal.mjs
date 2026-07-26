@@ -1,6 +1,7 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { siteUrl } from "../shared/site-config.mjs";
 
 const defaultRoot = join(dirname(fileURLToPath(import.meta.url)), "..");
 const isMain = process.argv[1] && resolve(process.argv[1]) === resolve(fileURLToPath(import.meta.url));
@@ -130,6 +131,10 @@ function markdownToHtml(markdown) {
 export function buildLegalHtml(root = defaultRoot) {
 const privacy = readFileSync(join(root, "docs", "개인정보처리방침.md"), "utf8");
 const terms = readFileSync(join(root, "docs", "이용약관.md"), "utf8");
+const legalUrl = siteUrl("/legal.html");
+const homeUrl = siteUrl("/");
+const ogImage = siteUrl("/og-image.png");
+const icon128 = siteUrl("/icon128.png");
 
 return `<!DOCTYPE html>
 <html lang="ko">
@@ -143,18 +148,18 @@ return `<!DOCTYPE html>
   <meta property="og:locale" content="ko_KR">
   <meta property="og:title" content="알뜰이 · 개인정보처리방침 및 이용약관">
   <meta property="og:description" content="알뜰이 쿠팡용 Chrome 확장의 개인정보처리방침과 이용약관">
-  <meta property="og:url" content="https://altteuri.vercel.app/legal.html">
-  <meta property="og:image" content="https://altteuri.vercel.app/og-image.png">
+  <meta property="og:url" content="${legalUrl}">
+  <meta property="og:image" content="${ogImage}">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:image:alt" content="파란 알뜰이 아이콘과 알뜰이, 쿠팡용 Chrome 확장 문구">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="알뜰이 · 개인정보처리방침 및 이용약관">
   <meta name="twitter:description" content="알뜰이 쿠팡용 Chrome 확장의 개인정보처리방침과 이용약관">
-  <meta name="twitter:image" content="https://altteuri.vercel.app/og-image.png">
+  <meta name="twitter:image" content="${ogImage}">
   <meta name="twitter:image:alt" content="파란 알뜰이 아이콘과 알뜰이, 쿠팡용 Chrome 확장 문구">
   <title>알뜰이 · 개인정보처리방침 및 이용약관</title>
-  <link rel="canonical" href="https://altteuri.vercel.app/legal.html">
+  <link rel="canonical" href="${legalUrl}">
   <link rel="icon" href="/favicon.ico" sizes="any">
   <link rel="icon" type="image/png" href="/favicon-32.png" sizes="32x32">
   <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -201,9 +206,9 @@ return `<!DOCTYPE html>
   <a class="skip-link" href="#main-content">본문으로 건너뛰기</a>
   <div class="wrap">
     <header class="hero">
-      <div class="brand"><img src="https://altteuri.vercel.app/icon128.png" alt="알뜰이 아이콘" width="44" height="44"><h1>알뜰이 법적 고지</h1></div>
+      <div class="brand"><img src="${icon128}" alt="알뜰이 아이콘" width="44" height="44"><h1>알뜰이 법적 고지</h1></div>
       <p>알뜰이의 개인정보처리방침과 이용약관입니다.</p>
-      <nav aria-label="법적 고지 탐색"><a href="https://altteuri.vercel.app/">소개 페이지</a><a href="#privacy">개인정보처리방침</a><a href="#terms">이용약관</a></nav>
+      <nav aria-label="법적 고지 탐색"><a href="${homeUrl}">소개 페이지</a><a href="#privacy">개인정보처리방침</a><a href="#terms">이용약관</a></nav>
     </header>
     <main id="main-content" tabindex="-1">
       <section class="card" id="privacy">${markdownToHtml(privacy)}</section>

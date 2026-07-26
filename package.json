@@ -1,10 +1,19 @@
 {
   "name": "altteuri",
   "private": true,
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "test": "node --test tools/tests/**/*.test.mjs",
     "test:extension": "node --test tools/tests/extension/*.mjs",
     "test:web": "node --test tools/tests/web/*.test.mjs",
-    "generate:legal": "node tools/generate-legal.mjs"
+    "generate:legal": "node tools/generate-legal.mjs",
+    "lint": "eslint extension web/api web/lib tools --max-warnings=0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.1",
+    "eslint": "^9.39.1",
+    "globals": "^16.5.0"
   }
 }

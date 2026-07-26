@@ -1,5 +1,11 @@
 {
   "outputDirectory": "public",
+  "crons": [
+    {
+      "path": "/api/purge-comments",
+      "schedule": "0 3 * * *"
+    }
+  ],
   "headers": [
     {
       "source": "/(.*)",

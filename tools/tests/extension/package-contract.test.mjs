@@ -10,9 +10,10 @@ const repo = resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
 const extension = resolve(repo, 'extension');
 const manifest = JSON.parse(await readFile(resolve(extension, 'manifest.json'), 'utf8'));
 
-const expectedEarlyOrder = ['preset-data.js', 'content/shared-start.js', 'content/early.js'];
+const expectedEarlyOrder = ['preset-data.js', 'runtime-utils.js', 'content/shared-start.js', 'content/early.js'];
 const expectedIdleOrder = [
   'pure-logic.js',
+  'runtime-utils.js',
   'content/shared-start.js',
   'content/core.js',
   'content/keyword-filter.js',
@@ -52,10 +53,12 @@ test('all manifest package references exist', () => {
   });
 });
 
-test('popup loads local CSS and shared settings before popup code', async () => {
+test('popup loads shared modules before popup entrypoint', async () => {
   const html = await readFile(resolve(extension, 'popup.html'), 'utf8');
   assert.match(html, /href="popup\.css"/);
   assert.ok(html.indexOf('settings-defaults.js') < html.indexOf('popup.js'));
+  assert.ok(html.indexOf('runtime-utils.js') < html.indexOf('popup.js'));
+  assert.ok(html.indexOf('popup-nav.js') < html.indexOf('popup.js'));
   assert.doesNotMatch(html, /<style(?:\s|>)/);
   const localAssets = [
     ...html.matchAll(/<script[^>]+src="([^"]+)"/g),
@@ -64,6 +67,13 @@ test('popup loads local CSS and shared settings before popup code', async () => 
   localAssets.forEach(reference => {
     assert.equal(existsSync(resolve(extension, reference)), true, `missing popup asset ${reference}`);
   });
+});
+
+test('manifest homepage_url matches shared site config', async () => {
+  const { SITE_ORIGIN } = await import('../../../shared/site-config.mjs');
+  assert.equal(manifest.homepage_url.replace(/\/$/, ''), SITE_ORIGIN);
+  assert.equal(manifest.minimum_chrome_version, '105');
+  assert.equal(manifest.action.default_icon['128'], 'icon128.png');
 });
 
 test('manifest permissions exclude scripting', () => {

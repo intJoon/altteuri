@@ -1,16 +1,16 @@
 {
   "name": "alt-inspect",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Local Coupang DOM inspection scripts for Altteuri",
   "scripts": {
-    "test": "node --check ext-boot-timing.mjs ext-samepage.mjs ext-scenarios.mjs final.mjs split.mjs verify5.mjs"
+    "test": "node --check ext-boot-timing.mjs ext-samepage.mjs ext-scenarios.mjs final.mjs split.mjs verify5.mjs chrome-path.mjs"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "dependencies": {
-    "chrome-remote-interface": "^0.34.0"
+    "chrome-remote-interface": "^0.34.0",
+    "puppeteer-core": "^24.36.1"
   }
 }

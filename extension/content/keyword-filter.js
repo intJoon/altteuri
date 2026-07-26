@@ -227,14 +227,23 @@ function loadExcludedKeywords() {
   }
 }
 
-function saveExcludedKeywords() {
+function saveExcludedKeywords(callback) {
   if (!window.chrome || !chrome.storage || !chrome.runtime || !chrome.runtime.id) return;
-  try {
+  const R = globalThis.AltteuriRuntime;
+  const persist = () => {
     chrome.storage.sync.set({
       excludedKeywords: excludedKeywords,
       excludedKeywordsForQuery: getSearchQueryKey() ?? ''
+    }, () => {
+      const err = chrome.runtime.lastError;
+      if (R && err) R.logWarn('keyword.save', err);
+      if (typeof callback === 'function') callback(err || null);
     });
-  } catch (e) {}
+  };
+  if (R) R.runSafe('keyword.save', persist);
+  else {
+    try { persist(); } catch (e) {}
+  }
 }
 
 function applyKeywordFilter() {
@@ -301,19 +310,31 @@ function createKeywordFilterUI() {
   tagsBlock.appendChild(tagsRow);
 
   const addKeyword = () => {
-    const keyword = input.value.trim();
-    if (!keyword) return;
-    if (excludedKeywords.includes(keyword)) {
-      input.placeholder = '이미 추가된 키워드입니다';
+    const result = A.pure.canAddExcludedKeyword(excludedKeywords, input.value);
+    if (!result.ok) {
+      if (result.reason === 'duplicate') {
+        input.placeholder = '이미 추가된 키워드입니다';
+      } else if (result.reason === 'limit') {
+        input.placeholder = `키워드는 최대 ${A.pure.MAX_EXCLUDED_KEYWORDS}개까지 추가할 수 있습니다`;
+      } else {
+        input.placeholder = `키워드는 ${A.pure.MAX_KEYWORD_LENGTH}자 이하로 입력하세요`;
+      }
       input.value = '';
       setTimeout(() => { input.placeholder = '제외할 키워드 입력'; }, 2000);
       return;
     }
-    excludedKeywords.push(keyword);
-    saveExcludedKeywords();
-    renderKeywordFilterTags();
-    applyProductVisibility();
-    setTimeout(reapplySortIfNeeded, 0);
+    excludedKeywords.push(result.keyword);
+    saveExcludedKeywords((err) => {
+      if (err) {
+        excludedKeywords = excludedKeywords.filter((k) => k !== result.keyword);
+        input.placeholder = '저장 공간이 부족합니다. 키워드를 줄여 주세요';
+        setTimeout(() => { input.placeholder = '제외할 키워드 입력'; }, 2500);
+        return;
+      }
+      renderKeywordFilterTags();
+      applyProductVisibility();
+      setTimeout(reapplySortIfNeeded, 0);
+    });
     input.value = '';
   };
 

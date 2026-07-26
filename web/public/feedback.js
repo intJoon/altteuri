@@ -1,4 +1,5 @@
 const API = "/api/comments";
+/** Keep in sync with shared/site-config.mjs FEEDBACK_PAGE_SIZE */
 const PAGE_SIZE = 5;
 
 const feed = document.querySelector(".feedback-feed");
