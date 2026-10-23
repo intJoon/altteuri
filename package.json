@@ -23,7 +23,7 @@
     "lint": "eslint apps/extension apps/web/api apps/web/lib apps/web/public tools --max-warnings=0"
   },
   "devDependencies": {
-    "@eslint/js": "^9.39.1",
+    "@eslint/js": "^10.0.1",
     "eslint": "^9.39.1",
     "globals": "^16.5.0"
   }
